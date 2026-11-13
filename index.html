@@ -12,6 +12,8 @@
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&family=Manrope:wght@400;500;600;700&display=swap" rel="stylesheet">
     <!-- Lucide Icons -->
     <script src="https://unpkg.com/lucide@latest"></script>
+    <!-- Supabase JS Client -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script>
         tailwind.config = {
             theme: {
@@ -62,7 +64,7 @@
     </div>
 
     <!-- Navigation Bar -->
-    <header class="sticky top-0 z-40 bg-[#F5F4F0]/90 backdrop-blur-md border-b border-[#D8D5CE]">
+    <header id="main-header" class="sticky top-0 z-40 bg-[#F5F4F0]/90 backdrop-blur-md border-b border-[#D8D5CE]">
         <div class="max-w-7xl mx-auto px-6 h-20 flex items-center justify-between">
             <!-- Mobile Menu Button -->
             <button onclick="toggleMobileMenu()" class="md:hidden p-2 text-[#171717] hover:text-[#8A8984] transition-colors">
@@ -90,6 +92,9 @@
                 <a href="https://www.instagram.com/aver.arno/" target="_blank" rel="noopener noreferrer" class="hidden sm:inline-flex p-2 text-[#171717] hover:text-[#8A8984] transition-colors" title="Instagram">
                     <i data-lucide="instagram" class="w-5 h-5"></i>
                 </a>
+                <button onclick="router('admin')" class="p-2 text-[#171717] hover:text-[#8A8984] transition-colors" title="Admin CMS">
+                    <i data-lucide="shield-check" class="w-5 h-5"></i>
+                </button>
             </div>
         </div>
 
@@ -99,6 +104,7 @@
             <a href="#" onclick="router('shop'); toggleMobileMenu(); return false;" class="block text-lg font-medium text-[#171717] py-2 border-b border-[#D8D5CE]/40">Shop Catalog</a>
             <a href="#" onclick="router('about'); toggleMobileMenu(); return false;" class="block text-lg font-medium text-[#171717] py-2 border-b border-[#D8D5CE]/40">About</a>
             <a href="#" onclick="router('contact'); toggleMobileMenu(); return false;" class="block text-lg font-medium text-[#171717] py-2 border-b border-[#D8D5CE]/40">Contact & FAQ</a>
+            <a href="#" onclick="router('admin'); toggleMobileMenu(); return false;" class="block text-lg font-medium text-[#171717] py-2 border-b border-[#D8D5CE]/40">Admin Dashboard</a>
             <div class="pt-2 flex space-x-4">
                 <a href="https://www.instagram.com/aver.arno/" target="_blank" rel="noopener noreferrer" class="text-sm text-[#8A8984] hover:text-[#171717]">Instagram @aver.arno</a>
             </div>
@@ -110,22 +116,36 @@
         <!-- Rendered dynamically by JavaScript router -->
     </main>
 
+    <!-- Custom Confirmation Modal (No browser confirm/alert) -->
+    <div id="confirm-modal" class="hidden fixed inset-0 z-50 bg-[#171717]/60 backdrop-blur-xs flex items-center justify-center p-4">
+        <div class="bg-[#F5F4F0] border border-[#D8D5CE] max-w-md w-full p-8 space-y-6 shadow-2xl">
+            <h3 id="confirm-title" class="font-heading text-xl font-semibold text-[#171717]">Confirm Action</h3>
+            <p id="confirm-message" class="text-sm text-[#8A8984] leading-relaxed">Are you sure you want to proceed?</p>
+            <div class="flex justify-end space-x-3 pt-2">
+                <button onclick="closeConfirmModal()" class="border border-[#D8D5CE] bg-white text-[#171717] px-5 py-2.5 text-xs uppercase tracking-widest hover:border-[#171717] transition-colors">Cancel</button>
+                <button id="confirm-yes-btn" class="bg-[#171717] text-[#F5F4F0] px-5 py-2.5 text-xs uppercase tracking-widest hover:bg-red-700 transition-colors">Confirm</button>
+            </div>
+        </div>
+    </div>
+
     <!-- Footer -->
-    <footer class="bg-[#171717] text-[#F5F4F0] pt-16 pb-12 border-t border-[#D8D5CE]/20">
-        <div class="max-w-7xl mx-auto px-6 grid grid-cols-1 md:grid-cols-4 gap-12 mb-16">
-            <div class="space-y-4 md:col-span-1">
-                <h3 class="font-heading text-xl font-bold tracking-[0.2em] uppercase">Averarno</h3>
+    <footer id="main-footer" class="bg-[#171717] text-[#F5F4F0] pt-16 pb-12 border-t border-[#D8D5CE]/20">
+        <div class="max-w-7xl mx-auto px-6 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-12 mb-12">
+            <div class="space-y-4">
+                <a href="#" onclick="router('home'); return false;" class="font-heading text-xl font-bold tracking-[0.2em] uppercase text-[#F5F4F0] block">
+                    Averarno
+                </a>
                 <p class="text-xs text-[#8A8984] leading-relaxed">
-                    Discover your signature scent through curated niche fragrance decants. Affordable luxury for the discerning connoisseur.
+                    Discover your signature scent through curated, authentic niche fragrance decants in sterilized glass atomizers.
                 </p>
             </div>
             <div>
-                <h4 class="text-xs font-semibold uppercase tracking-widest text-[#8A8984] mb-4">Navigation</h4>
-                <ul class="space-y-2 text-sm">
+                <h4 class="text-xs font-semibold uppercase tracking-widest text-[#8A8984] mb-4">Explore</h4>
+                <ul class="space-y-3 text-sm">
                     <li><a href="#" onclick="router('home'); return false;" class="hover:text-stone transition-colors">Home</a></li>
                     <li><a href="#" onclick="router('shop'); return false;" class="hover:text-stone transition-colors">Shop Catalog</a></li>
-                    <li><a href="#" onclick="router('about'); return false;" class="hover:text-stone transition-colors">Brand Philosophy</a></li>
-                    <li><a href="#" onclick="router('contact'); return false;" class="hover:text-stone transition-colors">Ordering & FAQ</a></li>
+                    <li><a href="#" onclick="router('about'); return false;" class="hover:text-stone transition-colors">About Us</a></li>
+                    <li><a href="#" onclick="router('contact'); return false;" class="hover:text-stone transition-colors">Contact & FAQ</a></li>
                 </ul>
             </div>
             <div>
@@ -141,6 +161,12 @@
                         <a href="https://wa.me/6281249843385" target="_blank" rel="noopener noreferrer" class="hover:text-stone transition-colors inline-flex items-center gap-2.5">
                             <i data-lucide="message-circle" class="w-4 h-4 shrink-0"></i>
                             <span>WhatsApp Concierge</span>
+                        </a>
+                    </li>
+                    <li>
+                        <a href="#" onclick="router('admin'); return false;" class="hover:text-stone transition-colors inline-flex items-center gap-2.5 text-[#8A8984]">
+                            <i data-lucide="lock" class="w-4 h-4 shrink-0"></i>
+                            <span>Admin Portal</span>
                         </a>
                     </li>
                 </ul>
@@ -162,11 +188,27 @@
 
     <!-- Application JavaScript Logic -->
     <script>
-        // Configurable WhatsApp Number
-        const WHATSAPP_PHONE = "6281249843385";
+        // =========================================================================
+        // 1. SUPABASE & SYSTEM CONFIGURATION
+        // =========================================================================
+        // Replace with your actual Supabase Project URL & Anon Key (Public key only, NEVER service_role)
+        let SUPABASE_URL = window.ENV_SUPABASE_URL || "";
+        let SUPABASE_ANON_KEY = window.ENV_SUPABASE_ANON_KEY || "";
+        let WHATSAPP_PHONE = "6281249843385";
+        let supabaseClient = null;
 
-        // Product Database
-        const products = [
+        function initSupabase() {
+            if (SUPABASE_URL && SUPABASE_ANON_KEY && window.supabase) {
+                try {
+                    supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+                } catch (e) {
+                    console.error("Supabase init error:", e);
+                }
+            }
+        }
+
+        // Fallback Seed Data (Used when Supabase credentials are not yet configured)
+        const defaultSeedProducts = [
             {
                 id: "1",
                 slug: "santal-33",
@@ -184,10 +226,14 @@
                 fragrance_category: "Woody Aromatic",
                 sizes: ["2 ml", "5 ml", "10 ml"],
                 prices: { "2 ml": 75000, "5 ml": 165000, "10 ml": 310000 },
+                size_availability: { "2 ml": true, "5 ml": true, "10 ml": true },
                 stock_status: "In Stock",
+                status: "published",
                 featured: true,
                 bestseller: true,
-                created_at: "2026-01-15"
+                new_arrival: false,
+                created_at: "2026-01-15T10:00:00Z",
+                updated_at: "2026-01-15T10:00:00Z"
             },
             {
                 id: "2",
@@ -206,10 +252,14 @@
                 fragrance_category: "Amber Floral",
                 sizes: ["2 ml", "5 ml", "10 ml"],
                 prices: { "2 ml": 95000, "5 ml": 210000, "10 ml": 395000 },
+                size_availability: { "2 ml": true, "5 ml": true, "10 ml": true },
                 stock_status: "In Stock",
+                status: "published",
                 featured: true,
                 bestseller: true,
-                created_at: "2026-01-10"
+                new_arrival: false,
+                created_at: "2026-01-10T10:00:00Z",
+                updated_at: "2026-01-10T10:00:00Z"
             },
             {
                 id: "3",
@@ -228,10 +278,13 @@
                 fragrance_category: "Woody Aromatic",
                 sizes: ["2 ml", "5 ml", "10 ml"],
                 prices: { "2 ml": 70000, "5 ml": 155000, "10 ml": 290000 },
+                size_availability: { "2 ml": true, "5 ml": true, "10 ml": true },
                 stock_status: "In Stock",
                 featured: true,
                 bestseller: false,
-                created_at: "2026-02-01"
+                new_arrival: true,
+                created_at: "2026-02-01T10:00:00Z",
+                updated_at: "2026-02-01T10:00:00Z"
             },
             {
                 id: "4",
@@ -250,10 +303,13 @@
                 fragrance_category: "Amber Vanilla",
                 sizes: ["2 ml", "5 ml", "10 ml"],
                 prices: { "2 ml": 85000, "5 ml": 190000, "10 ml": 360000 },
+                size_availability: { "2 ml": true, "5 ml": true, "10 ml": true },
                 stock_status: "In Stock",
                 featured: true,
                 bestseller: true,
-                created_at: "2026-01-20"
+                new_arrival: false,
+                created_at: "2026-01-20T10:00:00Z",
+                updated_at: "2026-01-20T10:00:00Z"
             },
             {
                 id: "5",
@@ -272,10 +328,13 @@
                 fragrance_category: "Citrus Aromatic",
                 sizes: ["2 ml", "5 ml", "10 ml"],
                 prices: { "2 ml": 90000, "5 ml": 200000, "10 ml": 380000 },
+                size_availability: { "2 ml": true, "5 ml": true, "10 ml": true },
                 stock_status: "In Stock",
                 featured: false,
                 bestseller: true,
-                created_at: "2026-02-10"
+                new_arrival: false,
+                created_at: "2026-02-10T10:00:00Z",
+                updated_at: "2026-02-10T10:00:00Z"
             },
             {
                 id: "6",
@@ -294,10 +353,13 @@
                 fragrance_category: "Woody Musk",
                 sizes: ["2 ml", "5 ml", "10 ml"],
                 prices: { "2 ml": 75000, "5 ml": 165000, "10 ml": 310000 },
+                size_availability: { "2 ml": true, "5 ml": true, "10 ml": true },
                 stock_status: "In Stock",
                 featured: false,
                 bestseller: false,
-                created_at: "2026-02-15"
+                new_arrival: true,
+                created_at: "2026-02-15T10:00:00Z",
+                updated_at: "2026-02-15T10:00:00Z"
             },
             {
                 id: "7",
@@ -316,10 +378,13 @@
                 fragrance_category: "Amber Floral",
                 sizes: ["2 ml", "5 ml", "10 ml"],
                 prices: { "2 ml": 80000, "5 ml": 180000, "10 ml": 340000 },
+                size_availability: { "2 ml": true, "5 ml": true, "10 ml": true },
                 stock_status: "In Stock",
                 featured: true,
                 bestseller: false,
-                created_at: "2026-01-28"
+                new_arrival: false,
+                created_at: "2026-01-28T10:00:00Z",
+                updated_at: "2026-01-28T10:00:00Z"
             },
             {
                 id: "8",
@@ -338,31 +403,252 @@
                 fragrance_category: "Woody Warm",
                 sizes: ["2 ml", "5 ml", "10 ml"],
                 prices: { "2 ml": 65000, "5 ml": 145000, "10 ml": 275000 },
+                size_availability: { "2 ml": true, "5 ml": true, "10 ml": true },
                 stock_status: "In Stock",
                 featured: false,
                 bestseller: true,
-                created_at: "2026-02-05"
+                new_arrival: false,
+                created_at: "2026-02-05T10:00:00Z",
+                updated_at: "2026-02-05T10:00:00Z"
             }
         ];
 
-        // State Management
+        // =========================================================================
+        // 2. APPLICATION STATE & DATA LAYER
+        // =========================================================================
+        let products = [...defaultSeedProducts];
+        let categoriesList = ["Woody Aromatic", "Amber Floral", "Amber Vanilla", "Citrus Aromatic", "Woody Musk", "Woody Warm"];
+        let brandsList = ["Le Labo", "Maison Francis Kurkdjian", "Byredo", "Tom Ford", "Creed", "Parfums de Marly", "Maison Margiela"];
+
         let currentRoute = 'home';
-        let currentParam = null; // for product slug
+        let currentParam = null;
+        let isLoadingData = false;
+
+        // Public Shop Filters
         let shopFilters = {
             search: '',
             brand: 'All',
             category: 'All',
             sort: 'newest'
         };
-        let selectedProductSize = '5 ml'; // default size for product view
+        let selectedProductSize = '5 ml';
 
-        // Router Implementation
+        // Admin CMS State
+        let adminState = {
+            user: null,
+            isAdminAuthorized: false,
+            subRoute: 'overview', // overview | products | add-product | edit-product | categories | brands | settings
+            editingProductId: null,
+            searchQuery: '',
+            filterBrand: 'All',
+            filterStatus: 'All',
+            currentPage: 1,
+            itemsPerPage: 8,
+            isSubmitting: false,
+            formDraft: null
+        };
+
+        // =========================================================================
+        // 3. SUPABASE DATA SYNC & AUTHENTICATION
+        // =========================================================================
+        async function fetchAllData() {
+            if (!supabaseClient) {
+                syncTaxonomyLists();
+                return;
+            }
+            isLoadingData = true;
+            try {
+                // Fetch products from Supabase PostgreSQL
+                // Public visitors only get 'published' products via RLS, authenticated admin gets all
+                const { data: prodData, error: prodError } = await supabaseClient
+                    .from('products')
+                    .select('*')
+                    .order('created_at', { ascending: false });
+
+                if (prodError) throw prodError;
+                if (prodData && prodData.length > 0) {
+                    products = prodData;
+                }
+
+                // Fetch categories if table exists
+                const { data: catData } = await supabaseClient.from('categories').select('name');
+                if (catData && catData.length > 0) {
+                    categoriesList = [...new Set([...categoriesList, ...catData.map(c => c.name)])];
+                }
+
+                // Fetch brands if table exists
+                const { data: brandData } = await supabaseClient.from('brands').select('name');
+                if (brandData && brandData.length > 0) {
+                    brandsList = [...new Set([...brandsList, ...brandData.map(b => b.name)])];
+                }
+
+                syncTaxonomyLists();
+            } catch (err) {
+                console.warn("Supabase fetch notice (using local fallback if tables not created yet):", err.message);
+            } finally {
+                isLoadingData = false;
+                render();
+            }
+        }
+
+        function syncTaxonomyLists() {
+            products.forEach(p => {
+                if (p.brand && !brandsList.includes(p.brand)) brandsList.push(p.brand);
+                if (p.fragrance_category && !categoriesList.includes(p.fragrance_category)) categoriesList.push(p.fragrance_category);
+            });
+        }
+
+        async function checkAdminSession() {
+            if (!supabaseClient) return;
+            const { data: { session } } = await supabaseClient.auth.getSession();
+            if (session && session.user) {
+                await verifyAdminAuthorization(session.user);
+            }
+        }
+
+        async function verifyAdminAuthorization(user) {
+            if (!supabaseClient) return;
+            try {
+                // Check admin_users table for strict role-based authorization
+                const { data: adminRecord, error } = await supabaseClient
+                    .from('admin_users')
+                    .select('id, role')
+                    .eq('user_id', user.id)
+                    .single();
+
+                if (error && error.code !== 'PGRST116') {
+                    // If admin_users table doesn't exist yet, allow authenticated user as fallback until RLS table is created
+                    adminState.user = user;
+                    adminState.isAdminAuthorized = true;
+                } else if (adminRecord) {
+                    adminState.user = user;
+                    adminState.isAdminAuthorized = true;
+                } else {
+                    await supabaseClient.auth.signOut();
+                    adminState.user = null;
+                    adminState.isAdminAuthorized = false;
+                    showToast("Access Denied: Account is not registered as an administrator.");
+                }
+            } catch (e) {
+                adminState.user = user;
+                adminState.isAdminAuthorized = true;
+            }
+        }
+
+        async function handleAdminLogin(e) {
+            e.preventDefault();
+            const email = document.getElementById('admin-email').value.trim();
+            const password = document.getElementById('admin-password').value;
+
+            if (!supabaseClient) {
+                showToast("Please configure your Supabase URL & Anon Key in Settings first.");
+                return;
+            }
+
+            adminState.isSubmitting = true;
+            render();
+
+            try {
+                const { data, error } = await supabaseClient.auth.signInWithPassword({
+                    email,
+                    password
+                });
+
+                if (error) throw error;
+                await verifyAdminAuthorization(data.user);
+                if (adminState.isAdminAuthorized) {
+                    showToast("Welcome back to Averarno CMS.");
+                    await fetchAllData();
+                }
+            } catch (err) {
+                showToast(err.message || "Authentication failed. Please verify credentials.");
+            } finally {
+                adminState.isSubmitting = false;
+                render();
+            }
+        }
+
+        async function handleAdminLogout() {
+            if (supabaseClient) {
+                await supabaseClient.auth.signOut();
+            }
+            adminState.user = null;
+            adminState.isAdminAuthorized = false;
+            adminState.subRoute = 'overview';
+            showToast("Logged out securely.");
+            router('home');
+        }
+
+        // =========================================================================
+        // 4. ROUTING & UI UTILITIES
+        // =========================================================================
         function router(route, param = null) {
             currentRoute = route;
             currentParam = param;
+            try {
+                if (window.location.protocol.startsWith('http')) {
+                    if (route === 'admin') {
+                        window.history.pushState({}, '', '/admin');
+                    } else if (route === 'shop') {
+                        window.history.pushState({}, '', '/shop');
+                    } else if (route === 'product' && param) {
+                        window.history.pushState({}, '', `/shop/${param}`);
+                    } else if (route === 'home') {
+                        window.history.pushState({}, '', '/');
+                    }
+                }
+            } catch (e) {
+                // Ignore cross-origin or blob navigation security restrictions silently
+            }
             window.scrollTo({ top: 0, behavior: 'smooth' });
             render();
-            lucide.createIcons();
+        }
+
+        function setAdminRoute(subRoute, productId = null) {
+            adminState.subRoute = subRoute;
+            adminState.editingProductId = productId;
+
+            if (subRoute === 'add-product') {
+                adminState.formDraft = createEmptyProductForm();
+            } else if (subRoute === 'edit-product' && productId) {
+                const existing = products.find(p => String(p.id) === String(productId));
+                if (existing) {
+                    adminState.formDraft = JSON.parse(JSON.stringify(existing));
+                    // Ensure size_rows array exists for dynamic editor
+                    adminState.formDraft.size_rows = (existing.sizes || ["2 ml", "5 ml", "10 ml"]).map(sz => ({
+                        size: sz,
+                        price: existing.prices?.[sz] || 0,
+                        available: existing.size_availability?.[sz] !== false
+                    }));
+                }
+            }
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+            render();
+        }
+
+        function createEmptyProductForm() {
+            return {
+                name: "",
+                brand: brandsList[0] || "",
+                slug: "",
+                description: "",
+                concentration: "Eau de Parfum",
+                fragrance_category: categoriesList[0] || "",
+                images: [],
+                top_notes: [],
+                middle_notes: [],
+                base_notes: [],
+                size_rows: [
+                    { size: "2 ml", price: 0, available: true },
+                    { size: "5 ml", price: 0, available: true },
+                    { size: "10 ml", price: 0, available: true }
+                ],
+                stock_status: "In Stock",
+                status: "draft",
+                featured: false,
+                bestseller: false,
+                new_arrival: true
+            };
         }
 
         function toggleMobileMenu() {
@@ -378,36 +664,88 @@
             setTimeout(() => {
                 toast.classList.remove('opacity-100', 'translate-y-0');
                 toast.classList.add('opacity-0', 'translate-y-20');
-            }, 3000);
+            }, 3500);
         }
 
-        // Format Currency IDR
+        let pendingConfirmCallback = null;
+        function openConfirmModal(title, message, onConfirm) {
+            document.getElementById('confirm-title').innerText = title;
+            document.getElementById('confirm-message').innerText = message;
+            pendingConfirmCallback = onConfirm;
+            document.getElementById('confirm-modal').classList.remove('hidden');
+            document.getElementById('confirm-yes-btn').onclick = async () => {
+                closeConfirmModal();
+                if (pendingConfirmCallback) await pendingConfirmCallback();
+            };
+        }
+
+        function closeConfirmModal() {
+            document.getElementById('confirm-modal').classList.add('hidden');
+            pendingConfirmCallback = null;
+        }
+
         function formatIDR(amount) {
-            return "Rp " + amount.toLocaleString('id-ID');
+            return "Rp " + Number(amount || 0).toLocaleString('id-ID');
         }
 
-        // Main Render Function
+        function formatDate(dateStr) {
+            if (!dateStr) return "-";
+            const d = new Date(dateStr);
+            return d.toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' });
+        }
+
+        function slugify(text) {
+            return text.toString().toLowerCase().trim()
+                .replace(/\s+/g, '-')
+                .replace(/[^\w\-]+/g, '')
+                .replace(/\-\-+/g, '-');
+        }
+
+        // Main Render Dispatcher
         function render() {
             const app = document.getElementById('app');
-            if (currentRoute === 'home') {
-                app.innerHTML = renderHome();
-            } else if (currentRoute === 'shop') {
-                app.innerHTML = renderShop();
-            } else if (currentRoute === 'product') {
-                app.innerHTML = renderProductDetail(currentParam);
-            } else if (currentRoute === 'about') {
-                app.innerHTML = renderAbout();
-            } else if (currentRoute === 'contact') {
-                app.innerHTML = renderContact();
+            const header = document.getElementById('main-header');
+            const footer = document.getElementById('main-footer');
+
+            if (currentRoute === 'admin') {
+                // Hide public chrome when inside authenticated admin dashboard
+                if (adminState.isAdminAuthorized) {
+                    header.classList.add('hidden');
+                    footer.classList.add('hidden');
+                } else {
+                    header.classList.remove('hidden');
+                    footer.classList.remove('hidden');
+                }
+                app.innerHTML = renderAdminPortal();
+            } else {
+                header.classList.remove('hidden');
+                footer.classList.remove('hidden');
+                if (currentRoute === 'home') {
+                    app.innerHTML = renderHome();
+                } else if (currentRoute === 'shop') {
+                    app.innerHTML = renderShop();
+                } else if (currentRoute === 'product') {
+                    app.innerHTML = renderProductDetail(currentParam);
+                } else if (currentRoute === 'about') {
+                    app.innerHTML = renderAbout();
+                } else if (currentRoute === 'contact') {
+                    app.innerHTML = renderContact();
+                }
             }
             lucide.createIcons();
         }
 
-        // --- VIEWS ---
+        // =========================================================================
+        // 5. PUBLIC WEBSITE VIEWS (Automatically synchronized with published items)
+        // =========================================================================
+        function getPublishedProducts() {
+            return products.filter(p => (p.status || 'published') === 'published');
+        }
 
         function renderHome() {
-            const featuredProducts = products.filter(p => p.featured).slice(0, 4);
-            const bestsellerProducts = products.filter(p => p.bestseller).slice(0, 4);
+            const published = getPublishedProducts();
+            const featuredProducts = published.filter(p => p.featured).slice(0, 4);
+            const bestsellerProducts = published.filter(p => p.bestseller).slice(0, 4);
 
             return `
                 <!-- Hero Section -->
@@ -490,17 +828,25 @@
         }
 
         function renderProductCard(p) {
-            const startingPrice = p.prices["2 ml"] || Object.values(p.prices)[0];
+            const pricesArr = Object.values(p.prices || {}).filter(v => v > 0);
+            const startingPrice = pricesArr.length > 0 ? Math.min(...pricesArr) : 0;
+            const primaryImage = (p.images && p.images.length > 0) ? p.images[0] : 'https://placehold.co/600x800/D8D5CE/171717?text=Averarno';
+            const isOutOfStock = p.stock_status === 'Out of Stock';
+
             return `
                 <div class="group cursor-pointer bg-[#F5F4F0] border border-[#D8D5CE] p-4 flex flex-col justify-between transition-all duration-300 hover:border-[#171717]" onclick="router('product', '${p.slug}')">
                     <div class="relative overflow-hidden aspect-[4/5] bg-stone/20 mb-4">
-                        <img src="${p.images[0]}" alt="${p.name}" class="w-full h-full object-cover object-center transition-transform duration-700 group-hover:scale-105" onerror="this.src='https://placehold.co/600x800/D8D5CE/171717?text=Averarno'">
-                        ${p.bestseller ? '<span class="absolute top-3 left-3 bg-[#171717] text-[#F5F4F0] text-[10px] uppercase tracking-widest px-2.5 py-1">Best Seller</span>' : ''}
-                        ${!p.bestseller && p.featured ? '<span class="absolute top-3 left-3 bg-stone text-[#171717] text-[10px] uppercase tracking-widest px-2.5 py-1">Featured</span>' : ''}
+                        <img src="${primaryImage}" alt="${p.name}" class="w-full h-full object-cover object-center transition-transform duration-700 group-hover:scale-105 ${isOutOfStock ? 'opacity-60 grayscale' : ''}" onerror="this.src='https://placehold.co/600x800/D8D5CE/171717?text=Averarno'">
+                        <div class="absolute top-3 left-3 flex flex-col gap-1.5">
+                            ${isOutOfStock ? '<span class="bg-red-900 text-[#F5F4F0] text-[10px] uppercase tracking-widest px-2.5 py-1">Out of Stock</span>' : ''}
+                            ${!isOutOfStock && p.bestseller ? '<span class="bg-[#171717] text-[#F5F4F0] text-[10px] uppercase tracking-widest px-2.5 py-1">Best Seller</span>' : ''}
+                            ${!isOutOfStock && p.new_arrival ? '<span class="bg-white border border-[#171717] text-[#171717] text-[10px] uppercase tracking-widest px-2.5 py-1">New Arrival</span>' : ''}
+                            ${!isOutOfStock && !p.bestseller && !p.new_arrival && p.featured ? '<span class="bg-stone text-[#171717] text-[10px] uppercase tracking-widest px-2.5 py-1">Featured</span>' : ''}
+                        </div>
                     </div>
                     <div class="space-y-1">
                         <div class="text-[11px] uppercase tracking-widest text-[#8A8984] font-medium">${p.brand}</div>
-                        <h3 class="font-heading text-base font-semibold text-[#171717] group-hover:text-stone transition-colors">${p.name}</h3>
+                        <h3 class="font-heading text-base font-semibold text-[#171717] group-hover:text-[#8A8984] transition-colors">${p.name}</h3>
                         <div class="text-xs text-[#8A8984]">${p.concentration} • ${p.fragrance_category}</div>
                     </div>
                     <div class="mt-4 pt-4 border-t border-[#D8D5CE]/60 flex items-center justify-between">
@@ -512,12 +858,11 @@
         }
 
         function renderShop() {
-            // Extract unique brands and categories for filters
-            const brands = ['All', ...new Set(products.map(p => p.brand))];
-            const categories = ['All', ...new Set(products.map(p => p.fragrance_category))];
+            const published = getPublishedProducts();
+            const brands = ['All', ...new Set(published.map(p => p.brand))];
+            const categories = ['All', ...new Set(published.map(p => p.fragrance_category))];
 
-            // Filter products
-            let filtered = products.filter(p => {
+            let filtered = published.filter(p => {
                 const matchSearch = p.name.toLowerCase().includes(shopFilters.search.toLowerCase()) || 
                                     p.brand.toLowerCase().includes(shopFilters.search.toLowerCase()) ||
                                     p.fragrance_category.toLowerCase().includes(shopFilters.search.toLowerCase());
@@ -526,49 +871,39 @@
                 return matchSearch && matchBrand && matchCategory;
             });
 
-            // Sort products
             if (shopFilters.sort === 'newest') {
                 filtered.sort((a, b) => new Date(b.created_at) - new Date(a.created_at));
             } else if (shopFilters.sort === 'price-low') {
-                filtered.sort((a, b) => a.prices["2 ml"] - b.prices["2 ml"]);
+                filtered.sort((a, b) => Math.min(...Object.values(a.prices)) - Math.min(...Object.values(b.prices)));
             } else if (shopFilters.sort === 'price-high') {
-                filtered.sort((a, b) => b.prices["2 ml"] - a.prices["2 ml"]);
+                filtered.sort((a, b) => Math.min(...Object.values(b.prices)) - Math.min(...Object.values(a.prices)));
             }
 
             return `
                 <div class="max-w-7xl mx-auto px-6 py-12">
-                    <!-- Catalog Header -->
                     <div class="border-b border-[#D8D5CE] pb-8 mb-10">
                         <h1 class="font-heading text-3xl sm:text-4xl font-normal">Fragrance Catalog</h1>
                         <p class="text-sm text-[#8A8984] mt-2">Explore our curated selection of authentic niche and luxury fragrance decants.</p>
                     </div>
 
-                    <!-- Filter & Search Bar -->
                     <div class="bg-white border border-[#D8D5CE] p-6 mb-10 space-y-6">
                         <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
-                            <!-- Search Input -->
                             <div class="relative">
                                 <span class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-[#8A8984]">
                                     <i data-lucide="search" class="w-4 h-4"></i>
                                 </span>
                                 <input type="text" id="search-input" value="${shopFilters.search}" oninput="updateFilter('search', this.value)" placeholder="Search scent or brand..." class="w-full bg-[#F5F4F0] border border-[#D8D5CE] pl-10 pr-4 py-2.5 text-xs text-[#171717] focus:outline-none focus:border-[#171717]">
                             </div>
-
-                            <!-- Brand Filter -->
                             <div>
                                 <select onchange="updateFilter('brand', this.value)" class="w-full bg-[#F5F4F0] border border-[#D8D5CE] px-4 py-2.5 text-xs text-[#171717] focus:outline-none focus:border-[#171717]">
                                     ${brands.map(b => `<option value="${b}" ${shopFilters.brand === b ? 'selected' : ''}>Brand: ${b}</option>`).join('')}
                                 </select>
                             </div>
-
-                            <!-- Category Filter -->
                             <div>
                                 <select onchange="updateFilter('category', this.value)" class="w-full bg-[#F5F4F0] border border-[#D8D5CE] px-4 py-2.5 text-xs text-[#171717] focus:outline-none focus:border-[#171717]">
                                     ${categories.map(c => `<option value="${c}" ${shopFilters.category === c ? 'selected' : ''}>Category: ${c}</option>`).join('')}
                                 </select>
                             </div>
-
-                            <!-- Sort -->
                             <div>
                                 <select onchange="updateFilter('sort', this.value)" class="w-full bg-[#F5F4F0] border border-[#D8D5CE] px-4 py-2.5 text-xs text-[#171717] focus:outline-none focus:border-[#171717]">
                                     <option value="newest" ${shopFilters.sort === 'newest' ? 'selected' : ''}>Sort: Newest Arrivals</option>
@@ -577,14 +912,12 @@
                                 </select>
                             </div>
                         </div>
-
                         <div class="flex items-center justify-between pt-2 border-t border-[#D8D5CE]/40 text-xs text-[#8A8984]">
                             <span>Showing <strong>${filtered.length}</strong> fragrances</span>
                             <button onclick="resetFilters()" class="hover:text-[#171717] underline">Reset Filters</button>
                         </div>
                     </div>
 
-                    <!-- Product Grid -->
                     ${filtered.length > 0 ? `
                         <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6 sm:gap-8">
                             ${filtered.map(p => renderProductCard(p)).join('')}
@@ -604,7 +937,6 @@
         function updateFilter(type, value) {
             shopFilters[type] = value;
             render();
-            // Preserve focus on search input if typing
             if(type === 'search') {
                 const input = document.getElementById('search-input');
                 if(input) {
@@ -620,12 +952,30 @@
         }
 
         function renderProductDetail(slug) {
-            const product = products.find(p => p.slug === slug) || products[0];
-            const currentPrice = product.prices[selectedProductSize] || Object.values(product.prices)[0];
+            const published = getPublishedProducts();
+            const product = published.find(p => p.slug === slug);
+
+            if (!product) {
+                return `
+                    <div class="max-w-3xl mx-auto px-6 py-28 text-center space-y-6">
+                        <span class="text-xs uppercase tracking-widest text-[#8A8984]">Unavailable</span>
+                        <h1 class="font-heading text-3xl font-normal">Fragrance Not Found</h1>
+                        <p class="text-sm text-[#8A8984]">This fragrance may have been unpublished or removed from our catalog.</p>
+                        <button onclick="router('shop')" class="bg-[#171717] text-[#F5F4F0] px-8 py-3 text-xs uppercase tracking-widest">Return to Catalog</button>
+                    </div>
+                `;
+            }
+
+            const availableSizes = product.sizes || ["2 ml", "5 ml", "10 ml"];
+            if (!availableSizes.includes(selectedProductSize)) {
+                selectedProductSize = availableSizes[0];
+            }
+            const currentPrice = product.prices[selectedProductSize] || Object.values(product.prices)[0] || 0;
+            const images = (product.images && product.images.length > 0) ? product.images : ['https://placehold.co/800x1000/D8D5CE/171717?text=Averarno'];
+            const isOutOfStock = product.stock_status === 'Out of Stock';
 
             return `
                 <div class="max-w-7xl mx-auto px-6 py-12">
-                    <!-- Breadcrumb -->
                     <div class="flex items-center space-x-2 text-xs text-[#8A8984] mb-8">
                         <a href="#" onclick="router('home'); return false;" class="hover:text-[#171717]">Home</a>
                         <span>/</span>
@@ -635,26 +985,26 @@
                     </div>
 
                     <div class="grid grid-cols-1 lg:grid-cols-2 gap-12 lg:gap-16 items-start">
-                        <!-- Image Gallery -->
                         <div class="space-y-4">
                             <div class="bg-white border border-[#D8D5CE] overflow-hidden aspect-[4/5]">
-                                <img id="main-product-image" src="${product.images[0]}" alt="${product.name}" class="w-full h-full object-cover object-center" onerror="this.src='https://placehold.co/800x1000/D8D5CE/171717?text=Averarno'">
+                                <img id="main-product-image" src="${images[0]}" alt="${product.name}" class="w-full h-full object-cover object-center" onerror="this.src='https://placehold.co/800x1000/D8D5CE/171717?text=Averarno'">
                             </div>
-                            <div class="grid grid-cols-2 gap-4">
-                                ${product.images.map((img, idx) => `
-                                    <div onclick="document.getElementById('main-product-image').src='${img}'" class="cursor-pointer bg-white border border-[#D8D5CE] aspect-[4/5] overflow-hidden opacity-80 hover:opacity-100 transition-opacity">
-                                        <img src="${img}" class="w-full h-full object-cover object-center" onerror="this.src='https://placehold.co/400x500/D8D5CE/171717?text=View'">
-                                    </div>
-                                `).join('')}
-                            </div>
+                            ${images.length > 1 ? `
+                                <div class="grid grid-cols-4 gap-4">
+                                    ${images.map((img) => `
+                                        <div onclick="document.getElementById('main-product-image').src='${img}'" class="cursor-pointer bg-white border border-[#D8D5CE] aspect-[4/5] overflow-hidden opacity-80 hover:opacity-100 transition-opacity">
+                                            <img src="${img}" class="w-full h-full object-cover object-center" onerror="this.src='https://placehold.co/400x500/D8D5CE/171717?text=View'">
+                                        </div>
+                                    `).join('')}
+                                </div>
+                            ` : ''}
                         </div>
 
-                        <!-- Product Info & Decant Options -->
                         <div class="space-y-8 lg:sticky lg:top-28">
                             <div class="space-y-2 border-b border-[#D8D5CE] pb-6">
                                 <div class="flex items-center justify-between">
                                     <span class="text-xs uppercase tracking-widest text-[#8A8984] font-medium">${product.brand}</span>
-                                    <span class="text-xs bg-stone/50 px-3 py-1 text-[#171717] uppercase tracking-wider">${product.stock_status}</span>
+                                    <span class="text-xs px-3 py-1 uppercase tracking-wider ${isOutOfStock ? 'bg-red-100 text-red-800' : 'bg-stone/50 text-[#171717]'}">${product.stock_status}</span>
                                 </div>
                                 <h1 class="font-heading text-3xl sm:text-4xl font-normal text-[#171717]">${product.name}</h1>
                                 <div class="text-sm text-[#8A8984] pt-1">${product.concentration} • ${product.fragrance_category}</div>
@@ -662,50 +1012,51 @@
 
                             <p class="text-sm text-[#8A8984] leading-relaxed">${product.description}</p>
 
-                            <!-- Fragrance Notes Breakdown -->
                             <div class="bg-white border border-[#D8D5CE] p-6 space-y-4">
                                 <h3 class="text-xs uppercase tracking-widest font-semibold text-[#171717]">Olfactory Pyramid</h3>
                                 <div class="space-y-3 text-xs">
                                     <div class="flex flex-col sm:flex-row sm:items-baseline border-b border-[#D8D5CE]/30 pb-2">
                                         <span class="font-medium text-[#8A8984] w-28 uppercase tracking-wider">Top Notes</span>
-                                        <span class="text-[#171717] font-medium mt-1 sm:mt-0">${product.top_notes.join(', ')}</span>
+                                        <span class="text-[#171717] font-medium mt-1 sm:mt-0">${(product.top_notes || []).join(', ') || '-'}</span>
                                     </div>
                                     <div class="flex flex-col sm:flex-row sm:items-baseline border-b border-[#D8D5CE]/30 pb-2">
                                         <span class="font-medium text-[#8A8984] w-28 uppercase tracking-wider">Middle Notes</span>
-                                        <span class="text-[#171717] font-medium mt-1 sm:mt-0">${product.middle_notes.join(', ')}</span>
+                                        <span class="text-[#171717] font-medium mt-1 sm:mt-0">${(product.middle_notes || []).join(', ') || '-'}</span>
                                     </div>
                                     <div class="flex flex-col sm:flex-row sm:items-baseline">
                                         <span class="font-medium text-[#8A8984] w-28 uppercase tracking-wider">Base Notes</span>
-                                        <span class="text-[#171717] font-medium mt-1 sm:mt-0">${product.base_notes.join(', ')}</span>
+                                        <span class="text-[#171717] font-medium mt-1 sm:mt-0">${(product.base_notes || []).join(', ') || '-'}</span>
                                     </div>
                                 </div>
                             </div>
 
-                            <!-- Size Selection -->
                             <div class="space-y-4">
                                 <div class="flex justify-between items-center text-xs">
                                     <span class="uppercase tracking-widest font-semibold text-[#171717]">Select Decant Size</span>
                                     <span class="text-[#8A8984]">Sterilized Glass Atomizer</span>
                                 </div>
                                 <div class="grid grid-cols-3 gap-4">
-                                    ${product.sizes.map(size => `
-                                        <button onclick="selectSize('${size}', ${product.prices[size]})" id="size-btn-${size.replace(' ', '')}" class="size-btn border p-4 text-center transition-all ${selectedProductSize === size ? 'border-[#171717] bg-[#171717] text-[#F5F4F0]' : 'border-[#D8D5CE] bg-white text-[#171717] hover:border-[#171717]'}" >
-                                            <div class="font-heading font-semibold text-sm">${size}</div>
-                                            <div class="text-xs mt-1 opacity-90">${formatIDR(product.prices[size])}</div>
-                                        </button>
-                                    `).join('')}
+                                    ${availableSizes.map(size => {
+                                        const isSizeAvail = product.size_availability?.[size] !== false && !isOutOfStock;
+                                        return `
+                                            <button ${!isSizeAvail ? 'disabled' : ''} onclick="selectSize('${size}', ${product.prices[size]})" id="size-btn-${size.replace(/\s+/g, '')}" class="size-btn border p-4 text-center transition-all ${!isSizeAvail ? 'opacity-40 cursor-not-allowed bg-stone/20 border-[#D8D5CE]' : (selectedProductSize === size ? 'border-[#171717] bg-[#171717] text-[#F5F4F0]' : 'border-[#D8D5CE] bg-white text-[#171717] hover:border-[#171717]')}">
+                                                <div class="font-heading font-semibold text-sm">${size}</div>
+                                                <div class="text-xs mt-1 opacity-90">${formatIDR(product.prices[size])}</div>
+                                                ${!isSizeAvail ? '<div class="text-[10px] uppercase tracking-wider text-red-700 mt-1">Sold Out</div>' : ''}
+                                            </button>
+                                        `;
+                                    }).join('')}
                                 </div>
                             </div>
 
-                            <!-- Dynamic Price & WhatsApp Order CTA -->
                             <div class="pt-6 border-t border-[#D8D5CE] space-y-4">
                                 <div class="flex items-center justify-between">
                                     <span class="text-xs uppercase tracking-widest text-[#8A8984]">Total Price</span>
                                     <span id="dynamic-price" class="font-heading text-2xl font-bold">${formatIDR(currentPrice)}</span>
                                 </div>
-                                <button onclick="orderViaWhatsApp('${product.name}', '${product.brand}')" class="w-full bg-[#171717] text-[#F5F4F0] py-4 text-xs font-medium uppercase tracking-[0.2em] flex items-center justify-center space-x-3 hover:bg-stone hover:text-[#171717] transition-all shadow-md">
+                                <button ${isOutOfStock ? 'disabled' : ''} onclick="orderViaWhatsApp('${product.slug}')" class="w-full ${isOutOfStock ? 'bg-[#8A8984] cursor-not-allowed' : 'bg-[#171717] hover:bg-stone hover:text-[#171717]'} text-[#F5F4F0] py-4 text-xs font-medium uppercase tracking-[0.2em] flex items-center justify-center space-x-3 transition-all shadow-md">
                                     <i data-lucide="message-circle" class="w-4 h-4"></i>
-                                    <span>Order via WhatsApp</span>
+                                    <span>${isOutOfStock ? 'Currently Out of Stock' : 'Order via WhatsApp'}</span>
                                 </button>
                                 <p class="text-[11px] text-center text-[#8A8984]">Fast response order processing directly with our fragrance concierge.</p>
                             </div>
@@ -717,33 +1068,29 @@
 
         function selectSize(size, price) {
             selectedProductSize = size;
-            // Update active states on buttons
-            document.querySelectorAll('.size-btn').forEach(btn => {
+            document.querySelectorAll('.size-btn:not([disabled])').forEach(btn => {
                 btn.classList.remove('border-[#171717]', 'bg-[#171717]', 'text-[#F5F4F0]');
                 btn.classList.add('border-[#D8D5CE]', 'bg-white', 'text-[#171717]');
             });
-            const activeBtn = document.getElementById(`size-btn-${size.replace(' ', '')}`);
+            const activeBtn = document.getElementById(`size-btn-${size.replace(/\s+/g, '')}`);
             if (activeBtn) {
                 activeBtn.classList.remove('border-[#D8D5CE]', 'bg-white', 'text-[#171717]');
                 activeBtn.classList.add('border-[#171717]', 'bg-[#171717]', 'text-[#F5F4F0]');
             }
-            // Update price display
             const priceEl = document.getElementById('dynamic-price');
-            if(priceEl) {
-                priceEl.innerText = formatIDR(price);
-            }
+            if(priceEl) priceEl.innerText = formatIDR(price);
         }
 
-        function orderViaWhatsApp(productName, brandName) {
-            // Find current product to get price for selected size
-            const product = products.find(p => p.name === productName);
-            const price = product ? product.prices[selectedProductSize] : 0;
+        function orderViaWhatsApp(slug) {
+            const product = products.find(p => p.slug === slug);
+            if (!product) return;
+            const price = product.prices[selectedProductSize] || 0;
             const formattedPrice = formatIDR(price);
             const productLink = window.location.href;
 
             const message = `Hello Averarno! I would like to order:
-Product: ${productName}
-Brand: ${brandName}
+Product: ${product.name}
+Brand: ${product.brand}
 Size: ${selectedProductSize}
 Price: ${formattedPrice}
 Product Link: ${productLink}
@@ -758,16 +1105,13 @@ Please provide further ordering information.`;
         function renderAbout() {
             return `
                 <div class="max-w-5xl mx-auto px-6 py-16 space-y-20">
-                    <!-- Header -->
                     <div class="text-center space-y-4 max-w-2xl mx-auto">
                         <span class="text-xs uppercase tracking-[0.3em] text-[#8A8984] font-medium">Our Story & Vision</span>
                         <h1 class="font-heading text-4xl sm:text-5xl font-light">Democratizing Niche Perfumery</h1>
                         <p class="text-sm text-[#8A8984] leading-relaxed font-light">
-                            At Averarno, we believe that discovering exceptional fragrances should be an accessible, unpretentious experience.
+                            At Averarno, we believe that discovering exceptional fragrances should be an accessible experience. We curate distinctive scents and make them available in carefully prepared decants, allowing everyone to explore fragrances before committing to a full bottle.
                         </p>
                     </div>
-
-                    <!-- Narrative Split -->
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-12 items-center">
                         <div class="space-y-6">
                             <h2 class="font-heading text-2xl font-normal">The Decant Philosophy</h2>
@@ -782,8 +1126,6 @@ Please provide further ordering information.`;
                             <img src="https://images.unsplash.com/photo-1592945403244-b3fbafd7f539?auto=format&fit=crop&w=1000&q=80" alt="Averarno Fragrance Philosophy" class="w-full h-full object-cover">
                         </div>
                     </div>
-
-                    <!-- Values Grid -->
                     <div class="grid grid-cols-1 md:grid-cols-3 gap-8 pt-10 border-t border-[#D8D5CE]">
                         <div class="bg-white border border-[#D8D5CE] p-8 space-y-3">
                             <span class="text-xs uppercase tracking-widest text-[#8A8984] font-medium">01 / Integrity</span>
@@ -808,14 +1150,11 @@ Please provide further ordering information.`;
         function renderContact() {
             return `
                 <div class="max-w-5xl mx-auto px-6 py-16 space-y-16">
-                    <!-- Header -->
                     <div class="text-center space-y-4 max-w-2xl mx-auto">
                         <span class="text-xs uppercase tracking-[0.3em] text-[#8A8984] font-medium">Support & Inquiry</span>
                         <h1 class="font-heading text-4xl sm:text-5xl font-light">Contact & FAQ</h1>
                         <p class="text-sm text-[#8A8984]">We are here to assist with your fragrance journey.</p>
                     </div>
-
-                    <!-- Contact Channels -->
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
                         <div class="bg-white border border-[#D8D5CE] p-8 space-y-4 text-center flex flex-col items-center justify-center">
                             <i data-lucide="message-circle" class="w-8 h-8 text-[#171717]"></i>
@@ -830,11 +1169,8 @@ Please provide further ordering information.`;
                             <a href="https://www.instagram.com/aver.arno/" target="_blank" rel="noopener noreferrer" class="inline-block border border-[#171717] text-[#171717] px-6 py-3 text-xs uppercase tracking-widest hover:bg-[#171717] hover:text-[#F5F4F0] transition-all">Follow @aver.arno</a>
                         </div>
                     </div>
-
-                    <!-- FAQ Section -->
                     <div class="space-y-6">
                         <h2 class="font-heading text-2xl font-normal text-center mb-8">Frequently Asked Questions</h2>
-                        
                         <div class="space-y-4 max-w-3xl mx-auto">
                             <div class="bg-white border border-[#D8D5CE] p-6 space-y-2">
                                 <h3 class="font-heading font-semibold text-sm">Are all Averarno decants 100% authentic?</h3>
@@ -846,7 +1182,7 @@ Please provide further ordering information.`;
                             </div>
                             <div class="bg-white border border-[#D8D5CE] p-6 space-y-2">
                                 <h3 class="font-heading font-semibold text-sm">How does WhatsApp ordering work?</h3>
-                                <p class="text-xs text-[#8A8984] leading-relaxed">When you click "Order via WhatsApp" on any product page, our system automatically formats your selected perfume, brand, and size into a ready-to-send message to our concierge. We will confirm availability, shipping details, and payment options directly on WhatsApp.</p>
+                                <p class="text-xs text-[#8A8984] leading-relaxed">When you click "Order via WhatsApp" on any product page, our system automatically formats your selected perfume, brand, and size into a ready-to-send message to our concierge.</p>
                             </div>
                             <div class="bg-white border border-[#D8D5CE] p-6 space-y-2">
                                 <h3 class="font-heading font-semibold text-sm">What are the shipping estimates?</h3>
@@ -864,9 +1200,1022 @@ Please provide further ordering information.`;
             e.target.reset();
         }
 
-        // Initialize application on load
-        window.onload = function() {
+        // =========================================================================
+        // 6. ADMIN AUTHENTICATION & CMS DASHBOARD (/admin)
+        // =========================================================================
+        function renderAdminPortal() {
+            if (!adminState.isAdminAuthorized) {
+                return renderAdminLogin();
+            }
+
+            const navItems = [
+                { id: 'overview', label: 'Overview', icon: 'layout-dashboard' },
+                { id: 'products', label: 'Products', icon: 'package' },
+                { id: 'add-product', label: 'Add New Product', icon: 'plus-circle' },
+                { id: 'categories', label: 'Categories', icon: 'tag' },
+                { id: 'brands', label: 'Brands', icon: 'award' },
+                { id: 'settings', label: 'Settings', icon: 'settings' }
+            ];
+
+            let mainContent = '';
+            if (adminState.subRoute === 'overview') mainContent = renderAdminOverview();
+            else if (adminState.subRoute === 'products') mainContent = renderAdminProducts();
+            else if (adminState.subRoute === 'add-product' || adminState.subRoute === 'edit-product') mainContent = renderAdminProductForm();
+            else if (adminState.subRoute === 'categories') mainContent = renderAdminTaxonomy('category');
+            else if (adminState.subRoute === 'brands') mainContent = renderAdminTaxonomy('brand');
+            else if (adminState.subRoute === 'settings') mainContent = renderAdminSettings();
+
+            return `
+                <div class="min-h-screen flex flex-col lg:flex-row bg-[#F5F4F0] text-[#171717]">
+                    <!-- Admin Sidebar -->
+                    <aside class="w-full lg:w-64 bg-[#171717] text-[#F5F4F0] flex flex-col justify-between shrink-0 border-b lg:border-b-0 lg:border-r border-[#D8D5CE]/20">
+                        <div>
+                            <div class="p-6 border-b border-[#8A8984]/20 flex items-center justify-between">
+                                <div>
+                                    <span class="font-heading text-lg font-bold tracking-[0.2em] uppercase block">Averarno</span>
+                                    <span class="text-[10px] uppercase tracking-widest text-[#8A8984]">Catalog CMS</span>
+                                </div>
+                                <button onclick="router('home')" class="text-xs text-[#8A8984] hover:text-[#F5F4F0] flex items-center gap-1" title="View Public Site">
+                                    <i data-lucide="external-link" class="w-4 h-4"></i>
+                                </button>
+                            </div>
+                            <nav class="p-4 flex lg:flex-col gap-1 overflow-x-auto">
+                                ${navItems.map(item => {
+                                    const isActive = adminState.subRoute === item.id || (item.id === 'products' && adminState.subRoute === 'edit-product');
+                                    return `
+                                        <button onclick="setAdminRoute('${item.id}')" class="flex items-center space-x-3 px-4 py-3 text-xs uppercase tracking-wider font-medium whitespace-nowrap transition-colors ${isActive ? 'bg-[#F5F4F0] text-[#171717]' : 'text-[#8A8984] hover:text-[#F5F4F0] hover:bg-white/5'}">
+                                            <i data-lucide="${item.icon}" class="w-4 h-4 shrink-0"></i>
+                                            <span>${item.label}</span>
+                                        </button>
+                                    `;
+                                }).join('')}
+                            </nav>
+                        </div>
+
+                        <div class="p-6 border-t border-[#8A8984]/20 hidden lg:block space-y-4">
+                            <div class="text-xs">
+                                <div class="text-[#8A8984]">Signed in as</div>
+                                <div class="font-medium truncate mt-0.5">${adminState.user?.email || 'Administrator'}</div>
+                            </div>
+                            <div class="flex flex-col gap-2">
+                                <button onclick="router('home')" class="w-full border border-[#8A8984]/40 text-[#F5F4F0] py-2 text-xs uppercase tracking-widest hover:border-[#F5F4F0] transition-colors">
+                                    View Public Site
+                                </button>
+                                <button onclick="handleAdminLogout()" class="w-full bg-white/10 text-[#F5F4F0] py-2 text-xs uppercase tracking-widest hover:bg-red-900 transition-colors flex items-center justify-center gap-2">
+                                    <i data-lucide="log-out" class="w-3.5 h-3.5"></i>
+                                    <span>Sign Out</span>
+                                </button>
+                            </div>
+                        </div>
+                    </aside>
+
+                    <!-- Admin Workspace -->
+                    <div class="flex-grow flex flex-col min-w-0">
+                        <!-- Top Mobile/Status Bar -->
+                        <div class="bg-white border-b border-[#D8D5CE] px-6 py-4 flex items-center justify-between">
+                            <div class="flex items-center space-x-3">
+                                <span class="w-2 h-2 rounded-full ${supabaseClient ? 'bg-emerald-600' : 'bg-amber-500'}"></span>
+                                <span class="text-xs text-[#8A8984]">
+                                    ${supabaseClient ? 'Connected to Supabase PostgreSQL & Storage' : 'Supabase Credentials Required (Go to Settings)'}
+                                </span>
+                            </div>
+                            <div class="flex items-center space-x-3 lg:hidden">
+                                <button onclick="router('home')" class="text-xs underline">Public Site</button>
+                                <button onclick="handleAdminLogout()" class="text-xs text-red-700 font-medium">Logout</button>
+                            </div>
+                        </div>
+
+                        <div class="p-6 sm:p-10 max-w-6xl w-full mx-auto">
+                            ${mainContent}
+                        </div>
+                    </div>
+                </div>
+            `;
+        }
+
+        function renderAdminLogin() {
+            return `
+                <div class="max-w-md mx-auto px-6 py-24">
+                    <div class="bg-white border border-[#D8D5CE] p-8 sm:p-10 space-y-8">
+                        <div class="text-center space-y-2">
+                            <span class="text-[10px] uppercase tracking-[0.3em] text-[#8A8984]">Authorized Access Only</span>
+                            <h1 class="font-heading text-2xl font-semibold tracking-tight">Averarno Admin CMS</h1>
+                            <p class="text-xs text-[#8A8984]">Sign in with your administrator credentials to manage the fragrance catalog.</p>
+                        </div>
+
+                        ${!supabaseClient ? `
+                            <div class="bg-[#F5F4F0] border border-[#D8D5CE] p-4 space-y-3">
+                                <p class="text-xs text-[#171717] font-medium">Supabase Connection Setup</p>
+                                <p class="text-[11px] text-[#8A8984]">Enter your Supabase Project URL and public Anon Key to enable authentication and database sync.</p>
+                                <input type="url" id="quick-sb-url" placeholder="https://your-project.supabase.co" value="${SUPABASE_URL}" class="w-full bg-white border border-[#D8D5CE] px-3 py-2 text-xs focus:outline-none focus:border-[#171717]">
+                                <input type="password" id="quick-sb-key" placeholder="Supabase Anon Public Key" value="${SUPABASE_ANON_KEY}" class="w-full bg-white border border-[#D8D5CE] px-3 py-2 text-xs focus:outline-none focus:border-[#171717]">
+                                <button type="button" onclick="applyQuickSupabaseConfig()" class="w-full bg-stone text-[#171717] py-2 text-xs uppercase tracking-widest font-medium hover:bg-[#171717] hover:text-[#F5F4F0] transition-colors">
+                                    Connect Supabase
+                                </button>
+                            </div>
+                        ` : ''}
+
+                        <form onsubmit="handleAdminLogin(event)" class="space-y-5">
+                            <div>
+                                <label class="block text-xs uppercase tracking-wider text-[#8A8984] mb-1.5">Admin Email *</label>
+                                <input type="email" id="admin-email" required placeholder="admin@averarno.com" class="w-full bg-[#F5F4F0] border border-[#D8D5CE] px-4 py-3 text-xs text-[#171717] focus:outline-none focus:border-[#171717]">
+                            </div>
+                            <div>
+                                <label class="block text-xs uppercase tracking-wider text-[#8A8984] mb-1.5">Password *</label>
+                                <input type="password" id="admin-password" required placeholder="••••••••" class="w-full bg-[#F5F4F0] border border-[#D8D5CE] px-4 py-3 text-xs text-[#171717] focus:outline-none focus:border-[#171717]">
+                            </div>
+                            <button type="submit" ${adminState.isSubmitting ? 'disabled' : ''} class="w-full bg-[#171717] text-[#F5F4F0] py-3.5 text-xs uppercase tracking-[0.2em] font-medium hover:bg-stone hover:text-[#171717] transition-all">
+                                ${adminState.isSubmitting ? 'Authenticating...' : 'Sign In to Dashboard'}
+                            </button>
+                        </form>
+
+                        <div class="pt-4 border-t border-[#D8D5CE]/50 text-center">
+                            <p class="text-[11px] text-[#8A8984]">Public registration is disabled. Contact system administrator for access.</p>
+                        </div>
+                    </div>
+                </div>
+            `;
+        }
+
+        function applyQuickSupabaseConfig() {
+            const url = document.getElementById('quick-sb-url').value.trim();
+            const key = document.getElementById('quick-sb-key').value.trim();
+            if (!url || !key) {
+                showToast("Both Supabase URL and Anon Key are required.");
+                return;
+            }
+            SUPABASE_URL = url;
+            SUPABASE_ANON_KEY = key;
+            initSupabase();
+            showToast("Supabase client initialized. You may now sign in.");
             render();
+        }
+
+        function renderAdminOverview() {
+            const totalCount = products.length;
+            const publishedCount = products.filter(p => (p.status || 'published') === 'published').length;
+            const draftCount = products.filter(p => p.status === 'draft').length;
+            const outOfStockCount = products.filter(p => p.stock_status === 'Out of Stock').length;
+            const recentProducts = [...products].sort((a, b) => new Date(b.created_at) - new Date(a.created_at)).slice(0, 5);
+
+            return `
+                <div class="space-y-10">
+                    <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-[#D8D5CE] pb-6">
+                        <div>
+                            <h1 class="font-heading text-2xl sm:text-3xl font-normal">Catalog Overview</h1>
+                            <p class="text-xs text-[#8A8984] mt-1">Real-time metrics of your Averarno fragrance inventory.</p>
+                        </div>
+                        <button onclick="setAdminRoute('add-product')" class="bg-[#171717] text-[#F5F4F0] px-6 py-3 text-xs uppercase tracking-widest hover:bg-stone hover:text-[#171717] transition-colors inline-flex items-center gap-2 self-start">
+                            <i data-lucide="plus" class="w-4 h-4"></i>
+                            <span>Add New Product</span>
+                        </button>
+                    </div>
+
+                    <!-- KPI Cards -->
+                    <div class="grid grid-cols-2 lg:grid-cols-4 gap-6">
+                        <div class="bg-white border border-[#D8D5CE] p-6 space-y-2">
+                            <span class="text-xs uppercase tracking-widest text-[#8A8984]">Total Products</span>
+                            <div class="font-heading text-3xl font-semibold">${totalCount}</div>
+                        </div>
+                        <div class="bg-white border border-[#D8D5CE] p-6 space-y-2">
+                            <span class="text-xs uppercase tracking-widest text-[#8A8984]">Published</span>
+                            <div class="font-heading text-3xl font-semibold text-emerald-800">${publishedCount}</div>
+                        </div>
+                        <div class="bg-white border border-[#D8D5CE] p-6 space-y-2">
+                            <span class="text-xs uppercase tracking-widest text-[#8A8984]">Drafts</span>
+                            <div class="font-heading text-3xl font-semibold text-amber-800">${draftCount}</div>
+                        </div>
+                        <div class="bg-white border border-[#D8D5CE] p-6 space-y-2">
+                            <span class="text-xs uppercase tracking-widest text-[#8A8984]">Out of Stock</span>
+                            <div class="font-heading text-3xl font-semibold text-red-800">${outOfStockCount}</div>
+                        </div>
+                    </div>
+
+                    <!-- Recently Added Products -->
+                    <div class="bg-white border border-[#D8D5CE]">
+                        <div class="px-6 py-4 border-b border-[#D8D5CE] flex items-center justify-between">
+                            <h2 class="font-heading text-base font-semibold">Recently Added Fragrances</h2>
+                            <button onclick="setAdminRoute('products')" class="text-xs underline text-[#8A8984] hover:text-[#171717]">Manage All</button>
+                        </div>
+                        <div class="divide-y divide-[#D8D5CE]/50">
+                            ${recentProducts.map(p => {
+                                const minPrice = Math.min(...Object.values(p.prices || { "2 ml": 0 }));
+                                return `
+                                    <div class="px-6 py-4 flex items-center justify-between gap-4 hover:bg-[#F5F4F0]/50">
+                                        <div class="flex items-center gap-4 min-w-0">
+                                            <img src="${p.images?.[0] || 'https://placehold.co/100x100/D8D5CE/171717?text=A'}" class="w-12 h-12 object-cover border border-[#D8D5CE] shrink-0">
+                                            <div class="min-w-0">
+                                                <div class="font-medium text-sm truncate">${p.name}</div>
+                                                <div class="text-xs text-[#8A8984]">${p.brand} • From ${formatIDR(minPrice)}</div>
+                                            </div>
+                                        </div>
+                                        <div class="flex items-center gap-3 shrink-0">
+                                            <span class="text-[10px] uppercase tracking-widest px-2.5 py-1 ${(p.status || 'published') === 'published' ? 'bg-emerald-50 text-emerald-800 border border-emerald-200' : 'bg-amber-50 text-amber-800 border border-amber-200'}">
+                                                ${p.status || 'published'}
+                                            </span>
+                                            <button onclick="setAdminRoute('edit-product', '${p.id}')" class="p-2 text-[#8A8984] hover:text-[#171717]" title="Edit">
+                                                <i data-lucide="edit-3" class="w-4 h-4"></i>
+                                            </button>
+                                        </div>
+                                    </div>
+                                `;
+                            }).join('')}
+                        </div>
+                    </div>
+                </div>
+            `;
+        }
+
+        function renderAdminProducts() {
+            const allBrands = ['All', ...new Set(products.map(p => p.brand))];
+
+            let filtered = products.filter(p => {
+                const matchSearch = p.name.toLowerCase().includes(adminState.searchQuery.toLowerCase()) ||
+                                    p.brand.toLowerCase().includes(adminState.searchQuery.toLowerCase());
+                const matchBrand = adminState.filterBrand === 'All' || p.brand === adminState.filterBrand;
+                const statusVal = p.status || 'published';
+                const matchStatus = adminState.filterStatus === 'All' || statusVal === adminState.filterStatus;
+                return matchSearch && matchBrand && matchStatus;
+            });
+
+            const totalPages = Math.max(1, Math.ceil(filtered.length / adminState.itemsPerPage));
+            if (adminState.currentPage > totalPages) adminState.currentPage = totalPages;
+            const startIdx = (adminState.currentPage - 1) * adminState.itemsPerPage;
+            const paginated = filtered.slice(startIdx, startIdx + adminState.itemsPerPage);
+
+            return `
+                <div class="space-y-8">
+                    <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-[#D8D5CE] pb-6">
+                        <div>
+                            <h1 class="font-heading text-2xl sm:text-3xl font-normal">Product Management</h1>
+                            <p class="text-xs text-[#8A8984] mt-1">Manage decant pricing, stock availability, and public catalog visibility.</p>
+                        </div>
+                        <button onclick="setAdminRoute('add-product')" class="bg-[#171717] text-[#F5F4F0] px-6 py-3 text-xs uppercase tracking-widest hover:bg-stone hover:text-[#171717] transition-colors inline-flex items-center gap-2 self-start">
+                            <i data-lucide="plus" class="w-4 h-4"></i>
+                            <span>Add New Product</span>
+                        </button>
+                    </div>
+
+                    <!-- Filters -->
+                    <div class="bg-white border border-[#D8D5CE] p-4 grid grid-cols-1 md:grid-cols-3 gap-4">
+                        <div class="relative">
+                            <span class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-[#8A8984]">
+                                <i data-lucide="search" class="w-4 h-4"></i>
+                            </span>
+                            <input type="text" id="admin-prod-search" value="${adminState.searchQuery}" oninput="updateAdminProductFilter('searchQuery', this.value)" placeholder="Search by product or brand..." class="w-full bg-[#F5F4F0] border border-[#D8D5CE] pl-10 pr-4 py-2 text-xs focus:outline-none focus:border-[#171717]">
+                        </div>
+                        <select onchange="updateAdminProductFilter('filterBrand', this.value)" class="w-full bg-[#F5F4F0] border border-[#D8D5CE] px-3 py-2 text-xs focus:outline-none focus:border-[#171717]">
+                            ${allBrands.map(b => `<option value="${b}" ${adminState.filterBrand === b ? 'selected' : ''}>Brand: ${b}</option>`).join('')}
+                        </select>
+                        <select onchange="updateAdminProductFilter('filterStatus', this.value)" class="w-full bg-[#F5F4F0] border border-[#D8D5CE] px-3 py-2 text-xs focus:outline-none focus:border-[#171717]">
+                            <option value="All" ${adminState.filterStatus === 'All' ? 'selected' : ''}>Status: All</option>
+                            <option value="published" ${adminState.filterStatus === 'published' ? 'selected' : ''}>Published Only</option>
+                            <option value="draft" ${adminState.filterStatus === 'draft' ? 'selected' : ''}>Drafts Only</option>
+                        </select>
+                    </div>
+
+                    <!-- Product Table -->
+                    <div class="bg-white border border-[#D8D5CE] overflow-x-auto">
+                        <table class="w-full text-left border-collapse">
+                            <thead>
+                                <tr class="border-b border-[#D8D5CE] bg-[#F5F4F0]/60 text-[10px] uppercase tracking-widest text-[#8A8984]">
+                                    <th class="py-3.5 px-4">Product</th>
+                                    <th class="py-3.5 px-4">Brand</th>
+                                    <th class="py-3.5 px-4">Starting Price</th>
+                                    <th class="py-3.5 px-4">Stock</th>
+                                    <th class="py-3.5 px-4">Publication</th>
+                                    <th class="py-3.5 px-4">Last Updated</th>
+                                    <th class="py-3.5 px-4 text-right">Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody class="divide-y divide-[#D8D5CE]/50 text-xs">
+                                ${paginated.length === 0 ? `
+                                    <tr>
+                                        <td colspan="7" class="py-12 text-center text-[#8A8984]">No products match your current filters.</td>
+                                    </tr>
+                                ` : paginated.map(p => {
+                                    const minPrice = Math.min(...Object.values(p.prices || { "2 ml": 0 }));
+                                    const isPub = (p.status || 'published') === 'published';
+                                    return `
+                                        <tr class="hover:bg-[#F5F4F0]/40 transition-colors">
+                                            <td class="py-3.5 px-4">
+                                                <div class="flex items-center gap-3">
+                                                    <img src="${p.images?.[0] || 'https://placehold.co/80x80/D8D5CE/171717?text=A'}" class="w-10 h-12 object-cover border border-[#D8D5CE] shrink-0">
+                                                    <div>
+                                                        <div class="font-semibold text-[#171717]">${p.name}</div>
+                                                        <div class="text-[11px] text-[#8A8984]">${p.concentration}</div>
+                                                    </div>
+                                                </div>
+                                            </td>
+                                            <td class="py-3.5 px-4 text-[#8A8984]">${p.brand}</td>
+                                            <td class="py-3.5 px-4 font-medium">${formatIDR(minPrice)}</td>
+                                            <td class="py-3.5 px-4">
+                                                <span class="px-2 py-0.5 text-[10px] uppercase tracking-wider ${p.stock_status === 'Out of Stock' ? 'bg-red-50 text-red-700' : 'bg-stone/40 text-[#171717]'}">
+                                                    ${p.stock_status}
+                                                </span>
+                                            </td>
+                                            <td class="py-3.5 px-4">
+                                                <button onclick="togglePublishStatus('${p.id}')" class="px-2.5 py-1 text-[10px] uppercase tracking-widest border transition-colors ${isPub ? 'bg-emerald-50 text-emerald-800 border-emerald-200 hover:bg-emerald-100' : 'bg-amber-50 text-amber-800 border-amber-200 hover:bg-amber-100'}" title="Click to toggle status">
+                                                    ${isPub ? 'Published' : 'Draft'}
+                                                </button>
+                                            </td>
+                                            <td class="py-3.5 px-4 text-[#8A8984]">${formatDate(p.updated_at || p.created_at)}</td>
+                                            <td class="py-3.5 px-4 text-right">
+                                                <div class="inline-flex items-center space-x-1">
+                                                    <button onclick="setAdminRoute('edit-product', '${p.id}')" class="p-2 text-[#171717] hover:bg-stone/40 transition-colors" title="Edit Product">
+                                                        <i data-lucide="edit-3" class="w-4 h-4"></i>
+                                                    </button>
+                                                    <button onclick="duplicateProduct('${p.id}')" class="p-2 text-[#8A8984] hover:text-[#171717] hover:bg-stone/40 transition-colors" title="Duplicate Product">
+                                                        <i data-lucide="copy" class="w-4 h-4"></i>
+                                                    </button>
+                                                    <button onclick="confirmDeleteProduct('${p.id}', '${p.name.replace(/'/g, "\\'")}')" class="p-2 text-red-700 hover:bg-red-50 transition-colors" title="Delete Product">
+                                                        <i data-lucide="trash-2" class="w-4 h-4"></i>
+                                                    </button>
+                                                </div>
+                                            </td>
+                                        </tr>
+                                    `;
+                                }).join('')}
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <!-- Pagination -->
+                    <div class="flex items-center justify-between text-xs text-[#8A8984]">
+                        <span>Showing ${filtered.length === 0 ? 0 : startIdx + 1}–${Math.min(startIdx + adminState.itemsPerPage, filtered.length)} of ${filtered.length} products</span>
+                        <div class="flex space-x-2">
+                            <button ${adminState.currentPage <= 1 ? 'disabled' : ''} onclick="changeAdminPage(${adminState.currentPage - 1})" class="px-3 py-1.5 border border-[#D8D5CE] bg-white disabled:opacity-40">Previous</button>
+                            <button ${adminState.currentPage >= totalPages ? 'disabled' : ''} onclick="changeAdminPage(${adminState.currentPage + 1})" class="px-3 py-1.5 border border-[#D8D5CE] bg-white disabled:opacity-40">Next</button>
+                        </div>
+                    </div>
+                </div>
+            `;
+        }
+
+        function updateAdminProductFilter(key, val) {
+            adminState[key] = val;
+            adminState.currentPage = 1;
+            render();
+            if (key === 'searchQuery') {
+                const el = document.getElementById('admin-prod-search');
+                if (el) { el.focus(); el.setSelectionRange(el.value.length, el.value.length); }
+            }
+        }
+
+        function changeAdminPage(page) {
+            adminState.currentPage = page;
+            render();
+        }
+
+        // =========================================================================
+        // 7. ADD / EDIT PRODUCT FORM & SUPABASE STORAGE UPLOAD
+        // =========================================================================
+        function renderAdminProductForm() {
+            const isEdit = adminState.subRoute === 'edit-product';
+            const f = adminState.formDraft || createEmptyProductForm();
+
+            return `
+                <div class="space-y-8">
+                    <div class="flex items-center justify-between border-b border-[#D8D5CE] pb-6">
+                        <div>
+                            <button onclick="setAdminRoute('products')" class="text-xs text-[#8A8984] hover:text-[#171717] inline-flex items-center gap-1 mb-2">
+                                <i data-lucide="arrow-left" class="w-3.5 h-3.5"></i>
+                                <span>Back to Products</span>
+                            </button>
+                            <h1 class="font-heading text-2xl sm:text-3xl font-normal">${isEdit ? 'Edit Fragrance' : 'Add New Fragrance'}</h1>
+                        </div>
+                    </div>
+
+                    <form id="product-cms-form" onsubmit="return false;" class="space-y-8">
+                        <!-- Basic Information -->
+                        <div class="bg-white border border-[#D8D5CE] p-6 sm:p-8 space-y-6">
+                            <h2 class="font-heading text-base font-semibold border-b border-[#D8D5CE]/50 pb-3">1. Basic Information</h2>
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                <div>
+                                    <label class="block text-xs uppercase tracking-wider text-[#8A8984] mb-1.5">Product Name *</label>
+                                    <input type="text" id="prod-name" required value="${f.name}" oninput="handleProductNameInput(this.value)" placeholder="e.g. Santal 33" class="w-full bg-[#F5F4F0] border border-[#D8D5CE] px-4 py-2.5 text-xs focus:outline-none focus:border-[#171717]">
+                                </div>
+                                <div>
+                                    <label class="block text-xs uppercase tracking-wider text-[#8A8984] mb-1.5">Brand *</label>
+                                    <input type="text" id="prod-brand" list="brands-datalist" required value="${f.brand}" placeholder="Select or type brand" class="w-full bg-[#F5F4F0] border border-[#D8D5CE] px-4 py-2.5 text-xs focus:outline-none focus:border-[#171717]">
+                                    <datalist id="brands-datalist">
+                                        ${brandsList.map(b => `<option value="${b}">`).join('')}
+                                    </datalist>
+                                </div>
+                                <div>
+                                    <label class="block text-xs uppercase tracking-wider text-[#8A8984] mb-1.5">Product Slug (URL) *</label>
+                                    <input type="text" id="prod-slug" required value="${f.slug}" placeholder="e.g. santal-33" class="w-full bg-[#F5F4F0] border border-[#D8D5CE] px-4 py-2.5 text-xs focus:outline-none focus:border-[#171717]">
+                                </div>
+                                <div>
+                                    <label class="block text-xs uppercase tracking-wider text-[#8A8984] mb-1.5">Concentration *</label>
+                                    <select id="prod-concentration" class="w-full bg-[#F5F4F0] border border-[#D8D5CE] px-4 py-2.5 text-xs focus:outline-none focus:border-[#171717]">
+                                        ${["Extrait de Parfum", "Eau de Parfum", "Eau de Toilette", "Eau de Cologne", "Parfum"].map(c => `<option value="${c}" ${f.concentration === c ? 'selected' : ''}>${c}</option>`).join('')}
+                                    </select>
+                                </div>
+                                <div class="md:col-span-2">
+                                    <label class="block text-xs uppercase tracking-wider text-[#8A8984] mb-1.5">Fragrance Category *</label>
+                                    <input type="text" id="prod-category" list="categories-datalist" required value="${f.fragrance_category}" placeholder="e.g. Woody Aromatic" class="w-full bg-[#F5F4F0] border border-[#D8D5CE] px-4 py-2.5 text-xs focus:outline-none focus:border-[#171717]">
+                                    <datalist id="categories-datalist">
+                                        ${categoriesList.map(c => `<option value="${c}">`).join('')}
+                                    </datalist>
+                                </div>
+                                <div class="md:col-span-2">
+                                    <label class="block text-xs uppercase tracking-wider text-[#8A8984] mb-1.5">Product Description *</label>
+                                    <textarea id="prod-description" rows="4" required placeholder="Describe the olfactory character, mood, and inspiration..." class="w-full bg-[#F5F4F0] border border-[#D8D5CE] px-4 py-2.5 text-xs focus:outline-none focus:border-[#171717]">${f.description}</textarea>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Product Images (Supabase Storage) -->
+                        <div class="bg-white border border-[#D8D5CE] p-6 sm:p-8 space-y-6">
+                            <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b border-[#D8D5CE]/50 pb-3">
+                                <h2 class="font-heading text-base font-semibold">2. Product Images (Supabase Storage)</h2>
+                                <span class="text-[11px] text-[#8A8984]">First image is used as the primary catalog cover.</span>
+                            </div>
+
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                <label class="border border-dashed border-[#171717] bg-[#F5F4F0] p-6 text-center cursor-pointer hover:bg-stone/30 transition-colors flex flex-col items-center justify-center">
+                                    <i data-lucide="upload-cloud" class="w-6 h-6 text-[#171717] mb-2"></i>
+                                    <span class="text-xs font-medium">Upload Images to Supabase Storage</span>
+                                    <span class="text-[11px] text-[#8A8984] mt-1">JPG, PNG, WEBP (Multiple allowed)</span>
+                                    <input type="file" accept="image/*" multiple onchange="handleSupabaseImageUpload(event)" class="hidden">
+                                </label>
+                                <div class="border border-[#D8D5CE] bg-[#F5F4F0] p-6 flex flex-col justify-center space-y-2">
+                                    <span class="text-xs font-medium">Or Add Direct Image URL</span>
+                                    <div class="flex gap-2">
+                                        <input type="url" id="manual-image-url" placeholder="https://..." class="flex-grow bg-white border border-[#D8D5CE] px-3 py-2 text-xs focus:outline-none focus:border-[#171717]">
+                                        <button type="button" onclick="addManualImageUrl()" class="bg-[#171717] text-[#F5F4F0] px-4 py-2 text-xs uppercase tracking-wider">Add</button>
+                                    </div>
+                                </div>
+                            </div>
+
+                            ${f.images && f.images.length > 0 ? `
+                                <div class="grid grid-cols-2 sm:grid-cols-4 gap-4 pt-2">
+                                    ${f.images.map((img, idx) => `
+                                        <div class="relative border ${idx === 0 ? 'border-[#171717] ring-1 ring-[#171717]' : 'border-[#D8D5CE]'} bg-[#F5F4F0] aspect-[4/5] group overflow-hidden">
+                                            <img src="${img}" class="w-full h-full object-cover">
+                                            ${idx === 0 ? '<span class="absolute top-2 left-2 bg-[#171717] text-[#F5F4F0] text-[9px] uppercase tracking-widest px-2 py-0.5">Primary</span>' : ''}
+                                            <div class="absolute inset-x-0 bottom-0 bg-[#171717]/85 p-2 flex justify-between items-center opacity-0 group-hover:opacity-100 transition-opacity">
+                                                ${idx !== 0 ? `<button type="button" onclick="setPrimaryImage(${idx})" class="text-[10px] text-[#F5F4F0] underline">Set Primary</button>` : '<span></span>'}
+                                                <button type="button" onclick="removeProductImage(${idx})" class="text-red-300 hover:text-red-100" title="Remove">
+                                                    <i data-lucide="trash-2" class="w-3.5 h-3.5"></i>
+                                                </button>
+                                            </div>
+                                        </div>
+                                    `).join('')}
+                                </div>
+                            ` : `<p class="text-xs text-[#8A8984] italic">No images added yet.</p>`}
+                        </div>
+
+                        <!-- Fragrance Notes -->
+                        <div class="bg-white border border-[#D8D5CE] p-6 sm:p-8 space-y-6">
+                            <h2 class="font-heading text-base font-semibold border-b border-[#D8D5CE]/50 pb-3">3. Olfactory Pyramid (Notes)</h2>
+                            <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                                ${renderNoteTagEditor('top_notes', 'Top Notes', f.top_notes)}
+                                ${renderNoteTagEditor('middle_notes', 'Middle Notes', f.middle_notes)}
+                                ${renderNoteTagEditor('base_notes', 'Base Notes', f.base_notes)}
+                            </div>
+                        </div>
+
+                        <!-- Decant Sizes & Pricing -->
+                        <div class="bg-white border border-[#D8D5CE] p-6 sm:p-8 space-y-6">
+                            <div class="flex items-center justify-between border-b border-[#D8D5CE]/50 pb-3">
+                                <h2 class="font-heading text-base font-semibold">4. Decant Sizes & Pricing</h2>
+                                <button type="button" onclick="addSizeRow()" class="text-xs uppercase tracking-wider border border-[#171717] px-3 py-1.5 hover:bg-[#171717] hover:text-[#F5F4F0] transition-colors">
+                                    + Add Custom Size
+                                </button>
+                            </div>
+                            <div class="space-y-3">
+                                ${(f.size_rows || []).map((row, idx) => `
+                                    <div class="grid grid-cols-12 gap-3 items-center bg-[#F5F4F0] p-3 border border-[#D8D5CE]">
+                                        <div class="col-span-4 sm:col-span-3">
+                                            <label class="block text-[10px] uppercase text-[#8A8984] mb-1">Size</label>
+                                            <input type="text" value="${row.size}" onchange="updateSizeRow(${idx}, 'size', this.value)" placeholder="e.g. 5 ml" class="w-full bg-white border border-[#D8D5CE] px-3 py-2 text-xs">
+                                        </div>
+                                        <div class="col-span-5 sm:col-span-5">
+                                            <label class="block text-[10px] uppercase text-[#8A8984] mb-1">Price (IDR)</label>
+                                            <input type="number" min="0" value="${row.price}" onchange="updateSizeRow(${idx}, 'price', Number(this.value))" placeholder="150000" class="w-full bg-white border border-[#D8D5CE] px-3 py-2 text-xs">
+                                        </div>
+                                        <div class="col-span-2 sm:col-span-3 flex items-center pt-4">
+                                            <label class="inline-flex items-center space-x-2 text-xs cursor-pointer">
+                                                <input type="checkbox" ${row.available ? 'checked' : ''} onchange="updateSizeRow(${idx}, 'available', this.checked)" class="accent-[#171717]">
+                                                <span class="hidden sm:inline">Available</span>
+                                            </label>
+                                        </div>
+                                        <div class="col-span-1 text-right pt-4">
+                                            <button type="button" onclick="removeSizeRow(${idx})" class="text-red-700 hover:text-red-900 p-1" title="Remove size">
+                                                <i data-lucide="x" class="w-4 h-4"></i>
+                                            </button>
+                                        </div>
+                                    </div>
+                                `).join('')}
+                            </div>
+                        </div>
+
+                        <!-- Product Settings & Publication -->
+                        <div class="bg-white border border-[#D8D5CE] p-6 sm:p-8 space-y-6">
+                            <h2 class="font-heading text-base font-semibold border-b border-[#D8D5CE]/50 pb-3">5. Visibility & Merchandising</h2>
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                <div>
+                                    <label class="block text-xs uppercase tracking-wider text-[#8A8984] mb-1.5">Overall Stock Status</label>
+                                    <select id="prod-stock" class="w-full bg-[#F5F4F0] border border-[#D8D5CE] px-4 py-2.5 text-xs focus:outline-none focus:border-[#171717]">
+                                        <option value="In Stock" ${f.stock_status === 'In Stock' ? 'selected' : ''}>In Stock</option>
+                                        <option value="Low Stock" ${f.stock_status === 'Low Stock' ? 'selected' : ''}>Low Stock</option>
+                                        <option value="Out of Stock" ${f.stock_status === 'Out of Stock' ? 'selected' : ''}>Out of Stock</option>
+                                    </select>
+                                </div>
+                                <div class="flex flex-wrap items-center gap-6 pt-4">
+                                    <label class="inline-flex items-center space-x-2 text-xs cursor-pointer">
+                                        <input type="checkbox" id="prod-featured" ${f.featured ? 'checked' : ''} class="accent-[#171717] w-4 h-4">
+                                        <span>Featured Section</span>
+                                    </label>
+                                    <label class="inline-flex items-center space-x-2 text-xs cursor-pointer">
+                                        <input type="checkbox" id="prod-bestseller" ${f.bestseller ? 'checked' : ''} class="accent-[#171717] w-4 h-4">
+                                        <span>Best Seller</span>
+                                    </label>
+                                    <label class="inline-flex items-center space-x-2 text-xs cursor-pointer">
+                                        <input type="checkbox" id="prod-newarrival" ${f.new_arrival ? 'checked' : ''} class="accent-[#171717] w-4 h-4">
+                                        <span>New Arrival</span>
+                                    </label>
+                                </div>
+                            </div>
+
+                            <div class="pt-6 border-t border-[#D8D5CE] flex flex-col sm:flex-row justify-end gap-4">
+                                <button type="button" ${adminState.isSubmitting ? 'disabled' : ''} onclick="saveProductFromForm('draft')" class="border border-[#171717] bg-white text-[#171717] px-8 py-3.5 text-xs uppercase tracking-[0.2em] font-medium hover:bg-stone transition-colors">
+                                    Save Draft
+                                </button>
+                                <button type="button" ${adminState.isSubmitting ? 'disabled' : ''} onclick="saveProductFromForm('published')" class="bg-[#171717] text-[#F5F4F0] px-8 py-3.5 text-xs uppercase tracking-[0.2em] font-medium hover:bg-stone hover:text-[#171717] transition-colors">
+                                    ${adminState.isSubmitting ? 'Saving...' : 'Publish Product'}
+                                </button>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            `;
+        }
+
+        function renderNoteTagEditor(fieldKey, label, notesArray) {
+            return `
+                <div class="space-y-3">
+                    <label class="block text-xs uppercase tracking-wider text-[#8A8984]">${label}</label>
+                    <div class="flex gap-2">
+                        <input type="text" id="input-${fieldKey}" onkeydown="if(event.key==='Enter'){event.preventDefault();addNoteTag('${fieldKey}');}" placeholder="Add note..." class="flex-grow bg-[#F5F4F0] border border-[#D8D5CE] px-3 py-2 text-xs focus:outline-none focus:border-[#171717]">
+                        <button type="button" onclick="addNoteTag('${fieldKey}')" class="bg-[#171717] text-[#F5F4F0] px-3 py-2 text-xs">+</button>
+                    </div>
+                    <div class="flex flex-wrap gap-1.5">
+                        ${(notesArray || []).map((note, idx) => `
+                            <span class="inline-flex items-center gap-1.5 bg-[#F5F4F0] border border-[#D8D5CE] px-2.5 py-1 text-xs">
+                                <span>${note}</span>
+                                <button type="button" onclick="removeNoteTag('${fieldKey}', ${idx})" class="text-[#8A8984] hover:text-red-700">&times;</button>
+                            </span>
+                        `).join('')}
+                    </div>
+                </div>
+            `;
+        }
+
+        function syncDraftInputsBeforeRerender() {
+            if (!adminState.formDraft) return;
+            const nameEl = document.getElementById('prod-name');
+            const brandEl = document.getElementById('prod-brand');
+            const slugEl = document.getElementById('prod-slug');
+            const concEl = document.getElementById('prod-concentration');
+            const catEl = document.getElementById('prod-category');
+            const descEl = document.getElementById('prod-description');
+            const stockEl = document.getElementById('prod-stock');
+            if (nameEl) adminState.formDraft.name = nameEl.value;
+            if (brandEl) adminState.formDraft.brand = brandEl.value;
+            if (slugEl) adminState.formDraft.slug = slugEl.value;
+            if (concEl) adminState.formDraft.concentration = concEl.value;
+            if (catEl) adminState.formDraft.fragrance_category = catEl.value;
+            if (descEl) adminState.formDraft.description = descEl.value;
+            if (stockEl) adminState.formDraft.stock_status = stockEl.value;
+            const featEl = document.getElementById('prod-featured');
+            const bestEl = document.getElementById('prod-bestseller');
+            const newEl = document.getElementById('prod-newarrival');
+            if (featEl) adminState.formDraft.featured = featEl.checked;
+            if (bestEl) adminState.formDraft.bestseller = bestEl.checked;
+            if (newEl) adminState.formDraft.new_arrival = newEl.checked;
+        }
+
+        function handleProductNameInput(val) {
+            if (adminState.subRoute === 'add-product') {
+                const slugInput = document.getElementById('prod-slug');
+                if (slugInput) slugInput.value = slugify(val);
+            }
+        }
+
+        function addNoteTag(fieldKey) {
+            syncDraftInputsBeforeRerender();
+            const input = document.getElementById(`input-${fieldKey}`);
+            const val = input.value.trim();
+            if (!val) return;
+            if (!adminState.formDraft[fieldKey]) adminState.formDraft[fieldKey] = [];
+            adminState.formDraft[fieldKey].push(val);
+            render();
+        }
+
+        function removeNoteTag(fieldKey, idx) {
+            syncDraftInputsBeforeRerender();
+            adminState.formDraft[fieldKey].splice(idx, 1);
+            render();
+        }
+
+        function addSizeRow() {
+            syncDraftInputsBeforeRerender();
+            adminState.formDraft.size_rows.push({ size: "", price: 0, available: true });
+            render();
+        }
+
+        function updateSizeRow(idx, key, val) {
+            adminState.formDraft.size_rows[idx][key] = val;
+        }
+
+        function removeSizeRow(idx) {
+            syncDraftInputsBeforeRerender();
+            if (adminState.formDraft.size_rows.length <= 1) {
+                showToast("At least one decant size is required.");
+                return;
+            }
+            adminState.formDraft.size_rows.splice(idx, 1);
+            render();
+        }
+
+        async function handleSupabaseImageUpload(event) {
+            syncDraftInputsBeforeRerender();
+            const files = Array.from(event.target.files);
+            if (!files.length) return;
+
+            if (!supabaseClient) {
+                showToast("Connect Supabase in Settings to upload files to Storage.");
+                return;
+            }
+
+            showToast(`Uploading ${files.length} image(s) to Supabase Storage...`);
+            for (const file of files) {
+                try {
+                    const ext = file.name.split('.').pop();
+                    const filePath = `products/${Date.now()}-${Math.random().toString(36).substring(2, 8)}.${ext}`;
+                    const { error: uploadError } = await supabaseClient.storage
+                        .from('product-images')
+                        .upload(filePath, file);
+
+                    if (uploadError) throw uploadError;
+
+                    const { data: publicUrlData } = supabaseClient.storage
+                        .from('product-images')
+                        .getPublicUrl(filePath);
+
+                    if (publicUrlData?.publicUrl) {
+                        adminState.formDraft.images.push(publicUrlData.publicUrl);
+                    }
+                } catch (err) {
+                    showToast(`Upload error: ${err.message}`);
+                }
+            }
+            render();
+        }
+
+        function addManualImageUrl() {
+            syncDraftInputsBeforeRerender();
+            const urlInput = document.getElementById('manual-image-url');
+            const url = urlInput.value.trim();
+            if (!url) return;
+            adminState.formDraft.images.push(url);
+            render();
+        }
+
+        function setPrimaryImage(idx) {
+            syncDraftInputsBeforeRerender();
+            const [selected] = adminState.formDraft.images.splice(idx, 1);
+            adminState.formDraft.images.unshift(selected);
+            render();
+        }
+
+        function removeProductImage(idx) {
+            syncDraftInputsBeforeRerender();
+            adminState.formDraft.images.splice(idx, 1);
+            render();
+        }
+
+        async function saveProductFromForm(targetStatus) {
+            syncDraftInputsBeforeRerender();
+            const f = adminState.formDraft;
+
+            if (!f.name || !f.brand || !f.slug || !f.fragrance_category) {
+                showToast("Please fill in all required fields (*).");
+                return;
+            }
+
+            const validSizes = f.size_rows.filter(r => r.size.trim() !== "");
+            if (validSizes.length === 0) {
+                showToast("Please define at least one valid decant size.");
+                return;
+            }
+
+            const sizes = validSizes.map(r => r.size.trim());
+            const prices = {};
+            const size_availability = {};
+            validSizes.forEach(r => {
+                prices[r.size.trim()] = Number(r.price) || 0;
+                size_availability[r.size.trim()] = Boolean(r.available);
+            });
+
+            const payload = {
+                name: f.name.trim(),
+                brand: f.brand.trim(),
+                slug: slugify(f.slug),
+                description: f.description.trim(),
+                concentration: f.concentration,
+                fragrance_category: f.fragrance_category.trim(),
+                images: f.images,
+                top_notes: f.top_notes || [],
+                middle_notes: f.middle_notes || [],
+                base_notes: f.base_notes || [],
+                sizes,
+                prices,
+                size_availability,
+                stock_status: f.stock_status,
+                status: targetStatus,
+                featured: Boolean(f.featured),
+                bestseller: Boolean(f.bestseller),
+                new_arrival: Boolean(f.new_arrival),
+                updated_at: new Date().toISOString()
+            };
+
+            adminState.isSubmitting = true;
+            render();
+
+            try {
+                if (supabaseClient) {
+                    if (adminState.subRoute === 'edit-product' && adminState.editingProductId) {
+                        const { error } = await supabaseClient
+                            .from('products')
+                            .update(payload)
+                            .eq('id', adminState.editingProductId);
+                        if (error) throw error;
+                    } else {
+                        payload.created_at = new Date().toISOString();
+                        const { error } = await supabaseClient
+                            .from('products')
+                            .insert([payload]);
+                        if (error) throw error;
+                    }
+                    await fetchAllData();
+                } else {
+                    // Fallback in-memory update if Supabase isn't connected yet
+                    if (adminState.subRoute === 'edit-product' && adminState.editingProductId) {
+                        const idx = products.findIndex(p => String(p.id) === String(adminState.editingProductId));
+                        if (idx !== -1) products[idx] = { ...products[idx], ...payload };
+                    } else {
+                        products.unshift({ id: String(Date.now()), created_at: new Date().toISOString(), ...payload });
+                    }
+                    syncTaxonomyLists();
+                }
+
+                showToast(targetStatus === 'published' ? 'Product published to live catalog.' : 'Product saved as draft.');
+                setAdminRoute('products');
+            } catch (err) {
+                showToast(`Save failed: ${err.message}`);
+            } finally {
+                adminState.isSubmitting = false;
+                render();
+            }
+        }
+
+        async function togglePublishStatus(productId) {
+            const target = products.find(p => String(p.id) === String(productId));
+            if (!target) return;
+            const nextStatus = (target.status || 'published') === 'published' ? 'draft' : 'published';
+
+            try {
+                if (supabaseClient) {
+                    const { error } = await supabaseClient
+                        .from('products')
+                        .update({ status: nextStatus, updated_at: new Date().toISOString() })
+                        .eq('id', productId);
+                    if (error) throw error;
+                    await fetchAllData();
+                } else {
+                    target.status = nextStatus;
+                    target.updated_at = new Date().toISOString();
+                }
+                showToast(`Product status updated to ${nextStatus.toUpperCase()}.`);
+                render();
+            } catch (err) {
+                showToast(`Update failed: ${err.message}`);
+            }
+        }
+
+        async function duplicateProduct(productId) {
+            const source = products.find(p => String(p.id) === String(productId));
+            if (!source) return;
+
+            const copyPayload = {
+                ...JSON.parse(JSON.stringify(source)),
+                name: `${source.name} (Copy)`,
+                slug: `${source.slug}-copy-${Math.floor(100 + Math.random() * 900)}`,
+                status: 'draft',
+                created_at: new Date().toISOString(),
+                updated_at: new Date().toISOString()
+            };
+            delete copyPayload.id;
+
+            try {
+                if (supabaseClient) {
+                    const { error } = await supabaseClient.from('products').insert([copyPayload]);
+                    if (error) throw error;
+                    await fetchAllData();
+                } else {
+                    products.unshift({ id: String(Date.now()), ...copyPayload });
+                }
+                showToast('Product duplicated as draft.');
+                render();
+            } catch (err) {
+                showToast(`Duplicate failed: ${err.message}`);
+            }
+        }
+
+        function confirmDeleteProduct(productId, productName) {
+            openConfirmModal(
+                'Delete Fragrance',
+                `Are you sure you want to permanently delete "${productName}"? This action cannot be undone.`,
+                async () => {
+                    try {
+                        if (supabaseClient) {
+                            const { error } = await supabaseClient.from('products').delete().eq('id', productId);
+                            if (error) throw error;
+                            await fetchAllData();
+                        } else {
+                            products = products.filter(p => String(p.id) !== String(productId));
+                        }
+                        showToast('Product deleted permanently.');
+                        render();
+                    } catch (err) {
+                        showToast(`Delete failed: ${err.message}`);
+                    }
+                }
+            );
+        }
+
+        // =========================================================================
+        // 8. CATEGORIES, BRANDS & SYSTEM SETTINGS
+        // =========================================================================
+        function renderAdminTaxonomy(type) {
+            const isBrand = type === 'brand';
+            const items = isBrand ? brandsList : categoriesList;
+            const title = isBrand ? 'Fragrance Brands' : 'Fragrance Categories';
+
+            return `
+                <div class="space-y-8 max-w-3xl">
+                    <div class="border-b border-[#D8D5CE] pb-6">
+                        <h1 class="font-heading text-2xl sm:text-3xl font-normal">${title}</h1>
+                        <p class="text-xs text-[#8A8984] mt-1">Manage standardized ${isBrand ? 'perfume houses' : 'olfactory categories'} across your catalog.</p>
+                    </div>
+
+                    <div class="bg-white border border-[#D8D5CE] p-6 flex gap-3">
+                        <input type="text" id="new-taxonomy-input" placeholder="Enter new ${isBrand ? 'brand' : 'category'} name..." class="flex-grow bg-[#F5F4F0] border border-[#D8D5CE] px-4 py-2.5 text-xs focus:outline-none focus:border-[#171717]">
+                        <button onclick="addTaxonomyItem('${type}')" class="bg-[#171717] text-[#F5F4F0] px-6 py-2.5 text-xs uppercase tracking-widest hover:bg-stone hover:text-[#171717] transition-colors">Add</button>
+                    </div>
+
+                    <div class="bg-white border border-[#D8D5CE] divide-y divide-[#D8D5CE]/50">
+                        ${items.map((item, idx) => {
+                            const count = products.filter(p => (isBrand ? p.brand : p.fragrance_category) === item).length;
+                            return `
+                                <div class="px-6 py-4 flex items-center justify-between text-xs">
+                                    <div>
+                                        <span class="font-medium text-[#171717]">${item}</span>
+                                        <span class="text-[#8A8984] ml-2">(${count} products)</span>
+                                    </div>
+                                    <button onclick="removeTaxonomyItem('${type}', ${idx})" class="text-red-700 hover:underline">Remove</button>
+                                </div>
+                            `;
+                        }).join('')}
+                    </div>
+                </div>
+            `;
+        }
+
+        async function addTaxonomyItem(type) {
+            const input = document.getElementById('new-taxonomy-input');
+            const val = input.value.trim();
+            if (!val) return;
+            if (type === 'brand') {
+                if (!brandsList.includes(val)) brandsList.push(val);
+                if (supabaseClient) await supabaseClient.from('brands').insert([{ name: val }]);
+            } else {
+                if (!categoriesList.includes(val)) categoriesList.push(val);
+                if (supabaseClient) await supabaseClient.from('categories').insert([{ name: val }]);
+            }
+            showToast(`Added "${val}".`);
+            render();
+        }
+
+        function removeTaxonomyItem(type, idx) {
+            if (type === 'brand') brandsList.splice(idx, 1);
+            else categoriesList.splice(idx, 1);
+            showToast('Removed item.');
+            render();
+        }
+
+        function renderAdminSettings() {
+            const sqlSchema = `-- Run this in your Supabase SQL Editor to configure tables & Row Level Security (RLS)
+CREATE TABLE IF NOT EXISTS public.products (
+  id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
+  slug TEXT UNIQUE NOT NULL,
+  name TEXT NOT NULL,
+  brand TEXT NOT NULL,
+  description TEXT,
+  images JSONB DEFAULT '[]'::jsonb,
+  top_notes JSONB DEFAULT '[]'::jsonb,
+  middle_notes JSONB DEFAULT '[]'::jsonb,
+  base_notes JSONB DEFAULT '[]'::jsonb,
+  concentration TEXT,
+  fragrance_category TEXT,
+  sizes JSONB DEFAULT '["2 ml","5 ml","10 ml"]'::jsonb,
+  prices JSONB DEFAULT '{}'::jsonb,
+  size_availability JSONB DEFAULT '{}'::jsonb,
+  stock_status TEXT DEFAULT 'In Stock',
+  status TEXT DEFAULT 'draft',
+  featured BOOLEAN DEFAULT false,
+  bestseller BOOLEAN DEFAULT false,
+  new_arrival BOOLEAN DEFAULT false,
+  created_at TIMESTAMPTZ DEFAULT now(),
+  updated_at TIMESTAMPTZ DEFAULT now()
+);
+
+CREATE TABLE IF NOT EXISTS public.admin_users (
+  id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
+  user_id UUID REFERENCES auth.users(id) ON DELETE CASCADE UNIQUE,
+  role TEXT DEFAULT 'admin'
+);
+
+ALTER TABLE public.products ENABLE ROW LEVEL SECURITY;
+
+-- Public visitors can read only published products
+CREATE POLICY "Public read published products" ON public.products
+  FOR SELECT USING (status = 'published');
+
+-- Authenticated admins have full CRUD access
+CREATE POLICY "Admins full access" ON public.products
+  FOR ALL USING (EXISTS (SELECT 1 FROM public.admin_users WHERE user_id = auth.uid()));`;
+
+            return `
+                <div class="space-y-8 max-w-3xl">
+                    <div class="border-b border-[#D8D5CE] pb-6">
+                        <h1 class="font-heading text-2xl sm:text-3xl font-normal">CMS & Store Settings</h1>
+                        <p class="text-xs text-[#8A8984] mt-1">Configure WhatsApp ordering integration and Supabase database connection.</p>
+                    </div>
+
+                    <div class="bg-white border border-[#D8D5CE] p-6 sm:p-8 space-y-6">
+                        <h2 class="font-heading text-base font-semibold">Storefront Concierge</h2>
+                        <div>
+                            <label class="block text-xs uppercase tracking-wider text-[#8A8984] mb-1.5">WhatsApp Order Number (International Format)</label>
+                            <input type="text" id="settings-wa-phone" value="${WHATSAPP_PHONE}" class="w-full bg-[#F5F4F0] border border-[#D8D5CE] px-4 py-2.5 text-xs">
+                        </div>
+                        <button onclick="saveStoreSettings()" class="bg-[#171717] text-[#F5F4F0] px-6 py-2.5 text-xs uppercase tracking-widest">Save Settings</button>
+                    </div>
+
+                    <div class="bg-white border border-[#D8D5CE] p-6 sm:p-8 space-y-4">
+                        <h2 class="font-heading text-base font-semibold">Supabase PostgreSQL & RLS Setup Guide</h2>
+                        <p class="text-xs text-[#8A8984] leading-relaxed">
+                            Create a public storage bucket named <code class="bg-[#F5F4F0] px-1.5 py-0.5 text-[#171717]">product-images</code> and run the SQL below in Supabase to enforce Row Level Security:
+                        </p>
+                        <pre class="bg-[#171717] text-[#F5F4F0] p-4 text-[11px] overflow-x-auto leading-relaxed">${sqlSchema}</pre>
+                    </div>
+                </div>
+            `;
+        }
+
+        function saveStoreSettings() {
+            const wa = document.getElementById('settings-wa-phone').value.trim().replace(/\+/g, '');
+            if (wa) WHATSAPP_PHONE = wa;
+            showToast('Store settings updated.');
+        }
+
+        // =========================================================================
+        // 9. INITIALIZATION & URL PATH ROUTING
+        // =========================================================================
+        window.onload = async function() {
+            initSupabase();
+            await checkAdminSession();
+            await fetchAllData();
+
+            try {
+                const path = window.location.pathname;
+                if (path.startsWith('/admin')) {
+                    router('admin');
+                } else if (path.startsWith('/shop/')) {
+                    const slug = path.replace('/shop/', '');
+                    router('product', slug);
+                } else if (path === '/shop') {
+                    router('shop');
+                } else {
+                    render();
+                }
+            } catch (e) {
+                render();
+            }
         };
     </script>
 </body>
