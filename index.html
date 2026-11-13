@@ -1,0 +1,863 @@
+<!DOCTYPE html>
+<html lang="en" class="scroll-smooth">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Averarno — Discover Your Signature Scent</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Google Fonts: Manrope & Inter -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&family=Manrope:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <!-- Lucide Icons -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        charcoal: '#171717',
+                        offwhite: '#F5F4F0',
+                        stone: '#D8D5CE',
+                        grey: '#8A8984',
+                    },
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                        heading: ['Manrope', 'sans-serif'],
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        body {
+            background-color: #F5F4F0;
+            color: #171717;
+            font-family: 'Inter', sans-serif;
+        }
+        h1, h2, h3, h4, h5, h6 {
+            font-family: 'Manrope', sans-serif;
+        }
+        .border-editorial {
+            border-color: #D8D5CE;
+        }
+        ::-webkit-scrollbar {
+            width: 6px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #F5F4F0;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #D8D5CE;
+        }
+    </style>
+</head>
+<body class="bg-[#F5F4F0] text-[#171717] antialiased min-h-screen flex flex-col justify-between selection:bg-[#171717] selection:text-[#F5F4F0]">
+
+    <!-- Notification Toast -->
+    <div id="toast" class="fixed bottom-6 right-6 z-50 transform translate-y-20 opacity-0 transition-all duration-300 bg-[#171717] text-[#F5F4F0] px-6 py-3 rounded-none shadow-lg text-sm flex items-center space-x-3 border border-[#D8D5CE]/20">
+        <i data-lucide="check-circle" class="w-4 h-4 text-stone"></i>
+        <span id="toast-message">Action successful</span>
+    </div>
+
+    <!-- Navigation Bar -->
+    <header class="sticky top-0 z-40 bg-[#F5F4F0]/90 backdrop-blur-md border-b border-[#D8D5CE]">
+        <div class="max-w-7xl mx-auto px-6 h-20 flex items-center justify-between">
+            <!-- Mobile Menu Button -->
+            <button onclick="toggleMobileMenu()" class="md:hidden p-2 text-[#171717] hover:text-[#8A8984] transition-colors">
+                <i data-lucide="menu" class="w-6 h-6"></i>
+            </button>
+
+            <!-- Brand Logo -->
+            <a href="#" onclick="router('home'); return false;" class="font-heading text-2xl font-bold tracking-[0.2em] uppercase text-[#171717]">
+                Averarno
+            </a>
+
+            <!-- Desktop Nav Links -->
+            <nav class="hidden md:flex items-center space-x-10 text-sm font-medium tracking-wide">
+                <a href="#" onclick="router('home'); return false;" class="nav-link text-[#171717] hover:text-[#8A8984] transition-colors py-2 border-b-2 border-transparent hover:border-[#171717]">Home</a>
+                <a href="#" onclick="router('shop'); return false;" class="nav-link text-[#171717] hover:text-[#8A8984] transition-colors py-2 border-b-2 border-transparent hover:border-[#171717]">Shop Catalog</a>
+                <a href="#" onclick="router('about'); return false;" class="nav-link text-[#171717] hover:text-[#8A8984] transition-colors py-2 border-b-2 border-transparent hover:border-[#171717]">About</a>
+                <a href="#" onclick="router('contact'); return false;" class="nav-link text-[#171717] hover:text-[#8A8984] transition-colors py-2 border-b-2 border-transparent hover:border-[#171717]">Contact & FAQ</a>
+            </nav>
+
+            <!-- Right Actions -->
+            <div class="flex items-center space-x-4">
+                <button onclick="router('shop')" class="p-2 text-[#171717] hover:text-[#8A8984] transition-colors" title="Search Catalog">
+                    <i data-lucide="search" class="w-5 h-5"></i>
+                </button>
+                <a href="https://instagram.com" target="_blank" rel="noopener noreferrer" class="hidden sm:inline-flex p-2 text-[#171717] hover:text-[#8A8984] transition-colors" title="Instagram">
+                    <i data-lucide="instagram" class="w-5 h-5"></i>
+                </a>
+            </div>
+        </div>
+
+        <!-- Mobile Navigation Drawer -->
+        <div id="mobile-menu" class="hidden md:hidden absolute top-20 left-0 w-full bg-[#F5F4F0] border-b border-[#D8D5CE] px-6 py-6 space-y-4 shadow-xl">
+            <a href="#" onclick="router('home'); toggleMobileMenu(); return false;" class="block text-lg font-medium text-[#171717] py-2 border-b border-[#D8D5CE]/40">Home</a>
+            <a href="#" onclick="router('shop'); toggleMobileMenu(); return false;" class="block text-lg font-medium text-[#171717] py-2 border-b border-[#D8D5CE]/40">Shop Catalog</a>
+            <a href="#" onclick="router('about'); toggleMobileMenu(); return false;" class="block text-lg font-medium text-[#171717] py-2 border-b border-[#D8D5CE]/40">About</a>
+            <a href="#" onclick="router('contact'); toggleMobileMenu(); return false;" class="block text-lg font-medium text-[#171717] py-2 border-b border-[#D8D5CE]/40">Contact & FAQ</a>
+            <div class="pt-2 flex space-x-4">
+                <a href="https://instagram.com" target="_blank" class="text-sm text-[#8A8984] hover:text-[#171717]">Instagram @averarno</a>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main View Container -->
+    <main id="app" class="flex-grow">
+        <!-- Rendered dynamically by JavaScript router -->
+    </main>
+
+    <!-- Footer -->
+    <footer class="bg-[#171717] text-[#F5F4F0] pt-16 pb-12 border-t border-[#D8D5CE]/20">
+        <div class="max-w-7xl mx-auto px-6 grid grid-cols-1 md:grid-cols-4 gap-12 mb-16">
+            <div class="space-y-4 md:col-span-1">
+                <h3 class="font-heading text-xl font-bold tracking-[0.2em] uppercase">Averarno</h3>
+                <p class="text-xs text-[#8A8984] leading-relaxed">
+                    Discover your signature scent through curated niche fragrance decants. Affordable luxury for the discerning connoisseur.
+                </p>
+            </div>
+            <div>
+                <h4 class="text-xs font-semibold uppercase tracking-widest text-[#8A8984] mb-4">Navigation</h4>
+                <ul class="space-y-2 text-sm">
+                    <li><a href="#" onclick="router('home'); return false;" class="hover:text-stone transition-colors">Home</a></li>
+                    <li><a href="#" onclick="router('shop'); return false;" class="hover:text-stone transition-colors">Shop Catalog</a></li>
+                    <li><a href="#" onclick="router('about'); return false;" class="hover:text-stone transition-colors">Brand Philosophy</a></li>
+                    <li><a href="#" onclick="router('contact'); return false;" class="hover:text-stone transition-colors">Ordering & FAQ</a></li>
+                </ul>
+            </div>
+            <div>
+                <h4 class="text-xs font-semibold uppercase tracking-widest text-[#8A8984] mb-4">Connect</h4>
+                <ul class="space-y-2 text-sm">
+                    <li><a href="https://instagram.com" target="_blank" class="hover:text-stone transition-colors flex items-center space-x-2"><i data-lucide="instagram" class="w-4 h-4"></i><span>Instagram</span></a></li>
+                    <li><a href="https://wa.me/6281234567890" target="_blank" class="hover:text-stone transition-colors flex items-center space-x-2"><i data-lucide="message-circle" class="w-4 h-4"><span>WhatsApp Concierge</span></a></li>
+                </ul>
+            </div>
+            <div>
+                <h4 class="text-xs font-semibold uppercase tracking-widest text-[#8A8984] mb-4">Newsletter</h4>
+                <p class="text-xs text-[#8A8984] mb-3">Subscribe for new arrival announcements and seasonal scent releases.</p>
+                <form onsubmit="handleNewsletter(event)" class="flex">
+                    <input type="email" placeholder="Enter your email" required class="bg-transparent border border-[#8A8984]/40 px-3 py-2 text-xs text-[#F5F4F0] focus:outline-none focus:border-[#F5F4F0] w-full">
+                    <button type="submit" class="bg-[#F5F4F0] text-[#171717] px-4 text-xs font-medium uppercase tracking-wider hover:bg-stone transition-colors">Join</button>
+                </form>
+            </div>
+        </div>
+        <div class="max-w-7xl mx-auto px-6 pt-8 border-t border-[#8A8984]/20 flex flex-col sm:flex-row justify-between items-center text-xs text-[#8A8984]">
+            <p>&copy; 2026 Averarno Fragrances. All rights reserved.</p>
+            <p class="mt-2 sm:mt-0">Crafted for Contemporary Connoisseurs.</p>
+        </div>
+    </footer>
+
+    <!-- Application JavaScript Logic -->
+    <script>
+        // Configurable WhatsApp Number
+        const WHATSAPP_PHONE = "6281234567890"; // Replace with actual business WhatsApp number
+
+        // Product Database
+        const products = [
+            {
+                id: "1",
+                slug: "santal-33",
+                name: "Santal 33",
+                brand: "Le Labo",
+                description: "An iconic scent that touches the universal sensuality of this iconic icon, intoxicatingly pairing cardamom, iris, violet, and ambrox with comforting smoked wood accords.",
+                images: [
+                    "https://images.unsplash.com/photo-1594035910387-fea47794261f?auto=format&fit=crop&w=1000&q=80",
+                    "https://images.unsplash.com/photo-1523293182086-7651a899d37f?auto=format&fit=crop&w=1000&q=80"
+                ],
+                top_notes: ["Cardamom", "Iris", "Violet"],
+                middle_notes: ["Ambrox", "Papyrus", "Cedarwood"],
+                base_notes: ["Leather", "Sandalwood", "Amber"],
+                concentration: "Eau de Parfum",
+                fragrance_category: "Woody Aromatic",
+                sizes: ["2 ml", "5 ml", "10 ml"],
+                prices: { "2 ml": 75000, "5 ml": 165000, "10 ml": 310000 },
+                stock_status: "In Stock",
+                featured: true,
+                bestseller: true,
+                created_at: "2026-01-15"
+            },
+            {
+                id: "2",
+                slug: "baccarat-rouge-540",
+                name: "Baccarat Rouge 540",
+                brand: "Maison Francis Kurkdjian",
+                description: "Luminous and sophisticated, Baccarat Rouge 540 lays on the skin like an amber, floral and woody breeze. A poetic alchemy born from intense craftsmanship.",
+                images: [
+                    "https://images.unsplash.com/photo-1583445013765-46c20c4a6772?auto=format&fit=crop&w=1000&q=80",
+                    "https://images.unsplash.com/photo-1615397349754-cfa2066a298e?auto=format&fit=crop&w=1000&q=80"
+                ],
+                top_notes: ["Jasmine", "Saffron"],
+                middle_notes: ["Amberwood", "Ambergris"],
+                base_notes: ["Fir Resin", "Cedar"],
+                concentration: "Extrait de Parfum",
+                fragrance_category: "Amber Floral",
+                sizes: ["2 ml", "5 ml", "10 ml"],
+                prices: { "2 ml": 95000, "5 ml": 210000, "10 ml": 395000 },
+                stock_status: "In Stock",
+                featured: true,
+                bestseller: true,
+                created_at: "2026-01-10"
+            },
+            {
+                id: "3",
+                slug: "gypsy-water",
+                name: "Gypsy Water",
+                brand: "Byredo",
+                description: "An ode to the beauty of Romany culture, its unique customs, intimate beliefs, and distinguished way of living in harmony with nature.",
+                images: [
+                    "https://images.unsplash.com/photo-1547887537-6158d64c35b3?auto=format&fit=crop&w=1000&q=80",
+                    "https://images.unsplash.com/photo-1592945403244-b3fbafd7f539?auto=format&fit=crop&w=1000&q=80"
+                ],
+                top_notes: ["Bergamot", "Lemon", "Pepper", "Juniper Berries"],
+                middle_notes: ["Incense", "Pine Needles", "Orris"],
+                base_notes: ["Amber", "Vanilla", "Sandalwood"],
+                concentration: "Eau de Parfum",
+                fragrance_category: "Woody Aromatic",
+                sizes: ["2 ml", "5 ml", "10 ml"],
+                prices: { "2 ml": 70000, "5 ml": 155000, "10 ml": 290000 },
+                stock_status: "In Stock",
+                featured: true,
+                bestseller: false,
+                created_at: "2026-02-01"
+            },
+            {
+                id: "4",
+                slug: "lost-cherry",
+                name: "Lost Cherry",
+                brand: "Tom Ford",
+                description: "A full-bodied journey into the once-forbidden; a contrasting scent that reveals a tempting dichotomy of playful, candy-like gleam on the outside and luscious flesh within.",
+                images: [
+                    "https://images.unsplash.com/photo-1595425970377-c9703cf48b6d?auto=format&fit=crop&w=1000&q=80",
+                    "https://images.unsplash.com/photo-1563178406-4cdc2923acbc?auto=format&fit=crop&w=1000&q=80"
+                ],
+                top_notes: ["Black Cherry", "Cherry Liquor", "Bitter Almond"],
+                middle_notes: ["Sour Cherry Syrup", "Turkish Rose", "Jasmine Sambac"],
+                base_notes: ["Peru Balsam", "Roasted Tonka", "Sandalwood", "Vetiver", "Cedar"],
+                concentration: "Eau de Parfum",
+                fragrance_category: "Amber Vanilla",
+                sizes: ["2 ml", "5 ml", "10 ml"],
+                prices: { "2 ml": 85000, "5 ml": 190000, "10 ml": 360000 },
+                stock_status: "In Stock",
+                featured: true,
+                bestseller: true,
+                created_at: "2026-01-20"
+            },
+            {
+                id: "5",
+                slug: "silver-mountain-water",
+                name: "Silver Mountain Water",
+                brand: "Creed",
+                description: "Inspired by the invigorating crispness of alpine air, Silver Mountain Water is a fresh and contemporary scent depicting sparkling streams of water cascading over snow-capped Swiss alps.",
+                images: [
+                    "https://images.unsplash.com/photo-1615397349754-cfa2066a298e?auto=format&fit=crop&w=1000&q=80",
+                    "https://images.unsplash.com/photo-1594035910387-fea47794261f?auto=format&fit=crop&w=1000&q=80"
+                ],
+                top_notes: ["Bergamot", "Mandarin"],
+                middle_notes: ["Green Tea", "Blackcurrant Bud"],
+                base_notes: ["Sandalwood", "Musk", "Petitgrain", "Galbanum"],
+                concentration: "Eau de Parfum",
+                fragrance_category: "Citrus Aromatic",
+                sizes: ["2 ml", "5 ml", "10 ml"],
+                prices: { "2 ml": 90000, "5 ml": 200000, "10 ml": 380000 },
+                stock_status: "In Stock",
+                featured: false,
+                bestseller: true,
+                created_at: "2026-02-10"
+            },
+            {
+                id: "6",
+                slug: "another-13",
+                name: "Another 13",
+                brand: "Le Labo",
+                description: "An hypnotic and unique scent composed of ambroxan, jasmine, moss, and select animalic notes, creating an effortless second-skin signature.",
+                images: [
+                    "https://images.unsplash.com/photo-1523293182086-7651a899d37f?auto=format&fit=crop&w=1000&q=80",
+                    "https://images.unsplash.com/photo-1583445013765-46c20c4a6772?auto=format&fit=crop&w=1000&q=80"
+                ],
+                top_notes: ["Iso E Super", "Ambroxan"],
+                middle_notes: ["Jasmine", "Moss"],
+                base_notes: ["Ambrette", "Salicylate"],
+                concentration: "Eau de Parfum",
+                fragrance_category: "Woody Musk",
+                sizes: ["2 ml", "5 ml", "10 ml"],
+                prices: { "2 ml": 75000, "5 ml": 165000, "10 ml": 310000 },
+                stock_status: "In Stock",
+                featured: false,
+                bestseller: false,
+                created_at: "2026-02-15"
+            },
+            {
+                id: "7",
+                slug: "layton",
+                name: "Layton",
+                brand: "Parfums de Marly",
+                description: "An addictive oriental floral fragrance with an intense olfactory signature driven by vanilla, precious woods, and vibrant opening spices.",
+                images: [
+                    "https://images.unsplash.com/photo-1592945403244-b3fbafd7f539?auto=format&fit=crop&w=1000&q=80",
+                    "https://images.unsplash.com/photo-1547887537-6158d64c35b3?auto=format&fit=crop&w=1000&q=80"
+                ],
+                top_notes: ["Apple", "Lavender", "Mandarin Orange", "Bergamot"],
+                middle_notes: ["Geranium", "Violet", "Jasmine"],
+                base_notes: ["Vanilla", "Cardamom", "Sandalwood", "Pepper", "Guaiac Wood", "Patchouli"],
+                concentration: "Eau de Parfum",
+                fragrance_category: "Amber Floral",
+                sizes: ["2 ml", "5 ml", "10 ml"],
+                prices: { "2 ml": 80000, "5 ml": 180000, "10 ml": 340000 },
+                stock_status: "In Stock",
+                featured: true,
+                bestseller: false,
+                created_at: "2026-01-28"
+            },
+            {
+                id: "8",
+                slug: "by-the-fireplace",
+                name: "By the Fireplace",
+                brand: "Maison Margiela",
+                description: "A warm and cozy fragrance capturing the essence of a burning fireplace in the dead of winter with crackling wood and sweet chestnut notes.",
+                images: [
+                    "https://images.unsplash.com/photo-1563178406-4cdc2923acbc?auto=format&fit=crop&w=1000&q=80",
+                    "https://images.unsplash.com/photo-1595425970377-c9703cf48b6d?auto=format&fit=crop&w=1000&q=80"
+                ],
+                top_notes: ["Clove Oil", "Pink Pepper", "Orange Blossom"],
+                middle_notes: ["Chestnut Accord", "Guaiac Wood Oil", "Cade Oil"],
+                base_notes: ["Vanilla Accord", "Peru Balsam", "Cashmeran"],
+                concentration: "Eau de Toilette",
+                fragrance_category: "Woody Warm",
+                sizes: ["2 ml", "5 ml", "10 ml"],
+                prices: { "2 ml": 65000, "5 ml": 145000, "10 ml": 275000 },
+                stock_status: "In Stock",
+                featured: false,
+                bestseller: true,
+                created_at: "2026-02-05"
+            }
+        ];
+
+        // State Management
+        let currentRoute = 'home';
+        let currentParam = null; // for product slug
+        let shopFilters = {
+            search: '',
+            brand: 'All',
+            category: 'All',
+            sort: 'newest'
+        };
+        let selectedProductSize = '5 ml'; // default size for product view
+
+        // Router Implementation
+        function router(route, param = null) {
+            currentRoute = route;
+            currentParam = param;
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+            render();
+            lucide.createIcons();
+        }
+
+        function toggleMobileMenu() {
+            const menu = document.getElementById('mobile-menu');
+            menu.classList.toggle('hidden');
+        }
+
+        function showToast(message) {
+            const toast = document.getElementById('toast');
+            document.getElementById('toast-message').innerText = message;
+            toast.classList.remove('opacity-0', 'translate-y-20');
+            toast.classList.add('opacity-100', 'translate-y-0');
+            setTimeout(() => {
+                toast.classList.remove('opacity-100', 'translate-y-0');
+                toast.classList.add('opacity-0', 'translate-y-20');
+            }, 3000);
+        }
+
+        // Format Currency IDR
+        function formatIDR(amount) {
+            return "Rp " + amount.toLocaleString('id-ID');
+        }
+
+        // Main Render Function
+        function render() {
+            const app = document.getElementById('app');
+            if (currentRoute === 'home') {
+                app.innerHTML = renderHome();
+            } else if (currentRoute === 'shop') {
+                app.innerHTML = renderShop();
+            } else if (currentRoute === 'product') {
+                app.innerHTML = renderProductDetail(currentParam);
+            } else if (currentRoute === 'about') {
+                app.innerHTML = renderAbout();
+            } else if (currentRoute === 'contact') {
+                app.innerHTML = renderContact();
+            }
+            lucide.createIcons();
+        }
+
+        // --- VIEWS ---
+
+        function renderHome() {
+            const featuredProducts = products.filter(p => p.featured).slice(0, 4);
+            const bestsellerProducts = products.filter(p => p.bestseller).slice(0, 4);
+
+            return `
+                <!-- Hero Section -->
+                <section class="relative min-h-[85vh] flex items-center justify-center bg-[#F5F4F0] border-b border-[#D8D5CE] px-6 py-20 overflow-hidden">
+                    <div class="max-w-5xl mx-auto text-center z-10 space-y-8">
+                        <span class="inline-block text-xs uppercase tracking-[0.3em] font-medium text-[#8A8984] border-b border-[#8A8984]/40 pb-1">
+                            Curated Niche Decants
+                        </span>
+                        <h1 class="font-heading text-4xl sm:text-6xl md:text-7xl font-light tracking-tight text-[#171717] leading-[1.1]">
+                            Discover Your <br/><span class="font-normal italic">Signature Scent.</span>
+                        </h1>
+                        <p class="max-w-xl mx-auto text-base sm:text-lg text-[#8A8984] font-light leading-relaxed">
+                            Explore distinctive fragrances through a more accessible, refined way. Experience prestigious houses without full-bottle commitments.
+                        </p>
+                        <div class="pt-4 flex flex-col sm:flex-row items-center justify-center gap-4">
+                            <button onclick="router('shop')" class="w-full sm:w-auto bg-[#171717] text-[#F5F4F0] px-8 py-4 text-xs font-medium uppercase tracking-[0.2em] hover:bg-stone hover:text-[#171717] transition-all">
+                                Explore Collection
+                            </button>
+                            <button onclick="router('about')" class="w-full sm:w-auto border border-[#171717] text-[#171717] px-8 py-4 text-xs font-medium uppercase tracking-[0.2em] hover:bg-[#171717] hover:text-[#F5F4F0] transition-all">
+                                Our Philosophy
+                            </button>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- Featured Collection -->
+                <section class="max-w-7xl mx-auto px-6 py-24">
+                    <div class="flex flex-col md:flex-row md:items-end justify-between mb-12">
+                        <div>
+                            <span class="text-xs uppercase tracking-[0.2em] text-[#8A8984] font-medium">Curated Selection</span>
+                            <h2 class="font-heading text-3xl sm:text-4xl font-normal mt-2">Featured Fragrances</h2>
+                        </div>
+                        <button onclick="router('shop')" class="mt-4 md:mt-0 text-xs uppercase tracking-[0.2em] font-medium text-[#171717] hover:text-[#8A8984] transition-colors flex items-center space-x-2">
+                            <span>View All Catalog</span>
+                            <i data-lucide="arrow-right" class="w-4 h-4"></i>
+                        </button>
+                    </div>
+
+                    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8">
+                        ${featuredProducts.map(p => renderProductCard(p)).join('')}
+                    </div>
+                </section>
+
+                <!-- Brand Narrative Banner -->
+                <section class="bg-[#171717] text-[#F5F4F0] py-28 px-6 my-12">
+                    <div class="max-w-4xl mx-auto text-center space-y-8">
+                        <span class="text-xs uppercase tracking-[0.3em] text-[#8A8984]">The Averarno Standard</span>
+                        <h2 class="font-heading text-3xl sm:text-5xl font-light leading-tight italic">
+                            "Luxury is not just in ownership, but in the freedom of pure sensory exploration."
+                        </h2>
+                        <p class="text-sm sm:text-base text-[#8A8984] max-w-2xl mx-auto leading-relaxed font-light">
+                            Every decant is meticulously hand-decanted in sterilized medical-grade glass atomizers, ensuring immaculate preservation of top, middle, and base notes.
+                        </p>
+                        <div class="pt-4">
+                            <button onclick="router('about')" class="border border-[#F5F4F0] text-[#F5F4F0] px-8 py-3 text-xs font-medium uppercase tracking-[0.2em] hover:bg-[#F5F4F0] hover:text-[#171717] transition-all">
+                                Read Our Story
+                            </button>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- Best Sellers -->
+                <section class="max-w-7xl mx-auto px-6 py-24">
+                    <div class="flex flex-col md:flex-row md:items-end justify-between mb-12">
+                        <div>
+                            <span class="text-xs uppercase tracking-[0.2em] text-[#8A8984] font-medium">Most Coveted</span>
+                            <h2 class="font-heading text-3xl sm:text-4xl font-normal mt-2">Best-Selling Decants</h2>
+                        </div>
+                        <button onclick="router('shop')" class="mt-4 md:mt-0 text-xs uppercase tracking-[0.2em] font-medium text-[#171717] hover:text-[#8A8984] transition-colors flex items-center space-x-2">
+                            <span>Explore All</span>
+                            <i data-lucide="arrow-right" class="w-4 h-4"></i>
+                        </button>
+                    </div>
+
+                    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8">
+                        ${bestsellerProducts.map(p => renderProductCard(p)).join('')}
+                    </div>
+                </section>
+            `;
+        }
+
+        function renderProductCard(p) {
+            const startingPrice = p.prices["2 ml"] || Object.values(p.prices)[0];
+            return `
+                <div class="group cursor-pointer bg-[#F5F4F0] border border-[#D8D5CE] p-4 flex flex-col justify-between transition-all duration-300 hover:border-[#171717]" onclick="router('product', '${p.slug}')">
+                    <div class="relative overflow-hidden aspect-[4/5] bg-stone/20 mb-4">
+                        <img src="${p.images[0]}" alt="${p.name}" class="w-full h-full object-cover object-center transition-transform duration-700 group-hover:scale-105" onerror="this.src='https://placehold.co/600x800/D8D5CE/171717?text=Averarno'">
+                        ${p.bestseller ? '<span class="absolute top-3 left-3 bg-[#171717] text-[#F5F4F0] text-[10px] uppercase tracking-widest px-2.5 py-1">Best Seller</span>' : ''}
+                        ${!p.bestseller && p.featured ? '<span class="absolute top-3 left-3 bg-stone text-[#171717] text-[10px] uppercase tracking-widest px-2.5 py-1">Featured</span>' : ''}
+                    </div>
+                    <div class="space-y-1">
+                        <div class="text-[11px] uppercase tracking-widest text-[#8A8984] font-medium">${p.brand}</div>
+                        <h3 class="font-heading text-base font-semibold text-[#171717] group-hover:text-stone transition-colors">${p.name}</h3>
+                        <div class="text-xs text-[#8A8984]">${p.concentration} • ${p.fragrance_category}</div>
+                    </div>
+                    <div class="mt-4 pt-4 border-t border-[#D8D5CE]/60 flex items-center justify-between">
+                        <span class="text-xs text-[#8A8984]">From <strong class="text-[#171717] font-semibold">${formatIDR(startingPrice)}</strong></span>
+                        <span class="text-xs uppercase tracking-wider font-medium underline underline-offset-4">Explore</span>
+                    </div>
+                </div>
+            `;
+        }
+
+        function renderShop() {
+            // Extract unique brands and categories for filters
+            const brands = ['All', ...new Set(products.map(p => p.brand))];
+            const categories = ['All', ...new Set(products.map(p => p.fragrance_category))];
+
+            // Filter products
+            let filtered = products.filter(p => {
+                const matchSearch = p.name.toLowerCase().includes(shopFilters.search.toLowerCase()) || 
+                                    p.brand.toLowerCase().includes(shopFilters.search.toLowerCase()) ||
+                                    p.fragrance_category.toLowerCase().includes(shopFilters.search.toLowerCase());
+                const matchBrand = shopFilters.brand === 'All' || p.brand === shopFilters.brand;
+                const matchCategory = shopFilters.category === 'All' || p.fragrance_category === shopFilters.category;
+                return matchSearch && matchBrand && matchCategory;
+            });
+
+            // Sort products
+            if (shopFilters.sort === 'newest') {
+                filtered.sort((a, b) => new Date(b.created_at) - new Date(a.created_at));
+            } else if (shopFilters.sort === 'price-low') {
+                filtered.sort((a, b) => a.prices["2 ml"] - b.prices["2 ml"]);
+            } else if (shopFilters.sort === 'price-high') {
+                filtered.sort((a, b) => b.prices["2 ml"] - a.prices["2 ml"]);
+            }
+
+            return `
+                <div class="max-w-7xl mx-auto px-6 py-12">
+                    <!-- Catalog Header -->
+                    <div class="border-b border-[#D8D5CE] pb-8 mb-10">
+                        <h1 class="font-heading text-3xl sm:text-4xl font-normal">Fragrance Catalog</h1>
+                        <p class="text-sm text-[#8A8984] mt-2">Explore our curated selection of authentic niche and luxury fragrance decants.</p>
+                    </div>
+
+                    <!-- Filter & Search Bar -->
+                    <div class="bg-white border border-[#D8D5CE] p-6 mb-10 space-y-6">
+                        <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
+                            <!-- Search Input -->
+                            <div class="relative">
+                                <span class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-[#8A8984]">
+                                    <i data-lucide="search" class="w-4 h-4"></i>
+                                </span>
+                                <input type="text" id="search-input" value="${shopFilters.search}" oninput="updateFilter('search', this.value)" placeholder="Search scent or brand..." class="w-full bg-[#F5F4F0] border border-[#D8D5CE] pl-10 pr-4 py-2.5 text-xs text-[#171717] focus:outline-none focus:border-[#171717]">
+                            </div>
+
+                            <!-- Brand Filter -->
+                            <div>
+                                <select onchange="updateFilter('brand', this.value)" class="w-full bg-[#F5F4F0] border border-[#D8D5CE] px-4 py-2.5 text-xs text-[#171717] focus:outline-none focus:border-[#171717]">
+                                    ${brands.map(b => `<option value="${b}" ${shopFilters.brand === b ? 'selected' : ''}>Brand: ${b}</option>`).join('')}
+                                </select>
+                            </div>
+
+                            <!-- Category Filter -->
+                            <div>
+                                <select onchange="updateFilter('category', this.value)" class="w-full bg-[#F5F4F0] border border-[#D8D5CE] px-4 py-2.5 text-xs text-[#171717] focus:outline-none focus:border-[#171717]">
+                                    ${categories.map(c => `<option value="${c}" ${shopFilters.category === c ? 'selected' : ''}>Category: ${c}</option>`).join('')}
+                                </select>
+                            </div>
+
+                            <!-- Sort -->
+                            <div>
+                                <select onchange="updateFilter('sort', this.value)" class="w-full bg-[#F5F4F0] border border-[#D8D5CE] px-4 py-2.5 text-xs text-[#171717] focus:outline-none focus:border-[#171717]">
+                                    <option value="newest" ${shopFilters.sort === 'newest' ? 'selected' : ''}>Sort: Newest Arrivals</option>
+                                    <option value="price-low" ${shopFilters.sort === 'price-low' ? 'selected' : ''}>Sort: Price Low to High</option>
+                                    <option value="price-high" ${shopFilters.sort === 'price-high' ? 'selected' : ''}>Sort: Price High to Low</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <div class="flex items-center justify-between pt-2 border-t border-[#D8D5CE]/40 text-xs text-[#8A8984]">
+                            <span>Showing <strong>${filtered.length}</strong> fragrances</span>
+                            <button onclick="resetFilters()" class="hover:text-[#171717] underline">Reset Filters</button>
+                        </div>
+                    </div>
+
+                    <!-- Product Grid -->
+                    ${filtered.length > 0 ? `
+                        <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6 sm:gap-8">
+                            ${filtered.map(p => renderProductCard(p)).join('')}
+                        </div>
+                    ` : `
+                        <div class="text-center py-24 bg-white border border-[#D8D5CE]">
+                            <i data-lucide="sparkles" class="w-10 h-10 mx-auto text-[#8A8984] mb-4"></i>
+                            <h3 class="font-heading text-xl font-medium">No Fragrances Found</h3>
+                            <p class="text-xs text-[#8A8984] mt-2 mb-6">Try adjusting your search criteria or filters.</p>
+                            <button onclick="resetFilters()" class="bg-[#171717] text-[#F5F4F0] px-6 py-3 text-xs uppercase tracking-widest">Reset Filters</button>
+                        </div>
+                    `}
+                </div>
+            `;
+        }
+
+        function updateFilter(type, value) {
+            shopFilters[type] = value;
+            render();
+            // Preserve focus on search input if typing
+            if(type === 'search') {
+                const input = document.getElementById('search-input');
+                if(input) {
+                    input.focus();
+                    input.setSelectionRange(input.value.length, input.value.length);
+                }
+            }
+        }
+
+        function resetFilters() {
+            shopFilters = { search: '', brand: 'All', category: 'All', sort: 'newest' };
+            render();
+        }
+
+        function renderProductDetail(slug) {
+            const product = products.find(p => p.slug === slug) || products[0];
+            const currentPrice = product.prices[selectedProductSize] || Object.values(product.prices)[0];
+
+            return `
+                <div class="max-w-7xl mx-auto px-6 py-12">
+                    <!-- Breadcrumb -->
+                    <div class="flex items-center space-x-2 text-xs text-[#8A8984] mb-8">
+                        <a href="#" onclick="router('home'); return false;" class="hover:text-[#171717]">Home</a>
+                        <span>/</span>
+                        <a href="#" onclick="router('shop'); return false;" class="hover:text-[#171717]">Shop</a>
+                        <span>/</span>
+                        <span class="text-[#171717] font-medium">${product.name}</span>
+                    </div>
+
+                    <div class="grid grid-cols-1 lg:grid-cols-2 gap-12 lg:gap-16 items-start">
+                        <!-- Image Gallery -->
+                        <div class="space-y-4">
+                            <div class="bg-white border border-[#D8D5CE] overflow-hidden aspect-[4/5]">
+                                <img id="main-product-image" src="${product.images[0]}" alt="${product.name}" class="w-full h-full object-cover object-center" onerror="this.src='https://placehold.co/800x1000/D8D5CE/171717?text=Averarno'">
+                            </div>
+                            <div class="grid grid-cols-2 gap-4">
+                                ${product.images.map((img, idx) => `
+                                    <div onclick="document.getElementById('main-product-image').src='${img}'" class="cursor-pointer bg-white border border-[#D8D5CE] aspect-[4/5] overflow-hidden opacity-80 hover:opacity-100 transition-opacity">
+                                        <img src="${img}" class="w-full h-full object-cover object-center" onerror="this.src='https://placehold.co/400x500/D8D5CE/171717?text=View'">
+                                    </div>
+                                `).join('')}
+                            </div>
+                        </div>
+
+                        <!-- Product Info & Decant Options -->
+                        <div class="space-y-8 lg:sticky lg:top-28">
+                            <div class="space-y-2 border-b border-[#D8D5CE] pb-6">
+                                <div class="flex items-center justify-between">
+                                    <span class="text-xs uppercase tracking-widest text-[#8A8984] font-medium">${product.brand}</span>
+                                    <span class="text-xs bg-stone/50 px-3 py-1 text-[#171717] uppercase tracking-wider">${product.stock_status}</span>
+                                </div>
+                                <h1 class="font-heading text-3xl sm:text-4xl font-normal text-[#171717]">${product.name}</h1>
+                                <div class="text-sm text-[#8A8984] pt-1">${product.concentration} • ${product.fragrance_category}</div>
+                            </div>
+
+                            <p class="text-sm text-[#8A8984] leading-relaxed">${product.description}</p>
+
+                            <!-- Fragrance Notes Breakdown -->
+                            <div class="bg-white border border-[#D8D5CE] p-6 space-y-4">
+                                <h3 class="text-xs uppercase tracking-widest font-semibold text-[#171717]">Olfactory Pyramid</h3>
+                                <div class="space-y-3 text-xs">
+                                    <div class="flex flex-col sm:flex-row sm:items-baseline border-b border-[#D8D5CE]/30 pb-2">
+                                        <span class="font-medium text-[#8A8984] w-28 uppercase tracking-wider">Top Notes</span>
+                                        <span class="text-[#171717] font-medium mt-1 sm:mt-0">${product.top_notes.join(', ')}</span>
+                                    </div>
+                                    <div class="flex flex-col sm:flex-row sm:items-baseline border-b border-[#D8D5CE]/30 pb-2">
+                                        <span class="font-medium text-[#8A8984] w-28 uppercase tracking-wider">Middle Notes</span>
+                                        <span class="text-[#171717] font-medium mt-1 sm:mt-0">${product.middle_notes.join(', ')}</span>
+                                    </div>
+                                    <div class="flex flex-col sm:flex-row sm:items-baseline">
+                                        <span class="font-medium text-[#8A8984] w-28 uppercase tracking-wider">Base Notes</span>
+                                        <span class="text-[#171717] font-medium mt-1 sm:mt-0">${product.base_notes.join(', ')}</span>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Size Selection -->
+                            <div class="space-y-4">
+                                <div class="flex justify-between items-center text-xs">
+                                    <span class="uppercase tracking-widest font-semibold text-[#171717]">Select Decant Size</span>
+                                    <span class="text-[#8A8984]">Sterilized Glass Atomizer</span>
+                                </div>
+                                <div class="grid grid-cols-3 gap-4">
+                                    ${product.sizes.map(size => `
+                                        <button onclick="selectSize('${size}', ${product.prices[size]})" id="size-btn-${size.replace(' ', '')}" class="size-btn border p-4 text-center transition-all ${selectedProductSize === size ? 'border-[#171717] bg-[#171717] text-[#F5F4F0]' : 'border-[#D8D5CE] bg-white text-[#171717] hover:border-[#171717]'}" >
+                                            <div class="font-heading font-semibold text-sm">${size}</div>
+                                            <div class="text-xs mt-1 opacity-90">${formatIDR(product.prices[size])}</div>
+                                        </button>
+                                    `).join('')}
+                                </div>
+                            </div>
+
+                            <!-- Dynamic Price & WhatsApp Order CTA -->
+                            <div class="pt-6 border-t border-[#D8D5CE] space-y-4">
+                                <div class="flex items-center justify-between">
+                                    <span class="text-xs uppercase tracking-widest text-[#8A8984]">Total Price</span>
+                                    <span id="dynamic-price" class="font-heading text-2xl font-bold">${formatIDR(currentPrice)}</span>
+                                </div>
+                                <button onclick="orderViaWhatsApp('${product.name}', '${product.brand}')" class="w-full bg-[#171717] text-[#F5F4F0] py-4 text-xs font-medium uppercase tracking-[0.2em] flex items-center justify-center space-x-3 hover:bg-stone hover:text-[#171717] transition-all shadow-md">
+                                    <i data-lucide="message-circle" class="w-4 h-4"></i>
+                                    <span>Order via WhatsApp</span>
+                                </button>
+                                <p class="text-[11px] text-center text-[#8A8984]">Fast response order processing directly with our fragrance concierge.</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            `;
+        }
+
+        function selectSize(size, price) {
+            selectedProductSize = size;
+            // Update active states on buttons
+            document.querySelectorAll('.size-btn').forEach(btn => {
+                btn.classList.remove('border-[#171717]', 'bg-[#171717]', 'text-[#F5F4F0]');
+                btn.classList.add('border-[#D8D5CE]', 'bg-white', 'text-[#171717]');
+            });
+            const activeBtn = document.getElementById(`size-btn-${size.replace(' ', '')}`);
+            if (activeBtn) {
+                activeBtn.classList.remove('border-[#D8D5CE]', 'bg-white', 'text-[#171717]');
+                activeBtn.classList.add('border-[#171717]', 'bg-[#171717]', 'text-[#F5F4F0]');
+            }
+            // Update price display
+            const priceEl = document.getElementById('dynamic-price');
+            if(priceEl) {
+                priceEl.innerText = formatIDR(price);
+            }
+        }
+
+        function orderViaWhatsApp(productName, brandName) {
+            // Find current product to get price for selected size
+            const product = products.find(p => p.name === productName);
+            const price = product ? product.prices[selectedProductSize] : 0;
+            const formattedPrice = formatIDR(price);
+            const productLink = window.location.href;
+
+            const message = `Hello Averarno! I would like to order:
+Product: ${productName}
+Brand: ${brandName}
+Size: ${selectedProductSize}
+Price: ${formattedPrice}
+Product Link: ${productLink}
+Please provide further ordering information.`;
+
+            const encodedMessage = encodeURIComponent(message);
+            const whatsappUrl = `https://wa.me/${WHATSAPP_PHONE}?text=${encodedMessage}`;
+            window.open(whatsappUrl, '_blank');
+            showToast('Redirecting to WhatsApp order concierge...');
+        }
+
+        function renderAbout() {
+            return `
+                <div class="max-w-5xl mx-auto px-6 py-16 space-y-20">
+                    <!-- Header -->
+                    <div class="text-center space-y-4 max-w-2xl mx-auto">
+                        <span class="text-xs uppercase tracking-[0.3em] text-[#8A8984] font-medium">Our Story & Vision</span>
+                        <h1 class="font-heading text-4xl sm:text-5xl font-light">Democratizing Niche Perfumery</h1>
+                        <p class="text-sm text-[#8A8984] leading-relaxed font-light">
+                            At Averarno, we believe that discovering exceptional fragrances should be an accessible, unpretentious experience.
+                        </p>
+                    </div>
+
+                    <!-- Narrative Split -->
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-12 items-center">
+                        <div class="space-y-6">
+                            <h2 class="font-heading text-2xl font-normal">The Decant Philosophy</h2>
+                            <p class="text-sm text-[#8A8984] leading-relaxed">
+                                Purchasing full-size niche bottles without experiencing them throughout various seasons, moods, and skin chemistries is a costly gamble. We curate distinctive scents and make them available in carefully prepared decants.
+                            </p>
+                            <p class="text-sm text-[#8A8984] leading-relaxed">
+                                Allowing everyone to explore world-class perfumery before committing to a full flacon.
+                            </p>
+                        </div>
+                        <div class="bg-white border border-[#D8D5CE] aspect-[4/3] overflow-hidden">
+                            <img src="https://images.unsplash.com/photo-1592945403244-b3fbafd7f539?auto=format&fit=crop&w=1000&q=80" alt="Averarno Fragrance Philosophy" class="w-full h-full object-cover">
+                        </div>
+                    </div>
+
+                    <!-- Values Grid -->
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-8 pt-10 border-t border-[#D8D5CE]">
+                        <div class="bg-white border border-[#D8D5CE] p-8 space-y-3">
+                            <span class="text-xs uppercase tracking-widest text-[#8A8984] font-medium">01 / Integrity</span>
+                            <h3 class="font-heading text-lg font-semibold">100% Authentic</h3>
+                            <p class="text-xs text-[#8A8984] leading-relaxed">Sourced directly from authorized luxury boutiques and official brand flagships. Zero dilution or imitation.</p>
+                        </div>
+                        <div class="bg-white border border-[#D8D5CE] p-8 space-y-3">
+                            <span class="text-xs uppercase tracking-widest text-[#8A8984] font-medium">02 / Precision</span>
+                            <h3 class="font-heading text-lg font-semibold">Medical-Grade Glass</h3>
+                            <p class="text-xs text-[#8A8984] leading-relaxed">Hand-decanted in sterile environments using precision laboratory pipettes into heavy glass atomizers.</p>
+                        </div>
+                        <div class="bg-white border border-[#D8D5CE] p-8 space-y-3">
+                            <span class="text-xs uppercase tracking-widest text-[#8A8984] font-medium">03 / Accessibility</span>
+                            <h3 class="font-heading text-lg font-semibold">Affordable Luxury</h3>
+                            <p class="text-xs text-[#8A8984] leading-relaxed">Enabling fragrance lovers to build a versatile wardrobe of scents for every occasion without breaking the bank.</p>
+                        </div>
+                    </div>
+                </div>
+            `;
+        }
+
+        function renderContact() {
+            return `
+                <div class="max-w-5xl mx-auto px-6 py-16 space-y-16">
+                    <!-- Header -->
+                    <div class="text-center space-y-4 max-w-2xl mx-auto">
+                        <span class="text-xs uppercase tracking-[0.3em] text-[#8A8984] font-medium">Support & Inquiry</span>
+                        <h1 class="font-heading text-4xl sm:text-5xl font-light">Contact & FAQ</h1>
+                        <p class="text-sm text-[#8A8984]">We are here to assist with your fragrance journey.</p>
+                    </div>
+
+                    <!-- Contact Channels -->
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+                        <div class="bg-white border border-[#D8D5CE] p-8 space-y-4 text-center flex flex-col items-center justify-center">
+                            <i data-lucide="message-circle" class="w-8 h-8 text-[#171717]"></i>
+                            <h3 class="font-heading text-xl font-semibold">WhatsApp Concierge</h3>
+                            <p class="text-xs text-[#8A8984] max-w-xs">Direct ordering and instant fragrance recommendations with our concierge team.</p>
+                            <a href="https://wa.me/${WHATSAPP_PHONE}" target="_blank" class="inline-block bg-[#171717] text-[#F5F4F0] px-6 py-3 text-xs uppercase tracking-widest hover:bg-stone hover:text-[#171717] transition-all">Chat on WhatsApp</a>
+                        </div>
+                        <div class="bg-white border border-[#D8D5CE] p-8 space-y-4 text-center flex flex-col items-center justify-center">
+                            <i data-lucide="instagram" class="w-8 h-8 text-[#171717]"></i>
+                            <h3 class="font-heading text-xl font-semibold">Instagram Community</h3>
+                            <p class="text-xs text-[#8A8984] max-w-xs">Follow our daily scent notes, unboxing stories, and community reviews.</p>
+                            <a href="https://instagram.com" target="_blank" class="inline-block border border-[#171717] text-[#171717] px-6 py-3 text-xs uppercase tracking-widest hover:bg-[#171717] hover:text-[#F5F4F0] transition-all">Follow @averarno</a>
+                        </div>
+                    </div>
+
+                    <!-- FAQ Section -->
+                    <div class="space-y-6">
+                        <h2 class="font-heading text-2xl font-normal text-center mb-8">Frequently Asked Questions</h2>
+                        
+                        <div class="space-y-4 max-w-3xl mx-auto">
+                            <div class="bg-white border border-[#D8D5CE] p-6 space-y-2">
+                                <h3 class="font-heading font-semibold text-sm">Are all Averarno decants 100% authentic?</h3>
+                                <p class="text-xs text-[#8A8984] leading-relaxed">Yes. Every perfume in our catalog is purchased directly from official flagship boutiques and authorized niche retailers. We never sell replicas or diluted products.</p>
+                            </div>
+                            <div class="bg-white border border-[#D8D5CE] p-6 space-y-2">
+                                <h3 class="font-heading font-semibold text-sm">How are the decants packaged?</h3>
+                                <p class="text-xs text-[#8A8984] leading-relaxed">Fragrances are hygienically hand-decanted into premium glass atomizers equipped with fine-mist sprayers and securely sealed to prevent evaporation during transit.</p>
+                            </div>
+                            <div class="bg-white border border-[#D8D5CE] p-6 space-y-2">
+                                <h3 class="font-heading font-semibold text-sm">How does WhatsApp ordering work?</h3>
+                                <p class="text-xs text-[#8A8984] leading-relaxed">When you click "Order via WhatsApp" on any product page, our system automatically formats your selected perfume, brand, and size into a ready-to-send message to our concierge. We will confirm availability, shipping details, and payment options directly on WhatsApp.</p>
+                            </div>
+                            <div class="bg-white border border-[#D8D5CE] p-6 space-y-2">
+                                <h3 class="font-heading font-semibold text-sm">What are the shipping estimates?</h3>
+                                <p class="text-xs text-[#8A8984] leading-relaxed">Orders are carefully wrapped in protective cushioning and shipped within 1-2 business days. Delivery times vary by region, typically taking 2-4 business days nationwide.</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            `;
+        }
+
+        function handleNewsletter(e) {
+            e.preventDefault();
+            showToast('Thank you for subscribing to Averarno.');
+            e.target.reset();
+        }
+
+        // Initialize application on load
+        window.onload = function() {
+            render();
+        };
+    </script>
+</body>
+</html>
