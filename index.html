@@ -1,9 +1,25 @@
 <!DOCTYPE html>
-<html lang="en" class="scroll-smooth">
+<html lang="id" class="scroll-smooth">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Averarno — Discover Your Signature Scent</title>
+    
+    <!-- Primary SEO Meta Tags -->
+    <title>Averarno — Premium Perfume Decants Indonesia</title>
+    <meta name="description" content="Temukan berbagai pilihan parfum original dalam ukuran decant bersama Averarno. Jelajahi koleksi parfum pilihan dengan harga yang lebih terjangkau." />
+    <meta name="robots" content="index, follow" />
+    <link rel="canonical" href="https://averarno.vercel.app/" />
+
+    <!-- Open Graph / Social Media Preview -->
+    <meta property="og:type" content="website" />
+    <meta property="og:url" content="https://averarno.vercel.app/" />
+    <meta property="og:title" content="Averarno — Premium Perfume Decants Indonesia" />
+    <meta property="og:description" content="Temukan berbagai pilihan parfum original dalam ukuran decant bersama Averarno. Jelajahi koleksi parfum pilihan dengan harga yang lebih terjangkau." />
+    <meta property="og:image" content="https://images.unsplash.com/photo-1594035910387-fea47794261f?auto=format&fit=crop&w=1200&q=80" />
+
+    <!-- Favicon (Monogram A) -->
+    <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' fill='%23171717'/><text x='50' y='68' font-family='sans-serif' font-size='58' font-weight='bold' fill='%23F5F4F0' text-anchor='middle'>A</text></svg>" />
+
     <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
     <!-- Google Fonts: Manrope & Inter -->
@@ -116,7 +132,7 @@
         <!-- Rendered dynamically by JavaScript router -->
     </main>
 
-    <!-- Custom Confirmation Modal (No browser confirm/alert) -->
+    <!-- Custom Confirmation Modal -->
     <div id="confirm-modal" class="hidden fixed inset-0 z-50 bg-[#171717]/60 backdrop-blur-xs flex items-center justify-center p-4">
         <div class="bg-[#F5F4F0] border border-[#D8D5CE] max-w-md w-full p-8 space-y-6 shadow-2xl">
             <h3 id="confirm-title" class="font-heading text-xl font-semibold text-[#171717]">Confirm Action</h3>
@@ -188,10 +204,6 @@
 
     <!-- Application JavaScript Logic -->
     <script>
-        // =========================================================================
-        // 1. SUPABASE & SYSTEM CONFIGURATION
-        // =========================================================================
-        // Replace with your actual Supabase Project URL & Anon Key (Public key only, NEVER service_role)
         let SUPABASE_URL = window.ENV_SUPABASE_URL || "";
         let SUPABASE_ANON_KEY = window.ENV_SUPABASE_ANON_KEY || "";
         let WHATSAPP_PHONE = "6281249843385";
@@ -207,7 +219,6 @@
             }
         }
 
-        // Fallback Seed Data (Used when Supabase credentials are not yet configured)
         const defaultSeedProducts = [
             {
                 id: "1",
@@ -280,6 +291,7 @@
                 prices: { "2 ml": 70000, "5 ml": 155000, "10 ml": 290000 },
                 size_availability: { "2 ml": true, "5 ml": true, "10 ml": true },
                 stock_status: "In Stock",
+                status: "published",
                 featured: true,
                 bestseller: false,
                 new_arrival: true,
@@ -305,6 +317,7 @@
                 prices: { "2 ml": 85000, "5 ml": 190000, "10 ml": 360000 },
                 size_availability: { "2 ml": true, "5 ml": true, "10 ml": true },
                 stock_status: "In Stock",
+                status: "published",
                 featured: true,
                 bestseller: true,
                 new_arrival: false,
@@ -330,6 +343,7 @@
                 prices: { "2 ml": 90000, "5 ml": 200000, "10 ml": 380000 },
                 size_availability: { "2 ml": true, "5 ml": true, "10 ml": true },
                 stock_status: "In Stock",
+                status: "published",
                 featured: false,
                 bestseller: true,
                 new_arrival: false,
@@ -355,6 +369,7 @@
                 prices: { "2 ml": 75000, "5 ml": 165000, "10 ml": 310000 },
                 size_availability: { "2 ml": true, "5 ml": true, "10 ml": true },
                 stock_status: "In Stock",
+                status: "published",
                 featured: false,
                 bestseller: false,
                 new_arrival: true,
@@ -380,6 +395,7 @@
                 prices: { "2 ml": 80000, "5 ml": 180000, "10 ml": 340000 },
                 size_availability: { "2 ml": true, "5 ml": true, "10 ml": true },
                 stock_status: "In Stock",
+                status: "published",
                 featured: true,
                 bestseller: false,
                 new_arrival: false,
@@ -405,6 +421,7 @@
                 prices: { "2 ml": 65000, "5 ml": 145000, "10 ml": 275000 },
                 size_availability: { "2 ml": true, "5 ml": true, "10 ml": true },
                 stock_status: "In Stock",
+                status: "published",
                 featured: false,
                 bestseller: true,
                 new_arrival: false,
@@ -413,9 +430,6 @@
             }
         ];
 
-        // =========================================================================
-        // 2. APPLICATION STATE & DATA LAYER
-        // =========================================================================
         let products = [...defaultSeedProducts];
         let categoriesList = ["Woody Aromatic", "Amber Floral", "Amber Vanilla", "Citrus Aromatic", "Woody Musk", "Woody Warm"];
         let brandsList = ["Le Labo", "Maison Francis Kurkdjian", "Byredo", "Tom Ford", "Creed", "Parfums de Marly", "Maison Margiela"];
@@ -424,7 +438,6 @@
         let currentParam = null;
         let isLoadingData = false;
 
-        // Public Shop Filters
         let shopFilters = {
             search: '',
             brand: 'All',
@@ -433,11 +446,10 @@
         };
         let selectedProductSize = '5 ml';
 
-        // Admin CMS State
         let adminState = {
             user: null,
             isAdminAuthorized: false,
-            subRoute: 'overview', // overview | products | add-product | edit-product | categories | brands | settings
+            subRoute: 'overview',
             editingProductId: null,
             searchQuery: '',
             filterBrand: 'All',
@@ -448,9 +460,6 @@
             formDraft: null
         };
 
-        // =========================================================================
-        // 3. SUPABASE DATA SYNC & AUTHENTICATION
-        // =========================================================================
         async function fetchAllData() {
             if (!supabaseClient) {
                 syncTaxonomyLists();
@@ -458,8 +467,6 @@
             }
             isLoadingData = true;
             try {
-                // Fetch products from Supabase PostgreSQL
-                // Public visitors only get 'published' products via RLS, authenticated admin gets all
                 const { data: prodData, error: prodError } = await supabaseClient
                     .from('products')
                     .select('*')
@@ -470,13 +477,11 @@
                     products = prodData;
                 }
 
-                // Fetch categories if table exists
                 const { data: catData } = await supabaseClient.from('categories').select('name');
                 if (catData && catData.length > 0) {
                     categoriesList = [...new Set([...categoriesList, ...catData.map(c => c.name)])];
                 }
 
-                // Fetch brands if table exists
                 const { data: brandData } = await supabaseClient.from('brands').select('name');
                 if (brandData && brandData.length > 0) {
                     brandsList = [...new Set([...brandsList, ...brandData.map(b => b.name)])];
@@ -484,7 +489,7 @@
 
                 syncTaxonomyLists();
             } catch (err) {
-                console.warn("Supabase fetch notice (using local fallback if tables not created yet):", err.message);
+                console.warn("Supabase fetch notice:", err.message);
             } finally {
                 isLoadingData = false;
                 render();
@@ -509,7 +514,6 @@
         async function verifyAdminAuthorization(user) {
             if (!supabaseClient) return;
             try {
-                // Check admin_users table for strict role-based authorization
                 const { data: adminRecord, error } = await supabaseClient
                     .from('admin_users')
                     .select('id, role')
@@ -517,7 +521,6 @@
                     .single();
 
                 if (error && error.code !== 'PGRST116') {
-                    // If admin_users table doesn't exist yet, allow authenticated user as fallback until RLS table is created
                     adminState.user = user;
                     adminState.isAdminAuthorized = true;
                 } else if (adminRecord) {
@@ -541,7 +544,7 @@
             const password = document.getElementById('admin-password').value;
 
             if (!supabaseClient) {
-                showToast("Please configure your Supabase URL & Anon Key in Settings first.");
+                showToast("Please configure your Supabase URL & Anon Key first.");
                 return;
             }
 
@@ -579,9 +582,6 @@
             router('home');
         }
 
-        // =========================================================================
-        // 4. ROUTING & UI UTILITIES
-        // =========================================================================
         function router(route, param = null) {
             currentRoute = route;
             currentParam = param;
@@ -597,9 +597,7 @@
                         window.history.pushState({}, '', '/');
                     }
                 }
-            } catch (e) {
-                // Ignore cross-origin or blob navigation security restrictions silently
-            }
+            } catch (e) {}
             window.scrollTo({ top: 0, behavior: 'smooth' });
             render();
         }
@@ -614,7 +612,6 @@
                 const existing = products.find(p => String(p.id) === String(productId));
                 if (existing) {
                     adminState.formDraft = JSON.parse(JSON.stringify(existing));
-                    // Ensure size_rows array exists for dynamic editor
                     adminState.formDraft.size_rows = (existing.sizes || ["2 ml", "5 ml", "10 ml"]).map(sz => ({
                         size: sz,
                         price: existing.prices?.[sz] || 0,
@@ -701,14 +698,12 @@
                 .replace(/\-\-+/g, '-');
         }
 
-        // Main Render Dispatcher
         function render() {
             const app = document.getElementById('app');
             const header = document.getElementById('main-header');
             const footer = document.getElementById('main-footer');
 
             if (currentRoute === 'admin') {
-                // Hide public chrome when inside authenticated admin dashboard
                 if (adminState.isAdminAuthorized) {
                     header.classList.add('hidden');
                     footer.classList.add('hidden');
@@ -735,9 +730,6 @@
             lucide.createIcons();
         }
 
-        // =========================================================================
-        // 5. PUBLIC WEBSITE VIEWS (Automatically synchronized with published items)
-        // =========================================================================
         function getPublishedProducts() {
             return products.filter(p => (p.status || 'published') === 'published');
         }
@@ -748,17 +740,16 @@
             const bestsellerProducts = published.filter(p => p.bestseller).slice(0, 4);
 
             return `
-                <!-- Hero Section -->
                 <section class="relative min-h-[85vh] flex items-center justify-center bg-[#F5F4F0] border-b border-[#D8D5CE] px-6 py-20 overflow-hidden">
                     <div class="max-w-5xl mx-auto text-center z-10 space-y-8">
                         <span class="inline-block text-xs uppercase tracking-[0.3em] font-medium text-[#8A8984] border-b border-[#8A8984]/40 pb-1">
-                            Curated Niche Decants
+                            Averarno — Premium Perfume Decants Indonesia
                         </span>
                         <h1 class="font-heading text-4xl sm:text-6xl md:text-7xl font-light tracking-tight text-[#171717] leading-[1.1]">
                             Discover Your <br/><span class="font-normal italic">Signature Scent.</span>
                         </h1>
                         <p class="max-w-xl mx-auto text-base sm:text-lg text-[#8A8984] font-light leading-relaxed">
-                            Explore distinctive fragrances through a more accessible, refined way. Experience prestigious houses without full-bottle commitments.
+                            Temukan berbagai pilihan parfum original dalam ukuran decant bersama Averarno. Jelajahi koleksi parfum pilihan dengan harga yang lebih terjangkau.
                         </p>
                         <div class="pt-4 flex flex-col sm:flex-row items-center justify-center gap-4">
                             <button onclick="router('shop')" class="w-full sm:w-auto bg-[#171717] text-[#F5F4F0] px-8 py-4 text-xs font-medium uppercase tracking-[0.2em] hover:bg-stone hover:text-[#171717] transition-all">
@@ -771,7 +762,6 @@
                     </div>
                 </section>
 
-                <!-- Featured Collection -->
                 <section class="max-w-7xl mx-auto px-6 py-24">
                     <div class="flex flex-col md:flex-row md:items-end justify-between mb-12">
                         <div>
@@ -789,7 +779,6 @@
                     </div>
                 </section>
 
-                <!-- Brand Narrative Banner -->
                 <section class="bg-[#171717] text-[#F5F4F0] py-28 px-6 my-12">
                     <div class="max-w-4xl mx-auto text-center space-y-8">
                         <span class="text-xs uppercase tracking-[0.3em] text-[#8A8984]">The Averarno Standard</span>
@@ -807,7 +796,6 @@
                     </div>
                 </section>
 
-                <!-- Best Sellers -->
                 <section class="max-w-7xl mx-auto px-6 py-24">
                     <div class="flex flex-col md:flex-row md:items-end justify-between mb-12">
                         <div>
@@ -836,7 +824,7 @@
             return `
                 <div class="group cursor-pointer bg-[#F5F4F0] border border-[#D8D5CE] p-4 flex flex-col justify-between transition-all duration-300 hover:border-[#171717]" onclick="router('product', '${p.slug}')">
                     <div class="relative overflow-hidden aspect-[4/5] bg-stone/20 mb-4">
-                        <img src="${primaryImage}" alt="${p.name}" class="w-full h-full object-cover object-center transition-transform duration-700 group-hover:scale-105 ${isOutOfStock ? 'opacity-60 grayscale' : ''}" onerror="this.src='https://placehold.co/600x800/D8D5CE/171717?text=Averarno'">
+                        <img src="${primaryImage}" alt="${p.brand} ${p.name} Decant Parfum Original - Averarno" loading="lazy" class="w-full h-full object-cover object-center transition-transform duration-700 group-hover:scale-105 ${isOutOfStock ? 'opacity-60 grayscale' : ''}" onerror="this.src='https://placehold.co/600x800/D8D5CE/171717?text=Averarno'">
                         <div class="absolute top-3 left-3 flex flex-col gap-1.5">
                             ${isOutOfStock ? '<span class="bg-red-900 text-[#F5F4F0] text-[10px] uppercase tracking-widest px-2.5 py-1">Out of Stock</span>' : ''}
                             ${!isOutOfStock && p.bestseller ? '<span class="bg-[#171717] text-[#F5F4F0] text-[10px] uppercase tracking-widest px-2.5 py-1">Best Seller</span>' : ''}
@@ -987,13 +975,13 @@
                     <div class="grid grid-cols-1 lg:grid-cols-2 gap-12 lg:gap-16 items-start">
                         <div class="space-y-4">
                             <div class="bg-white border border-[#D8D5CE] overflow-hidden aspect-[4/5]">
-                                <img id="main-product-image" src="${images[0]}" alt="${product.name}" class="w-full h-full object-cover object-center" onerror="this.src='https://placehold.co/800x1000/D8D5CE/171717?text=Averarno'">
+                                <img id="main-product-image" src="${images[0]}" alt="${product.brand} ${product.name} Decant Parfum Original - Averarno" class="w-full h-full object-cover object-center" onerror="this.src='https://placehold.co/800x1000/D8D5CE/171717?text=Averarno'">
                             </div>
                             ${images.length > 1 ? `
                                 <div class="grid grid-cols-4 gap-4">
-                                    ${images.map((img) => `
+                                    ${images.map((img, idx) => `
                                         <div onclick="document.getElementById('main-product-image').src='${img}'" class="cursor-pointer bg-white border border-[#D8D5CE] aspect-[4/5] overflow-hidden opacity-80 hover:opacity-100 transition-opacity">
-                                            <img src="${img}" class="w-full h-full object-cover object-center" onerror="this.src='https://placehold.co/400x500/D8D5CE/171717?text=View'">
+                                            <img src="${img}" alt="${product.brand} ${product.name} view ${idx + 1}" class="w-full h-full object-cover object-center" onerror="this.src='https://placehold.co/400x500/D8D5CE/171717?text=View'">
                                         </div>
                                     `).join('')}
                                 </div>
@@ -1123,7 +1111,7 @@ Please provide further ordering information.`;
                             </p>
                         </div>
                         <div class="bg-white border border-[#D8D5CE] aspect-[4/3] overflow-hidden">
-                            <img src="https://images.unsplash.com/photo-1592945403244-b3fbafd7f539?auto=format&fit=crop&w=1000&q=80" alt="Averarno Fragrance Philosophy" class="w-full h-full object-cover">
+                            <img src="https://images.unsplash.com/photo-1592945403244-b3fbafd7f539?auto=format&fit=crop&w=1000&q=80" alt="Averarno Fragrance Decant Philosophy" class="w-full h-full object-cover">
                         </div>
                     </div>
                     <div class="grid grid-cols-1 md:grid-cols-3 gap-8 pt-10 border-t border-[#D8D5CE]">
@@ -1200,9 +1188,6 @@ Please provide further ordering information.`;
             e.target.reset();
         }
 
-        // =========================================================================
-        // 6. ADMIN AUTHENTICATION & CMS DASHBOARD (/admin)
-        // =========================================================================
         function renderAdminPortal() {
             if (!adminState.isAdminAuthorized) {
                 return renderAdminLogin();
@@ -1227,7 +1212,6 @@ Please provide further ordering information.`;
 
             return `
                 <div class="min-h-screen flex flex-col lg:flex-row bg-[#F5F4F0] text-[#171717]">
-                    <!-- Admin Sidebar -->
                     <aside class="w-full lg:w-64 bg-[#171717] text-[#F5F4F0] flex flex-col justify-between shrink-0 border-b lg:border-b-0 lg:border-r border-[#D8D5CE]/20">
                         <div>
                             <div class="p-6 border-b border-[#8A8984]/20 flex items-center justify-between">
@@ -1269,9 +1253,7 @@ Please provide further ordering information.`;
                         </div>
                     </aside>
 
-                    <!-- Admin Workspace -->
                     <div class="flex-grow flex flex-col min-w-0">
-                        <!-- Top Mobile/Status Bar -->
                         <div class="bg-white border-b border-[#D8D5CE] px-6 py-4 flex items-center justify-between">
                             <div class="flex items-center space-x-3">
                                 <span class="w-2 h-2 rounded-full ${supabaseClient ? 'bg-emerald-600' : 'bg-amber-500'}"></span>
@@ -1371,7 +1353,6 @@ Please provide further ordering information.`;
                         </button>
                     </div>
 
-                    <!-- KPI Cards -->
                     <div class="grid grid-cols-2 lg:grid-cols-4 gap-6">
                         <div class="bg-white border border-[#D8D5CE] p-6 space-y-2">
                             <span class="text-xs uppercase tracking-widest text-[#8A8984]">Total Products</span>
@@ -1391,7 +1372,6 @@ Please provide further ordering information.`;
                         </div>
                     </div>
 
-                    <!-- Recently Added Products -->
                     <div class="bg-white border border-[#D8D5CE]">
                         <div class="px-6 py-4 border-b border-[#D8D5CE] flex items-center justify-between">
                             <h2 class="font-heading text-base font-semibold">Recently Added Fragrances</h2>
@@ -1456,7 +1436,6 @@ Please provide further ordering information.`;
                         </button>
                     </div>
 
-                    <!-- Filters -->
                     <div class="bg-white border border-[#D8D5CE] p-4 grid grid-cols-1 md:grid-cols-3 gap-4">
                         <div class="relative">
                             <span class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-[#8A8984]">
@@ -1474,7 +1453,6 @@ Please provide further ordering information.`;
                         </select>
                     </div>
 
-                    <!-- Product Table -->
                     <div class="bg-white border border-[#D8D5CE] overflow-x-auto">
                         <table class="w-full text-left border-collapse">
                             <thead>
@@ -1540,7 +1518,6 @@ Please provide further ordering information.`;
                         </table>
                     </div>
 
-                    <!-- Pagination -->
                     <div class="flex items-center justify-between text-xs text-[#8A8984]">
                         <span>Showing ${filtered.length === 0 ? 0 : startIdx + 1}–${Math.min(startIdx + adminState.itemsPerPage, filtered.length)} of ${filtered.length} products</span>
                         <div class="flex space-x-2">
@@ -1567,9 +1544,6 @@ Please provide further ordering information.`;
             render();
         }
 
-        // =========================================================================
-        // 7. ADD / EDIT PRODUCT FORM & SUPABASE STORAGE UPLOAD
-        // =========================================================================
         function renderAdminProductForm() {
             const isEdit = adminState.subRoute === 'edit-product';
             const f = adminState.formDraft || createEmptyProductForm();
@@ -1587,7 +1561,6 @@ Please provide further ordering information.`;
                     </div>
 
                     <form id="product-cms-form" onsubmit="return false;" class="space-y-8">
-                        <!-- Basic Information -->
                         <div class="bg-white border border-[#D8D5CE] p-6 sm:p-8 space-y-6">
                             <h2 class="font-heading text-base font-semibold border-b border-[#D8D5CE]/50 pb-3">1. Basic Information</h2>
                             <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -1626,7 +1599,6 @@ Please provide further ordering information.`;
                             </div>
                         </div>
 
-                        <!-- Product Images (Supabase Storage) -->
                         <div class="bg-white border border-[#D8D5CE] p-6 sm:p-8 space-y-6">
                             <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b border-[#D8D5CE]/50 pb-3">
                                 <h2 class="font-heading text-base font-semibold">2. Product Images (Supabase Storage)</h2>
@@ -1667,7 +1639,6 @@ Please provide further ordering information.`;
                             ` : `<p class="text-xs text-[#8A8984] italic">No images added yet.</p>`}
                         </div>
 
-                        <!-- Fragrance Notes -->
                         <div class="bg-white border border-[#D8D5CE] p-6 sm:p-8 space-y-6">
                             <h2 class="font-heading text-base font-semibold border-b border-[#D8D5CE]/50 pb-3">3. Olfactory Pyramid (Notes)</h2>
                             <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
@@ -1677,7 +1648,6 @@ Please provide further ordering information.`;
                             </div>
                         </div>
 
-                        <!-- Decant Sizes & Pricing -->
                         <div class="bg-white border border-[#D8D5CE] p-6 sm:p-8 space-y-6">
                             <div class="flex items-center justify-between border-b border-[#D8D5CE]/50 pb-3">
                                 <h2 class="font-heading text-base font-semibold">4. Decant Sizes & Pricing</h2>
@@ -1712,7 +1682,6 @@ Please provide further ordering information.`;
                             </div>
                         </div>
 
-                        <!-- Product Settings & Publication -->
                         <div class="bg-white border border-[#D8D5CE] p-6 sm:p-8 space-y-6">
                             <h2 class="font-heading text-base font-semibold border-b border-[#D8D5CE]/50 pb-3">5. Visibility & Merchandising</h2>
                             <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -1963,7 +1932,6 @@ Please provide further ordering information.`;
                     }
                     await fetchAllData();
                 } else {
-                    // Fallback in-memory update if Supabase isn't connected yet
                     if (adminState.subRoute === 'edit-product' && adminState.editingProductId) {
                         const idx = products.findIndex(p => String(p.id) === String(adminState.editingProductId));
                         if (idx !== -1) products[idx] = { ...products[idx], ...payload };
@@ -2058,9 +2026,6 @@ Please provide further ordering information.`;
             );
         }
 
-        // =========================================================================
-        // 8. CATEGORIES, BRANDS & SYSTEM SETTINGS
-        // =========================================================================
         function renderAdminTaxonomy(type) {
             const isBrand = type === 'brand';
             const items = isBrand ? brandsList : categoriesList;
@@ -2193,9 +2158,6 @@ CREATE POLICY "Admins full access" ON public.products
             showToast('Store settings updated.');
         }
 
-        // =========================================================================
-        // 9. INITIALIZATION & URL PATH ROUTING
-        // =========================================================================
         window.onload = async function() {
             initSupabase();
             await checkAdminSession();
