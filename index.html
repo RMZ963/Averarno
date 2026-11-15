@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    
+
     <!-- Primary SEO Meta Tags -->
     <title>Averarno — Premium Perfume Decants Indonesia</title>
     <meta name="description" content="Temukan berbagai pilihan parfum original dalam ukuran decant bersama Averarno. Jelajahi koleksi parfum pilihan dengan harga yang lebih terjangkau." />
@@ -20,16 +20,24 @@
     <!-- Favicon (Monogram A) -->
     <link rel="icon" type="image/png" href="/favicon.png" />
 
+    <!-- Dynamic JSON-LD Structured Data (SEO Rich Snippets) -->
+    <script id="structured-data" type="application/ld+json"></script>
+
     <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
+
     <!-- Google Fonts: Manrope & Inter -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&family=Manrope:wght@400;500;600;700&display=swap" rel="stylesheet">
+
     <!-- Lucide Icons -->
     <script src="https://unpkg.com/lucide@latest"></script>
+
     <!-- Supabase JS Client -->
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+    <!-- Tailwind Design Tokens -->
     <script>
         tailwind.config = {
             theme: {
@@ -48,11 +56,14 @@
             }
         }
     </script>
+
+    <!-- Custom Editorial Styles & Micro-Animations -->
     <style>
         body {
             background-color: #F5F4F0;
             color: #171717;
             font-family: 'Inter', sans-serif;
+            overflow-x: hidden;
         }
         h1, h2, h3, h4, h5, h6 {
             font-family: 'Manrope', sans-serif;
@@ -60,8 +71,16 @@
         .border-editorial {
             border-color: #D8D5CE;
         }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(6px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        .animate-fade-in {
+            animation: fadeIn 0.35s ease-out forwards;
+        }
         ::-webkit-scrollbar {
             width: 6px;
+            height: 6px;
         }
         ::-webkit-scrollbar-track {
             background: #F5F4F0;
@@ -69,21 +88,24 @@
         ::-webkit-scrollbar-thumb {
             background: #D8D5CE;
         }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #8A8984;
+        }
     </style>
 </head>
 <body class="bg-[#F5F4F0] text-[#171717] antialiased min-h-screen flex flex-col justify-between selection:bg-[#171717] selection:text-[#F5F4F0]">
 
     <!-- Notification Toast -->
-    <div id="toast" class="fixed bottom-6 right-6 z-50 transform translate-y-20 opacity-0 transition-all duration-300 bg-[#171717] text-[#F5F4F0] px-6 py-3 rounded-none shadow-lg text-sm flex items-center space-x-3 border border-[#D8D5CE]/20">
-        <i data-lucide="check-circle" class="w-4 h-4 text-stone"></i>
+    <div id="toast" role="status" aria-live="polite" class="fixed bottom-6 right-6 z-50 transform translate-y-20 opacity-0 pointer-events-none transition-all duration-300 bg-[#171717] text-[#F5F4F0] px-6 py-3.5 shadow-xl text-xs tracking-wide flex items-center space-x-3 border border-[#D8D5CE]/20">
+        <i data-lucide="check-circle" class="w-4 h-4 text-stone shrink-0"></i>
         <span id="toast-message">Action successful</span>
     </div>
 
     <!-- Navigation Bar -->
-    <header id="main-header" class="sticky top-0 z-40 bg-[#F5F4F0]/90 backdrop-blur-md border-b border-[#D8D5CE]">
+    <header id="main-header" class="sticky top-0 z-40 bg-[#F5F4F0]/95 backdrop-blur-md border-b border-[#D8D5CE]">
         <div class="max-w-7xl mx-auto px-6 h-20 flex items-center justify-between">
-            <!-- Mobile Menu Button -->
-            <button onclick="toggleMobileMenu()" class="md:hidden p-2 text-[#171717] hover:text-[#8A8984] transition-colors">
+            <!-- Mobile Menu Toggle -->
+            <button onclick="toggleMobileMenu()" aria-label="Toggle Navigation Menu" class="md:hidden p-2 -ml-2 text-[#171717] hover:text-[#8A8984] transition-colors">
                 <i data-lucide="menu" class="w-6 h-6"></i>
             </button>
 
@@ -92,23 +114,23 @@
                 Averarno
             </a>
 
-            <!-- Desktop Nav Links -->
-            <nav class="hidden md:flex items-center space-x-10 text-sm font-medium tracking-wide">
-                <a href="#" onclick="router('home'); return false;" class="nav-link text-[#171717] hover:text-[#8A8984] transition-colors py-2 border-b-2 border-transparent hover:border-[#171717]">Home</a>
-                <a href="#" onclick="router('shop'); return false;" class="nav-link text-[#171717] hover:text-[#8A8984] transition-colors py-2 border-b-2 border-transparent hover:border-[#171717]">Shop Catalog</a>
-                <a href="#" onclick="router('about'); return false;" class="nav-link text-[#171717] hover:text-[#8A8984] transition-colors py-2 border-b-2 border-transparent hover:border-[#171717]">About</a>
-                <a href="#" onclick="router('contact'); return false;" class="nav-link text-[#171717] hover:text-[#8A8984] transition-colors py-2 border-b-2 border-transparent hover:border-[#171717]">Contact & FAQ</a>
+            <!-- Desktop Navigation Links -->
+            <nav aria-label="Main Navigation" class="hidden md:flex items-center space-x-10 text-sm font-medium tracking-wide">
+                <a href="#" data-nav="home" onclick="router('home'); return false;" class="nav-link text-[#171717] hover:text-[#8A8984] transition-colors py-2 border-b-2 border-transparent">Home</a>
+                <a href="#" data-nav="shop" onclick="router('shop'); return false;" class="nav-link text-[#171717] hover:text-[#8A8984] transition-colors py-2 border-b-2 border-transparent">Shop Catalog</a>
+                <a href="#" data-nav="about" onclick="router('about'); return false;" class="nav-link text-[#171717] hover:text-[#8A8984] transition-colors py-2 border-b-2 border-transparent">About</a>
+                <a href="#" data-nav="contact" onclick="router('contact'); return false;" class="nav-link text-[#171717] hover:text-[#8A8984] transition-colors py-2 border-b-2 border-transparent">Contact & FAQ</a>
             </nav>
 
-            <!-- Right Actions -->
-            <div class="flex items-center space-x-4">
-                <button onclick="router('shop')" class="p-2 text-[#171717] hover:text-[#8A8984] transition-colors" title="Search Catalog">
+            <!-- Header Right Actions -->
+            <div class="flex items-center space-x-2 sm:space-x-4">
+                <button onclick="router('shop')" aria-label="Search Catalog" class="p-2 text-[#171717] hover:text-[#8A8984] transition-colors" title="Search Catalog">
                     <i data-lucide="search" class="w-5 h-5"></i>
                 </button>
-                <a href="https://www.instagram.com/aver.arno/" target="_blank" rel="noopener noreferrer" class="hidden sm:inline-flex p-2 text-[#171717] hover:text-[#8A8984] transition-colors" title="Instagram">
+                <a href="https://www.instagram.com/aver.arno/" target="_blank" rel="noopener noreferrer" aria-label="Instagram" class="hidden sm:inline-flex p-2 text-[#171717] hover:text-[#8A8984] transition-colors" title="Instagram @aver.arno">
                     <i data-lucide="instagram" class="w-5 h-5"></i>
                 </a>
-                <button onclick="router('admin')" class="p-2 text-[#171717] hover:text-[#8A8984] transition-colors" title="Admin CMS">
+                <button onclick="router('admin')" aria-label="Admin Portal" class="p-2 -mr-2 text-[#171717] hover:text-[#8A8984] transition-colors" title="Admin CMS">
                     <i data-lucide="shield-check" class="w-5 h-5"></i>
                 </button>
             </div>
@@ -116,13 +138,16 @@
 
         <!-- Mobile Navigation Drawer -->
         <div id="mobile-menu" class="hidden md:hidden absolute top-20 left-0 w-full bg-[#F5F4F0] border-b border-[#D8D5CE] px-6 py-6 space-y-4 shadow-xl">
-            <a href="#" onclick="router('home'); toggleMobileMenu(); return false;" class="block text-lg font-medium text-[#171717] py-2 border-b border-[#D8D5CE]/40">Home</a>
-            <a href="#" onclick="router('shop'); toggleMobileMenu(); return false;" class="block text-lg font-medium text-[#171717] py-2 border-b border-[#D8D5CE]/40">Shop Catalog</a>
-            <a href="#" onclick="router('about'); toggleMobileMenu(); return false;" class="block text-lg font-medium text-[#171717] py-2 border-b border-[#D8D5CE]/40">About</a>
-            <a href="#" onclick="router('contact'); toggleMobileMenu(); return false;" class="block text-lg font-medium text-[#171717] py-2 border-b border-[#D8D5CE]/40">Contact & FAQ</a>
-            <a href="#" onclick="router('admin'); toggleMobileMenu(); return false;" class="block text-lg font-medium text-[#171717] py-2 border-b border-[#D8D5CE]/40">Admin Dashboard</a>
-            <div class="pt-2 flex space-x-4">
-                <a href="https://www.instagram.com/aver.arno/" target="_blank" rel="noopener noreferrer" class="text-sm text-[#8A8984] hover:text-[#171717]">Instagram @aver.arno</a>
+            <a href="#" onclick="router('home'); toggleMobileMenu(); return false;" class="block text-base font-medium text-[#171717] py-2 border-b border-[#D8D5CE]/40">Home</a>
+            <a href="#" onclick="router('shop'); toggleMobileMenu(); return false;" class="block text-base font-medium text-[#171717] py-2 border-b border-[#D8D5CE]/40">Shop Catalog</a>
+            <a href="#" onclick="router('about'); toggleMobileMenu(); return false;" class="block text-base font-medium text-[#171717] py-2 border-b border-[#D8D5CE]/40">About</a>
+            <a href="#" onclick="router('contact'); toggleMobileMenu(); return false;" class="block text-base font-medium text-[#171717] py-2 border-b border-[#D8D5CE]/40">Contact & FAQ</a>
+            <a href="#" onclick="router('admin'); toggleMobileMenu(); return false;" class="block text-base font-medium text-[#171717] py-2 border-b border-[#D8D5CE]/40">Admin Dashboard</a>
+            <div class="pt-2">
+                <a href="https://www.instagram.com/aver.arno/" target="_blank" rel="noopener noreferrer" class="inline-flex items-center gap-2 text-xs uppercase tracking-widest text-[#8A8984] hover:text-[#171717]">
+                    <i data-lucide="instagram" class="w-4 h-4"></i>
+                    <span>@aver.arno</span>
+                </a>
             </div>
         </div>
     </header>
@@ -133,8 +158,8 @@
     </main>
 
     <!-- Custom Confirmation Modal -->
-    <div id="confirm-modal" class="hidden fixed inset-0 z-50 bg-[#171717]/60 backdrop-blur-xs flex items-center justify-center p-4">
-        <div class="bg-[#F5F4F0] border border-[#D8D5CE] max-w-md w-full p-8 space-y-6 shadow-2xl">
+    <div id="confirm-modal" role="dialog" aria-modal="true" class="hidden fixed inset-0 z-50 bg-[#171717]/60 backdrop-blur-sm flex items-center justify-center p-4">
+        <div class="bg-[#F5F4F0] border border-[#D8D5CE] max-w-md w-full p-8 space-y-6 shadow-2xl animate-fade-in">
             <h3 id="confirm-title" class="font-heading text-xl font-semibold text-[#171717]">Confirm Action</h3>
             <p id="confirm-message" class="text-sm text-[#8A8984] leading-relaxed">Are you sure you want to proceed?</p>
             <div class="flex justify-end space-x-3 pt-2">
@@ -204,6 +229,9 @@
 
     <!-- Application JavaScript Logic -->
     <script>
+        // =====================================================================
+        // 1. CONFIGURATION & SUPABASE CLIENT
+        // =====================================================================
         let SUPABASE_URL = window.ENV_SUPABASE_URL || "https://qnpgoormuxyeydrzzonh.supabase.co";
         let SUPABASE_ANON_KEY = window.ENV_SUPABASE_ANON_KEY || "sb_publishable_zQbvZyKjl8gohz_O52tGhA_3w3tNxCW";
         let WHATSAPP_PHONE = "6281249843385";
@@ -214,229 +242,21 @@
                 try {
                     supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
                 } catch (e) {
-                    console.error("Supabase init error:", e);
+                    console.error("Supabase initialization error:", e);
                 }
             }
         }
 
-        const defaultSeedProducts = [
-            {
-                id: "1",
-                slug: "santal-33",
-                name: "Santal 33",
-                brand: "Le Labo",
-                description: "An iconic scent that touches the universal sensuality of this iconic icon, intoxicatingly pairing cardamom, iris, violet, and ambrox with comforting smoked wood accords.",
-                images: [
-                    "https://images.unsplash.com/photo-1594035910387-fea47794261f?auto=format&fit=crop&w=1000&q=80",
-                    "https://images.unsplash.com/photo-1523293182086-7651a899d37f?auto=format&fit=crop&w=1000&q=80"
-                ],
-                top_notes: ["Cardamom", "Iris", "Violet"],
-                middle_notes: ["Ambrox", "Papyrus", "Cedarwood"],
-                base_notes: ["Leather", "Sandalwood", "Amber"],
-                concentration: "Eau de Parfum",
-                fragrance_category: "Woody Aromatic",
-                sizes: ["2 ml", "5 ml", "10 ml"],
-                prices: { "2 ml": 75000, "5 ml": 165000, "10 ml": 310000 },
-                size_availability: { "2 ml": true, "5 ml": true, "10 ml": true },
-                stock_status: "In Stock",
-                status: "published",
-                featured: true,
-                bestseller: true,
-                new_arrival: false,
-                created_at: "2026-01-15T10:00:00Z",
-                updated_at: "2026-01-15T10:00:00Z"
-            },
-            {
-                id: "2",
-                slug: "baccarat-rouge-540",
-                name: "Baccarat Rouge 540",
-                brand: "Maison Francis Kurkdjian",
-                description: "Luminous and sophisticated, Baccarat Rouge 540 lays on the skin like an amber, floral and woody breeze. A poetic alchemy born from intense craftsmanship.",
-                images: [
-                    "https://images.unsplash.com/photo-1583445013765-46c20c4a6772?auto=format&fit=crop&w=1000&q=80",
-                    "https://images.unsplash.com/photo-1615397349754-cfa2066a298e?auto=format&fit=crop&w=1000&q=80"
-                ],
-                top_notes: ["Jasmine", "Saffron"],
-                middle_notes: ["Amberwood", "Ambergris"],
-                base_notes: ["Fir Resin", "Cedar"],
-                concentration: "Extrait de Parfum",
-                fragrance_category: "Amber Floral",
-                sizes: ["2 ml", "5 ml", "10 ml"],
-                prices: { "2 ml": 95000, "5 ml": 210000, "10 ml": 395000 },
-                size_availability: { "2 ml": true, "5 ml": true, "10 ml": true },
-                stock_status: "In Stock",
-                status: "published",
-                featured: true,
-                bestseller: true,
-                new_arrival: false,
-                created_at: "2026-01-10T10:00:00Z",
-                updated_at: "2026-01-10T10:00:00Z"
-            },
-            {
-                id: "3",
-                slug: "gypsy-water",
-                name: "Gypsy Water",
-                brand: "Byredo",
-                description: "An ode to the beauty of Romany culture, its unique customs, intimate beliefs, and distinguished way of living in harmony with nature.",
-                images: [
-                    "https://images.unsplash.com/photo-1547887537-6158d64c35b3?auto=format&fit=crop&w=1000&q=80",
-                    "https://images.unsplash.com/photo-1592945403244-b3fbafd7f539?auto=format&fit=crop&w=1000&q=80"
-                ],
-                top_notes: ["Bergamot", "Lemon", "Pepper", "Juniper Berries"],
-                middle_notes: ["Incense", "Pine Needles", "Orris"],
-                base_notes: ["Amber", "Vanilla", "Sandalwood"],
-                concentration: "Eau de Parfum",
-                fragrance_category: "Woody Aromatic",
-                sizes: ["2 ml", "5 ml", "10 ml"],
-                prices: { "2 ml": 70000, "5 ml": 155000, "10 ml": 290000 },
-                size_availability: { "2 ml": true, "5 ml": true, "10 ml": true },
-                stock_status: "In Stock",
-                status: "published",
-                featured: true,
-                bestseller: false,
-                new_arrival: true,
-                created_at: "2026-02-01T10:00:00Z",
-                updated_at: "2026-02-01T10:00:00Z"
-            },
-            {
-                id: "4",
-                slug: "lost-cherry",
-                name: "Lost Cherry",
-                brand: "Tom Ford",
-                description: "A full-bodied journey into the once-forbidden; a contrasting scent that reveals a tempting dichotomy of playful, candy-like gleam on the outside and luscious flesh within.",
-                images: [
-                    "https://images.unsplash.com/photo-1595425970377-c9703cf48b6d?auto=format&fit=crop&w=1000&q=80",
-                    "https://images.unsplash.com/photo-1563178406-4cdc2923acbc?auto=format&fit=crop&w=1000&q=80"
-                ],
-                top_notes: ["Black Cherry", "Cherry Liquor", "Bitter Almond"],
-                middle_notes: ["Sour Cherry Syrup", "Turkish Rose", "Jasmine Sambac"],
-                base_notes: ["Peru Balsam", "Roasted Tonka", "Sandalwood", "Vetiver", "Cedar"],
-                concentration: "Eau de Parfum",
-                fragrance_category: "Amber Vanilla",
-                sizes: ["2 ml", "5 ml", "10 ml"],
-                prices: { "2 ml": 85000, "5 ml": 190000, "10 ml": 360000 },
-                size_availability: { "2 ml": true, "5 ml": true, "10 ml": true },
-                stock_status: "In Stock",
-                status: "published",
-                featured: true,
-                bestseller: true,
-                new_arrival: false,
-                created_at: "2026-01-20T10:00:00Z",
-                updated_at: "2026-01-20T10:00:00Z"
-            },
-            {
-                id: "5",
-                slug: "silver-mountain-water",
-                name: "Silver Mountain Water",
-                brand: "Creed",
-                description: "Inspired by the invigorating crispness of alpine air, Silver Mountain Water is a fresh and contemporary scent depicting sparkling streams of water cascading over snow-capped Swiss alps.",
-                images: [
-                    "https://images.unsplash.com/photo-1615397349754-cfa2066a298e?auto=format&fit=crop&w=1000&q=80",
-                    "https://images.unsplash.com/photo-1594035910387-fea47794261f?auto=format&fit=crop&w=1000&q=80"
-                ],
-                top_notes: ["Bergamot", "Mandarin"],
-                middle_notes: ["Green Tea", "Blackcurrant Bud"],
-                base_notes: ["Sandalwood", "Musk", "Petitgrain", "Galbanum"],
-                concentration: "Eau de Parfum",
-                fragrance_category: "Citrus Aromatic",
-                sizes: ["2 ml", "5 ml", "10 ml"],
-                prices: { "2 ml": 90000, "5 ml": 200000, "10 ml": 380000 },
-                size_availability: { "2 ml": true, "5 ml": true, "10 ml": true },
-                stock_status: "In Stock",
-                status: "published",
-                featured: false,
-                bestseller: true,
-                new_arrival: false,
-                created_at: "2026-02-10T10:00:00Z",
-                updated_at: "2026-02-10T10:00:00Z"
-            },
-            {
-                id: "6",
-                slug: "another-13",
-                name: "Another 13",
-                brand: "Le Labo",
-                description: "An hypnotic and unique scent composed of ambroxan, jasmine, moss, and select animalic notes, creating an effortless second-skin signature.",
-                images: [
-                    "https://images.unsplash.com/photo-1523293182086-7651a899d37f?auto=format&fit=crop&w=1000&q=80",
-                    "https://images.unsplash.com/photo-1583445013765-46c20c4a6772?auto=format&fit=crop&w=1000&q=80"
-                ],
-                top_notes: ["Iso E Super", "Ambroxan"],
-                middle_notes: ["Jasmine", "Moss"],
-                base_notes: ["Ambrette", "Salicylate"],
-                concentration: "Eau de Parfum",
-                fragrance_category: "Woody Musk",
-                sizes: ["2 ml", "5 ml", "10 ml"],
-                prices: { "2 ml": 75000, "5 ml": 165000, "10 ml": 310000 },
-                size_availability: { "2 ml": true, "5 ml": true, "10 ml": true },
-                stock_status: "In Stock",
-                status: "published",
-                featured: false,
-                bestseller: false,
-                new_arrival: true,
-                created_at: "2026-02-15T10:00:00Z",
-                updated_at: "2026-02-15T10:00:00Z"
-            },
-            {
-                id: "7",
-                slug: "layton",
-                name: "Layton",
-                brand: "Parfums de Marly",
-                description: "An addictive oriental floral fragrance with an intense olfactory signature driven by vanilla, precious woods, and vibrant opening spices.",
-                images: [
-                    "https://images.unsplash.com/photo-1592945403244-b3fbafd7f539?auto=format&fit=crop&w=1000&q=80",
-                    "https://images.unsplash.com/photo-1547887537-6158d64c35b3?auto=format&fit=crop&w=1000&q=80"
-                ],
-                top_notes: ["Apple", "Lavender", "Mandarin Orange", "Bergamot"],
-                middle_notes: ["Geranium", "Violet", "Jasmine"],
-                base_notes: ["Vanilla", "Cardamom", "Sandalwood", "Pepper", "Guaiac Wood", "Patchouli"],
-                concentration: "Eau de Parfum",
-                fragrance_category: "Amber Floral",
-                sizes: ["2 ml", "5 ml", "10 ml"],
-                prices: { "2 ml": 80000, "5 ml": 180000, "10 ml": 340000 },
-                size_availability: { "2 ml": true, "5 ml": true, "10 ml": true },
-                stock_status: "In Stock",
-                status: "published",
-                featured: true,
-                bestseller: false,
-                new_arrival: false,
-                created_at: "2026-01-28T10:00:00Z",
-                updated_at: "2026-01-28T10:00:00Z"
-            },
-            {
-                id: "8",
-                slug: "by-the-fireplace",
-                name: "By the Fireplace",
-                brand: "Maison Margiela",
-                description: "A warm and cozy fragrance capturing the essence of a burning fireplace in the dead of winter with crackling wood and sweet chestnut notes.",
-                images: [
-                    "https://images.unsplash.com/photo-1563178406-4cdc2923acbc?auto=format&fit=crop&w=1000&q=80",
-                    "https://images.unsplash.com/photo-1595425970377-c9703cf48b6d?auto=format&fit=crop&w=1000&q=80"
-                ],
-                top_notes: ["Clove Oil", "Pink Pepper", "Orange Blossom"],
-                middle_notes: ["Chestnut Accord", "Guaiac Wood Oil", "Cade Oil"],
-                base_notes: ["Vanilla Accord", "Peru Balsam", "Cashmeran"],
-                concentration: "Eau de Toilette",
-                fragrance_category: "Woody Warm",
-                sizes: ["2 ml", "5 ml", "10 ml"],
-                prices: { "2 ml": 65000, "5 ml": 145000, "10 ml": 275000 },
-                size_availability: { "2 ml": true, "5 ml": true, "10 ml": true },
-                stock_status: "In Stock",
-                status: "published",
-                featured: false,
-                bestseller: true,
-                new_arrival: false,
-                created_at: "2026-02-05T10:00:00Z",
-                updated_at: "2026-02-05T10:00:00Z"
-            }
-        ];
-
-        let products = [...defaultSeedProducts];
+        // =====================================================================
+        // 2. APPLICATION STATE
+        // =====================================================================
+        let products = [];
         let categoriesList = ["Woody Aromatic", "Amber Floral", "Amber Vanilla", "Citrus Aromatic", "Woody Musk", "Woody Warm"];
         let brandsList = ["Le Labo", "Maison Francis Kurkdjian", "Byredo", "Tom Ford", "Creed", "Parfums de Marly", "Maison Margiela"];
 
         let currentRoute = 'home';
         let currentParam = null;
-        let isLoadingData = false;
+        let isLoadingData = true;
 
         let shopFilters = {
             search: '',
@@ -460,11 +280,142 @@
             formDraft: null
         };
 
+        let pendingConfirmCallback = null;
+
+        // =====================================================================
+        // 3. HELPERS & FORMATTERS
+        // =====================================================================
+        function escapeHtml(str) {
+            if (str === null || str === undefined) return '';
+            return String(str)
+                .replace(/&/g, '&amp;')
+                .replace(/</g, '&lt;')
+                .replace(/>/g, '&gt;')
+                .replace(/"/g, '&quot;')
+                .replace(/'/g, '&#39;');
+        }
+
+        function formatIDR(amount) {
+            return "Rp " + Number(amount || 0).toLocaleString('id-ID');
+        }
+
+        function formatDate(dateStr) {
+            if (!dateStr) return "-";
+            const d = new Date(dateStr);
+            return isNaN(d.getTime()) ? "-" : d.toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' });
+        }
+
+        function slugify(text) {
+            return text.toString().toLowerCase().trim()
+                .replace(/\s+/g, '-')
+                .replace(/[^\w\-]+/g, '')
+                .replace(/\-\-+/g, '-');
+        }
+
+        function getStartingPrice(product) {
+            const pricesArr = Object.values(product?.prices || {}).map(Number).filter(v => !isNaN(v) && v > 0);
+            return pricesArr.length > 0 ? Math.min(...pricesArr) : 0;
+        }
+
+        function getPublishedProducts() {
+            return products.filter(p => (p.status || 'published') === 'published');
+        }
+
+        function showToast(message) {
+            const toast = document.getElementById('toast');
+            const msgEl = document.getElementById('toast-message');
+            if (!toast || !msgEl) return;
+
+            msgEl.innerText = message;
+            toast.classList.remove('opacity-0', 'translate-y-20');
+            toast.classList.add('opacity-100', 'translate-y-0');
+
+            clearTimeout(window.__toastTimer);
+            window.__toastTimer = setTimeout(() => {
+                toast.classList.remove('opacity-100', 'translate-y-0');
+                toast.classList.add('opacity-0', 'translate-y-20');
+            }, 3500);
+        }
+
+        function toggleMobileMenu() {
+            const menu = document.getElementById('mobile-menu');
+            if (menu) menu.classList.toggle('hidden');
+        }
+
+        function openConfirmModal(title, message, onConfirm) {
+            document.getElementById('confirm-title').innerText = title;
+            document.getElementById('confirm-message').innerText = message;
+            pendingConfirmCallback = onConfirm;
+            document.getElementById('confirm-modal').classList.remove('hidden');
+            document.getElementById('confirm-yes-btn').onclick = async () => {
+                const callback = pendingConfirmCallback;
+                closeConfirmModal();
+                if (callback) await callback();
+            };
+        }
+
+        function closeConfirmModal() {
+            document.getElementById('confirm-modal').classList.add('hidden');
+            pendingConfirmCallback = null;
+        }
+
+        // =====================================================================
+        // 4. SEO & DYNAMIC STRUCTURED DATA (JSON-LD)
+        // =====================================================================
+        function updateStructuredData(product = null) {
+            const scriptEl = document.getElementById('structured-data');
+            if (!scriptEl) return;
+
+            if (product) {
+                const minPrice = getStartingPrice(product);
+                const schema = {
+                    "@context": "https://schema.org/",
+                    "@type": "Product",
+                    "name": `${product.brand} ${product.name} Decant`,
+                    "image": product.images || [],
+                    "description": product.description || `Decant parfum original ${product.brand} ${product.name}.`,
+                    "brand": {
+                        "@type": "Brand",
+                        "name": product.brand
+                    },
+                    "offers": {
+                        "@type": "Offer",
+                        "url": window.location.href,
+                        "priceCurrency": "IDR",
+                        "price": minPrice,
+                        "availability": product.stock_status === 'Out of Stock'
+                            ? "https://schema.org/OutOfStock"
+                            : "https://schema.org/InStock"
+                    }
+                };
+                scriptEl.textContent = JSON.stringify(schema);
+            } else {
+                const storeSchema = {
+                    "@context": "https://schema.org",
+                    "@type": "Store",
+                    "name": "Averarno",
+                    "url": "https://averarno.vercel.app/",
+                    "description": "Temukan berbagai pilihan parfum original dalam ukuran decant bersama Averarno.",
+                    "sameAs": [
+                        "https://www.instagram.com/aver.arno/"
+                    ]
+                };
+                scriptEl.textContent = JSON.stringify(storeSchema);
+            }
+        }
+
+        // =====================================================================
+        // 5. DATABASE & AUTHENTICATION SERVICES
+        // =====================================================================
         async function fetchAllData() {
             if (!supabaseClient) {
+                products = [];
+                isLoadingData = false;
                 syncTaxonomyLists();
+                render();
                 return;
             }
+
             isLoadingData = true;
             try {
                 const { data: prodData, error: prodError } = await supabaseClient
@@ -473,9 +424,7 @@
                     .order('created_at', { ascending: false });
 
                 if (prodError) throw prodError;
-                if (prodData && prodData.length > 0) {
-                    products = prodData;
-                }
+                products = prodData || [];
 
                 const { data: catData } = await supabaseClient.from('categories').select('name');
                 if (catData && catData.length > 0) {
@@ -490,6 +439,7 @@
                 syncTaxonomyLists();
             } catch (err) {
                 console.warn("Supabase fetch notice:", err.message);
+                products = [];
             } finally {
                 isLoadingData = false;
                 render();
@@ -582,26 +532,643 @@
             router('home');
         }
 
-        function router(route, param = null) {
+        // =====================================================================
+        // 6. CLIENT-SIDE ROUTER & NAVIGATION
+        // =====================================================================
+        function syncRouteFromPathname() {
+            const path = window.location.pathname;
+            if (path.startsWith('/admin')) {
+                currentRoute = 'admin';
+                currentParam = null;
+            } else if (path.startsWith('/shop/')) {
+                currentRoute = 'product';
+                currentParam = path.replace('/shop/', '');
+            } else if (path === '/shop') {
+                currentRoute = 'shop';
+                currentParam = null;
+            } else if (path === '/about') {
+                currentRoute = 'about';
+                currentParam = null;
+            } else if (path === '/contact') {
+                currentRoute = 'contact';
+                currentParam = null;
+            } else {
+                currentRoute = 'home';
+                currentParam = null;
+            }
+        }
+
+        function router(route, param = null, pushHistory = true) {
             currentRoute = route;
             currentParam = param;
-            try {
-                if (window.location.protocol.startsWith('http')) {
-                    if (route === 'admin') {
-                        window.history.pushState({}, '', '/admin');
-                    } else if (route === 'shop') {
-                        window.history.pushState({}, '', '/shop');
-                    } else if (route === 'product' && param) {
-                        window.history.pushState({}, '', `/shop/${param}`);
-                    } else if (route === 'home') {
-                        window.history.pushState({}, '', '/');
+
+            if (pushHistory) {
+                try {
+                    if (window.location.protocol.startsWith('http')) {
+                        const routeMap = {
+                            admin: '/admin',
+                            shop: '/shop',
+                            about: '/about',
+                            contact: '/contact',
+                            home: '/',
+                            product: param ? `/shop/${param}` : '/shop'
+                        };
+                        window.history.pushState({}, '', routeMap[route] || '/');
                     }
-                }
-            } catch (e) {}
+                } catch (e) {}
+            }
+
             window.scrollTo({ top: 0, behavior: 'smooth' });
             render();
         }
 
+        function updateActiveNavLinks() {
+            document.querySelectorAll('.nav-link').forEach(link => {
+                const target = link.getAttribute('data-nav');
+                const isActive = target === currentRoute || (target === 'shop' && currentRoute === 'product');
+                link.classList.toggle('border-[#171717]', isActive);
+                link.classList.toggle('border-transparent', !isActive);
+            });
+        }
+
+        function render() {
+            const app = document.getElementById('app');
+            const header = document.getElementById('main-header');
+            const footer = document.getElementById('main-footer');
+
+            updateActiveNavLinks();
+
+            if (currentRoute === 'admin') {
+                if (adminState.isAdminAuthorized) {
+                    header.classList.add('hidden');
+                    footer.classList.add('hidden');
+                } else {
+                    header.classList.remove('hidden');
+                    footer.classList.remove('hidden');
+                }
+                updateStructuredData(null);
+                app.innerHTML = renderAdminPortal();
+            } else {
+                header.classList.remove('hidden');
+                footer.classList.remove('hidden');
+
+                if (currentRoute === 'home') {
+                    updateStructuredData(null);
+                    app.innerHTML = renderHome();
+                } else if (currentRoute === 'shop') {
+                    updateStructuredData(null);
+                    app.innerHTML = renderShop();
+                } else if (currentRoute === 'product') {
+                    const prod = getPublishedProducts().find(p => p.slug === currentParam);
+                    updateStructuredData(prod || null);
+                    app.innerHTML = renderProductDetail(currentParam);
+                } else if (currentRoute === 'about') {
+                    updateStructuredData(null);
+                    app.innerHTML = renderAbout();
+                } else if (currentRoute === 'contact') {
+                    updateStructuredData(null);
+                    app.innerHTML = renderContact();
+                }
+            }
+
+            lucide.createIcons();
+        }
+
+        // =====================================================================
+        // 7. PUBLIC STOREFRONT VIEWS
+        // =====================================================================
+        function renderSkeletonGrid(count = 4) {
+            return Array.from({ length: count }).map(() => `
+                <div class="bg-[#F5F4F0] border border-[#D8D5CE] p-4 space-y-4 animate-pulse">
+                    <div class="aspect-[4/5] bg-stone/40"></div>
+                    <div class="space-y-2">
+                        <div class="h-3 w-1/3 bg-stone/50"></div>
+                        <div class="h-4 w-3/4 bg-stone/60"></div>
+                        <div class="h-3 w-1/2 bg-stone/40"></div>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        function renderEmptyCatalogSection(title, subtitle) {
+            return `
+                <div class="col-span-full bg-white border border-[#D8D5CE] py-16 px-6 text-center space-y-3">
+                    <i data-lucide="sparkles" class="w-8 h-8 mx-auto text-[#8A8984]"></i>
+                    <h3 class="font-heading text-lg font-medium text-[#171717]">${title}</h3>
+                    <p class="text-xs text-[#8A8984] max-w-md mx-auto leading-relaxed">${subtitle}</p>
+                </div>
+            `;
+        }
+
+        function renderHome() {
+            const published = getPublishedProducts();
+            const taggedFeatured = published.filter(p => p.featured);
+            const featuredProducts = (taggedFeatured.length > 0 ? taggedFeatured : published).slice(0, 4);
+
+            const taggedBestseller = published.filter(p => p.bestseller);
+            const bestsellerProducts = (taggedBestseller.length > 0 ? taggedBestseller : published).slice(0, 4);
+
+            return `
+                <div class="animate-fade-in">
+                    <!-- Hero Section -->
+                    <section class="relative min-h-[82vh] flex items-center justify-center bg-[#F5F4F0] border-b border-[#D8D5CE] px-6 py-20 overflow-hidden">
+                        <div class="max-w-5xl mx-auto text-center z-10 space-y-8">
+                            <span class="inline-block text-xs uppercase tracking-[0.3em] font-medium text-[#8A8984] border-b border-[#8A8984]/40 pb-1">
+                                Averarno — Premium Perfume Decants Indonesia
+                            </span>
+                            <h1 class="font-heading text-4xl sm:text-6xl md:text-7xl font-light tracking-tight text-[#171717] leading-[1.1]">
+                                Discover Your <br/><span class="font-normal italic">Signature Scent.</span>
+                            </h1>
+                            <p class="max-w-xl mx-auto text-base sm:text-lg text-[#8A8984] font-light leading-relaxed">
+                                Temukan berbagai pilihan parfum original dalam ukuran decant bersama Averarno. Jelajahi koleksi parfum pilihan dengan harga yang lebih terjangkau.
+                            </p>
+                            <div class="pt-4 flex flex-col sm:flex-row items-center justify-center gap-4">
+                                <button onclick="router('shop')" class="w-full sm:w-auto bg-[#171717] text-[#F5F4F0] px-8 py-4 text-xs font-medium uppercase tracking-[0.2em] hover:bg-stone hover:text-[#171717] transition-all">
+                                    Explore Collection
+                                </button>
+                                <button onclick="router('about')" class="w-full sm:w-auto border border-[#171717] text-[#171717] px-8 py-4 text-xs font-medium uppercase tracking-[0.2em] hover:bg-[#171717] hover:text-[#F5F4F0] transition-all">
+                                    Our Philosophy
+                                </button>
+                            </div>
+                        </div>
+                    </section>
+
+                    <!-- Featured Fragrances -->
+                    <section class="max-w-7xl mx-auto px-6 py-24">
+                        <div class="flex flex-col md:flex-row md:items-end justify-between mb-12">
+                            <div>
+                                <span class="text-xs uppercase tracking-[0.2em] text-[#8A8984] font-medium">Curated Selection</span>
+                                <h2 class="font-heading text-3xl sm:text-4xl font-normal mt-2">Featured Fragrances</h2>
+                            </div>
+                            <button onclick="router('shop')" class="mt-4 md:mt-0 text-xs uppercase tracking-[0.2em] font-medium text-[#171717] hover:text-[#8A8984] transition-colors flex items-center space-x-2">
+                                <span>View All Catalog</span>
+                                <i data-lucide="arrow-right" class="w-4 h-4"></i>
+                            </button>
+                        </div>
+
+                        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8">
+                            ${isLoadingData
+                                ? renderSkeletonGrid(4)
+                                : (featuredProducts.length > 0
+                                    ? featuredProducts.map(p => renderProductCard(p)).join('')
+                                    : renderEmptyCatalogSection('Curating New Arrivals', 'Koleksi parfum pilihan sedang disiapkan. Silakan kunjungi kembali dalam waktu dekat.'))}
+                        </div>
+                    </section>
+
+                    <!-- Editorial Brand Manifesto -->
+                    <section class="bg-[#171717] text-[#F5F4F0] py-28 px-6 my-12">
+                        <div class="max-w-4xl mx-auto text-center space-y-8">
+                            <span class="text-xs uppercase tracking-[0.3em] text-[#8A8984]">The Averarno Standard</span>
+                            <h2 class="font-heading text-3xl sm:text-5xl font-light leading-tight italic">
+                                "Luxury is not just in ownership, but in the freedom of pure sensory exploration."
+                            </h2>
+                            <p class="text-sm sm:text-base text-[#8A8984] max-w-2xl mx-auto leading-relaxed font-light">
+                                Every decant is meticulously hand-decanted in sterilized medical-grade glass atomizers, ensuring immaculate preservation of top, middle, and base notes.
+                            </p>
+                            <div class="pt-4">
+                                <button onclick="router('about')" class="border border-[#F5F4F0] text-[#F5F4F0] px-8 py-3 text-xs font-medium uppercase tracking-[0.2em] hover:bg-[#F5F4F0] hover:text-[#171717] transition-all">
+                                    Read Our Story
+                                </button>
+                            </div>
+                        </div>
+                    </section>
+
+                    <!-- Best-Selling Decants -->
+                    <section class="max-w-7xl mx-auto px-6 py-24">
+                        <div class="flex flex-col md:flex-row md:items-end justify-between mb-12">
+                            <div>
+                                <span class="text-xs uppercase tracking-[0.2em] text-[#8A8984] font-medium">Most Coveted</span>
+                                <h2 class="font-heading text-3xl sm:text-4xl font-normal mt-2">Best-Selling Decants</h2>
+                            </div>
+                            <button onclick="router('shop')" class="mt-4 md:mt-0 text-xs uppercase tracking-[0.2em] font-medium text-[#171717] hover:text-[#8A8984] transition-colors flex items-center space-x-2">
+                                <span>Explore All</span>
+                                <i data-lucide="arrow-right" class="w-4 h-4"></i>
+                            </button>
+                        </div>
+
+                        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8">
+                            ${isLoadingData
+                                ? renderSkeletonGrid(4)
+                                : (bestsellerProducts.length > 0
+                                    ? bestsellerProducts.map(p => renderProductCard(p)).join('')
+                                    : renderEmptyCatalogSection('Collection Coming Soon', 'Belum ada produk yang dipublikasikan ke katalog saat ini.'))}
+                        </div>
+                    </section>
+                </div>
+            `;
+        }
+
+        function renderProductCard(p) {
+            const startingPrice = getStartingPrice(p);
+            const primaryImage = (p.images && p.images.length > 0)
+                ? p.images[0]
+                : 'https://placehold.co/600x800/D8D5CE/171717?text=Averarno';
+            const isOutOfStock = p.stock_status === 'Out of Stock';
+
+            return `
+                <article class="group cursor-pointer bg-[#F5F4F0] border border-[#D8D5CE] p-4 flex flex-col justify-between transition-all duration-300 hover:border-[#171717]" onclick="router('product', '${escapeHtml(p.slug)}')">
+                    <div class="relative overflow-hidden aspect-[4/5] bg-stone/20 mb-4">
+                        <img src="${escapeHtml(primaryImage)}" alt="${escapeHtml(p.brand)} ${escapeHtml(p.name)} Decant Parfum Original - Averarno" loading="lazy" class="w-full h-full object-cover object-center transition-transform duration-700 group-hover:scale-105 ${isOutOfStock ? 'opacity-60 grayscale' : ''}" onerror="this.src='https://placehold.co/600x800/D8D5CE/171717?text=Averarno'">
+                        <div class="absolute top-3 left-3 flex flex-col gap-1.5">
+                            ${isOutOfStock ? '<span class="bg-red-900 text-[#F5F4F0] text-[10px] uppercase tracking-widest px-2.5 py-1">Out of Stock</span>' : ''}
+                            ${!isOutOfStock && p.bestseller ? '<span class="bg-[#171717] text-[#F5F4F0] text-[10px] uppercase tracking-widest px-2.5 py-1">Best Seller</span>' : ''}
+                            ${!isOutOfStock && p.new_arrival ? '<span class="bg-white border border-[#171717] text-[#171717] text-[10px] uppercase tracking-widest px-2.5 py-1">New Arrival</span>' : ''}
+                            ${!isOutOfStock && !p.bestseller && !p.new_arrival && p.featured ? '<span class="bg-stone text-[#171717] text-[10px] uppercase tracking-widest px-2.5 py-1">Featured</span>' : ''}
+                        </div>
+                    </div>
+                    <div class="space-y-1">
+                        <div class="text-[11px] uppercase tracking-widest text-[#8A8984] font-medium">${escapeHtml(p.brand)}</div>
+                        <h3 class="font-heading text-base font-semibold text-[#171717] group-hover:text-[#8A8984] transition-colors">${escapeHtml(p.name)}</h3>
+                        <div class="text-xs text-[#8A8984]">${escapeHtml(p.concentration)} • ${escapeHtml(p.fragrance_category)}</div>
+                    </div>
+                    <div class="mt-4 pt-4 border-t border-[#D8D5CE]/60 flex items-center justify-between">
+                        <span class="text-xs text-[#8A8984]">From <strong class="text-[#171717] font-semibold">${formatIDR(startingPrice)}</strong></span>
+                        <span class="text-xs uppercase tracking-wider font-medium underline underline-offset-4">Explore</span>
+                    </div>
+                </article>
+            `;
+        }
+
+        function renderShop() {
+            const published = getPublishedProducts();
+            const brands = ['All', ...new Set(published.map(p => p.brand).filter(Boolean))];
+            const categories = ['All', ...new Set(published.map(p => p.fragrance_category).filter(Boolean))];
+
+            let filtered = published.filter(p => {
+                const q = shopFilters.search.toLowerCase();
+                const matchSearch = (p.name || '').toLowerCase().includes(q) ||
+                                    (p.brand || '').toLowerCase().includes(q) ||
+                                    (p.fragrance_category || '').toLowerCase().includes(q);
+                const matchBrand = shopFilters.brand === 'All' || p.brand === shopFilters.brand;
+                const matchCategory = shopFilters.category === 'All' || p.fragrance_category === shopFilters.category;
+                return matchSearch && matchBrand && matchCategory;
+            });
+
+            if (shopFilters.sort === 'newest') {
+                filtered.sort((a, b) => new Date(b.created_at) - new Date(a.created_at));
+            } else if (shopFilters.sort === 'price-low') {
+                filtered.sort((a, b) => getStartingPrice(a) - getStartingPrice(b));
+            } else if (shopFilters.sort === 'price-high') {
+                filtered.sort((a, b) => getStartingPrice(b) - getStartingPrice(a));
+            }
+
+            return `
+                <div class="max-w-7xl mx-auto px-6 py-12 animate-fade-in">
+                    <div class="border-b border-[#D8D5CE] pb-8 mb-10">
+                        <h1 class="font-heading text-3xl sm:text-4xl font-normal">Fragrance Catalog</h1>
+                        <p class="text-sm text-[#8A8984] mt-2">Explore our curated selection of authentic niche and luxury fragrance decants.</p>
+                    </div>
+
+                    <!-- Filter & Search Bar -->
+                    <div class="bg-white border border-[#D8D5CE] p-6 mb-10 space-y-6">
+                        <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
+                            <div class="relative">
+                                <span class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-[#8A8984]">
+                                    <i data-lucide="search" class="w-4 h-4"></i>
+                                </span>
+                                <input type="text" id="search-input" value="${escapeHtml(shopFilters.search)}" oninput="updateFilter('search', this.value)" placeholder="Search scent or brand..." class="w-full bg-[#F5F4F0] border border-[#D8D5CE] pl-10 pr-4 py-2.5 text-xs text-[#171717] focus:outline-none focus:border-[#171717]">
+                            </div>
+                            <div>
+                                <select onchange="updateFilter('brand', this.value)" class="w-full bg-[#F5F4F0] border border-[#D8D5CE] px-4 py-2.5 text-xs text-[#171717] focus:outline-none focus:border-[#171717]">
+                                    ${brands.map(b => `<option value="${escapeHtml(b)}" ${shopFilters.brand === b ? 'selected' : ''}>Brand: ${escapeHtml(b)}</option>`).join('')}
+                                </select>
+                            </div>
+                            <div>
+                                <select onchange="updateFilter('category', this.value)" class="w-full bg-[#F5F4F0] border border-[#D8D5CE] px-4 py-2.5 text-xs text-[#171717] focus:outline-none focus:border-[#171717]">
+                                    ${categories.map(c => `<option value="${escapeHtml(c)}" ${shopFilters.category === c ? 'selected' : ''}>Category: ${escapeHtml(c)}</option>`).join('')}
+                                </select>
+                            </div>
+                            <div>
+                                <select onchange="updateFilter('sort', this.value)" class="w-full bg-[#F5F4F0] border border-[#D8D5CE] px-4 py-2.5 text-xs text-[#171717] focus:outline-none focus:border-[#171717]">
+                                    <option value="newest" ${shopFilters.sort === 'newest' ? 'selected' : ''}>Sort: Newest Arrivals</option>
+                                    <option value="price-low" ${shopFilters.sort === 'price-low' ? 'selected' : ''}>Sort: Price Low to High</option>
+                                    <option value="price-high" ${shopFilters.sort === 'price-high' ? 'selected' : ''}>Sort: Price High to Low</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="flex items-center justify-between pt-2 border-t border-[#D8D5CE]/40 text-xs text-[#8A8984]">
+                            <span>Showing <strong>${filtered.length}</strong> fragrances</span>
+                            <button onclick="resetFilters()" class="hover:text-[#171717] underline">Reset Filters</button>
+                        </div>
+                    </div>
+
+                    ${isLoadingData ? `
+                        <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6 sm:gap-8">
+                            ${renderSkeletonGrid(8)}
+                        </div>
+                    ` : (filtered.length > 0 ? `
+                        <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6 sm:gap-8">
+                            ${filtered.map(p => renderProductCard(p)).join('')}
+                        </div>
+                    ` : `
+                        <div class="text-center py-24 bg-white border border-[#D8D5CE] px-6">
+                            <i data-lucide="sparkles" class="w-10 h-10 mx-auto text-[#8A8984] mb-4"></i>
+                            <h3 class="font-heading text-xl font-medium">No Fragrances Found</h3>
+                            <p class="text-xs text-[#8A8984] mt-2 mb-6">
+                                ${published.length === 0
+                                    ? 'Katalog parfum sedang diperbarui. Silakan kembali beberapa saat lagi.'
+                                    : 'Try adjusting your search criteria or filters.'}
+                            </p>
+                            ${published.length > 0 ? `<button onclick="resetFilters()" class="bg-[#171717] text-[#F5F4F0] px-6 py-3 text-xs uppercase tracking-widest">Reset Filters</button>` : ''}
+                        </div>
+                    `)}
+                </div>
+            `;
+        }
+
+        function updateFilter(type, value) {
+            shopFilters[type] = value;
+            render();
+            if (type === 'search') {
+                const input = document.getElementById('search-input');
+                if (input) {
+                    input.focus();
+                    input.setSelectionRange(input.value.length, input.value.length);
+                }
+            }
+        }
+
+        function resetFilters() {
+            shopFilters = { search: '', brand: 'All', category: 'All', sort: 'newest' };
+            render();
+        }
+
+        function renderProductDetail(slug) {
+            if (isLoadingData) {
+                return `
+                    <div class="max-w-7xl mx-auto px-6 py-16">
+                        <div class="grid grid-cols-1 lg:grid-cols-2 gap-12 animate-pulse">
+                            <div class="aspect-[4/5] bg-stone/40"></div>
+                            <div class="space-y-6">
+                                <div class="h-4 w-1/4 bg-stone/50"></div>
+                                <div class="h-10 w-3/4 bg-stone/60"></div>
+                                <div class="h-24 w-full bg-stone/40"></div>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            }
+
+            const published = getPublishedProducts();
+            const product = published.find(p => p.slug === slug);
+
+            if (!product) {
+                return `
+                    <div class="max-w-3xl mx-auto px-6 py-28 text-center space-y-6 animate-fade-in">
+                        <span class="text-xs uppercase tracking-widest text-[#8A8984]">Unavailable</span>
+                        <h1 class="font-heading text-3xl font-normal">Fragrance Not Found</h1>
+                        <p class="text-sm text-[#8A8984]">This fragrance may have been unpublished or removed from our catalog.</p>
+                        <button onclick="router('shop')" class="bg-[#171717] text-[#F5F4F0] px-8 py-3 text-xs uppercase tracking-widest">Return to Catalog</button>
+                    </div>
+                `;
+            }
+
+            const availableSizes = product.sizes || ["2 ml", "5 ml", "10 ml"];
+            if (!availableSizes.includes(selectedProductSize)) {
+                selectedProductSize = availableSizes[0];
+            }
+            const currentPrice = product.prices?.[selectedProductSize] || Object.values(product.prices || {})[0] || 0;
+            const images = (product.images && product.images.length > 0)
+                ? product.images
+                : ['https://placehold.co/800x1000/D8D5CE/171717?text=Averarno'];
+            const isOutOfStock = product.stock_status === 'Out of Stock';
+
+            return `
+                <div class="max-w-7xl mx-auto px-6 py-12 animate-fade-in">
+                    <!-- Breadcrumb -->
+                    <nav aria-label="Breadcrumb" class="flex items-center space-x-2 text-xs text-[#8A8984] mb-8">
+                        <a href="#" onclick="router('home'); return false;" class="hover:text-[#171717]">Home</a>
+                        <span>/</span>
+                        <a href="#" onclick="router('shop'); return false;" class="hover:text-[#171717]">Shop</a>
+                        <span>/</span>
+                        <span class="text-[#171717] font-medium">${escapeHtml(product.name)}</span>
+                    </nav>
+
+                    <div class="grid grid-cols-1 lg:grid-cols-2 gap-12 lg:gap-16 items-start">
+                        <!-- Image Gallery -->
+                        <div class="space-y-4">
+                            <div class="bg-white border border-[#D8D5CE] overflow-hidden aspect-[4/5]">
+                                <img id="main-product-image" src="${escapeHtml(images[0])}" alt="${escapeHtml(product.brand)} ${escapeHtml(product.name)} Decant Parfum Original - Averarno" class="w-full h-full object-cover object-center" onerror="this.src='https://placehold.co/800x1000/D8D5CE/171717?text=Averarno'">
+                            </div>
+                            ${images.length > 1 ? `
+                                <div class="grid grid-cols-4 gap-4">
+                                    ${images.map((img, idx) => `
+                                        <div onclick="document.getElementById('main-product-image').src='${escapeHtml(img)}'" class="cursor-pointer bg-white border border-[#D8D5CE] aspect-[4/5] overflow-hidden opacity-80 hover:opacity-100 hover:border-[#171717] transition-all">
+                                            <img src="${escapeHtml(img)}" alt="${escapeHtml(product.brand)} ${escapeHtml(product.name)} view ${idx + 1}" class="w-full h-full object-cover object-center" onerror="this.src='https://placehold.co/400x500/D8D5CE/171717?text=View'">
+                                        </div>
+                                    `).join('')}
+                                </div>
+                            ` : ''}
+                        </div>
+
+                        <!-- Fragrance Info & Order Panel -->
+                        <div class="space-y-8 lg:sticky lg:top-28">
+                            <div class="space-y-2 border-b border-[#D8D5CE] pb-6">
+                                <div class="flex items-center justify-between">
+                                    <span class="text-xs uppercase tracking-widest text-[#8A8984] font-medium">${escapeHtml(product.brand)}</span>
+                                    <span class="text-xs px-3 py-1 uppercase tracking-wider ${isOutOfStock ? 'bg-red-100 text-red-800' : 'bg-stone/50 text-[#171717]'}">${escapeHtml(product.stock_status)}</span>
+                                </div>
+                                <h1 class="font-heading text-3xl sm:text-4xl font-normal text-[#171717]">${escapeHtml(product.name)}</h1>
+                                <div class="text-sm text-[#8A8984] pt-1">${escapeHtml(product.concentration)} • ${escapeHtml(product.fragrance_category)}</div>
+                            </div>
+
+                            <p class="text-sm text-[#8A8984] leading-relaxed">${escapeHtml(product.description)}</p>
+
+                            <!-- Olfactory Pyramid -->
+                            <div class="bg-white border border-[#D8D5CE] p-6 space-y-4">
+                                <h3 class="text-xs uppercase tracking-widest font-semibold text-[#171717]">Olfactory Pyramid</h3>
+                                <div class="space-y-3 text-xs">
+                                    <div class="flex flex-col sm:flex-row sm:items-baseline border-b border-[#D8D5CE]/30 pb-2">
+                                        <span class="font-medium text-[#8A8984] w-28 uppercase tracking-wider">Top Notes</span>
+                                        <span class="text-[#171717] font-medium mt-1 sm:mt-0">${escapeHtml((product.top_notes || []).join(', ')) || '-'}</span>
+                                    </div>
+                                    <div class="flex flex-col sm:flex-row sm:items-baseline border-b border-[#D8D5CE]/30 pb-2">
+                                        <span class="font-medium text-[#8A8984] w-28 uppercase tracking-wider">Middle Notes</span>
+                                        <span class="text-[#171717] font-medium mt-1 sm:mt-0">${escapeHtml((product.middle_notes || []).join(', ')) || '-'}</span>
+                                    </div>
+                                    <div class="flex flex-col sm:flex-row sm:items-baseline">
+                                        <span class="font-medium text-[#8A8984] w-28 uppercase tracking-wider">Base Notes</span>
+                                        <span class="text-[#171717] font-medium mt-1 sm:mt-0">${escapeHtml((product.base_notes || []).join(', ')) || '-'}</span>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Size Selector -->
+                            <div class="space-y-4">
+                                <div class="flex justify-between items-center text-xs">
+                                    <span class="uppercase tracking-widest font-semibold text-[#171717]">Select Decant Size</span>
+                                    <span class="text-[#8A8984]">Sterilized Glass Atomizer</span>
+                                </div>
+                                <div class="grid grid-cols-3 gap-4">
+                                    ${availableSizes.map(size => {
+                                        const isSizeAvail = product.size_availability?.[size] !== false && !isOutOfStock;
+                                        const priceVal = product.prices?.[size] || 0;
+                                        return `
+                                            <button ${!isSizeAvail ? 'disabled' : ''} onclick="selectSize('${escapeHtml(size)}', ${priceVal})" id="size-btn-${size.replace(/\s+/g, '')}" class="size-btn border p-4 text-center transition-all ${!isSizeAvail ? 'opacity-40 cursor-not-allowed bg-stone/20 border-[#D8D5CE]' : (selectedProductSize === size ? 'border-[#171717] bg-[#171717] text-[#F5F4F0]' : 'border-[#D8D5CE] bg-white text-[#171717] hover:border-[#171717]')}">
+                                                <div class="font-heading font-semibold text-sm">${escapeHtml(size)}</div>
+                                                <div class="text-xs mt-1 opacity-90">${formatIDR(priceVal)}</div>
+                                                ${!isSizeAvail ? '<div class="text-[10px] uppercase tracking-wider text-red-700 mt-1">Sold Out</div>' : ''}
+                                            </button>
+                                        `;
+                                    }).join('')}
+                                </div>
+                            </div>
+
+                            <!-- Checkout CTA -->
+                            <div class="pt-6 border-t border-[#D8D5CE] space-y-4">
+                                <div class="flex items-center justify-between">
+                                    <span class="text-xs uppercase tracking-widest text-[#8A8984]">Total Price</span>
+                                    <span id="dynamic-price" class="font-heading text-2xl font-bold">${formatIDR(currentPrice)}</span>
+                                </div>
+                                <button ${isOutOfStock ? 'disabled' : ''} onclick="orderViaWhatsApp('${escapeHtml(product.slug)}')" class="w-full ${isOutOfStock ? 'bg-[#8A8984] cursor-not-allowed' : 'bg-[#171717] hover:bg-stone hover:text-[#171717]'} text-[#F5F4F0] py-4 text-xs font-medium uppercase tracking-[0.2em] flex items-center justify-center space-x-3 transition-all shadow-md">
+                                    <i data-lucide="message-circle" class="w-4 h-4"></i>
+                                    <span>${isOutOfStock ? 'Currently Out of Stock' : 'Order via WhatsApp'}</span>
+                                </button>
+                                <p class="text-[11px] text-center text-[#8A8984]">Fast response order processing directly with our fragrance concierge.</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            `;
+        }
+
+        function selectSize(size, price) {
+            selectedProductSize = size;
+            document.querySelectorAll('.size-btn:not([disabled])').forEach(btn => {
+                btn.classList.remove('border-[#171717]', 'bg-[#171717]', 'text-[#F5F4F0]');
+                btn.classList.add('border-[#D8D5CE]', 'bg-white', 'text-[#171717]');
+            });
+            const activeBtn = document.getElementById(`size-btn-${size.replace(/\s+/g, '')}`);
+            if (activeBtn) {
+                activeBtn.classList.remove('border-[#D8D5CE]', 'bg-white', 'text-[#171717]');
+                activeBtn.classList.add('border-[#171717]', 'bg-[#171717]', 'text-[#F5F4F0]');
+            }
+            const priceEl = document.getElementById('dynamic-price');
+            if (priceEl) priceEl.innerText = formatIDR(price);
+        }
+
+        function orderViaWhatsApp(slug) {
+            const product = products.find(p => p.slug === slug);
+            if (!product) return;
+            const price = product.prices?.[selectedProductSize] || 0;
+            const formattedPrice = formatIDR(price);
+            const productLink = window.location.href;
+
+            const message = `Hello Averarno! I would like to order:
+Product: ${product.name}
+Brand: ${product.brand}
+Size: ${selectedProductSize}
+Price: ${formattedPrice}
+Product Link: ${productLink}
+Please provide further ordering information.`;
+
+            const encodedMessage = encodeURIComponent(message);
+            const whatsappUrl = `https://wa.me/${WHATSAPP_PHONE}?text=${encodedMessage}`;
+            window.open(whatsappUrl, '_blank', 'noopener,noreferrer');
+            showToast('Redirecting to WhatsApp order concierge...');
+        }
+
+        function renderAbout() {
+            return `
+                <div class="max-w-5xl mx-auto px-6 py-16 space-y-20 animate-fade-in">
+                    <div class="text-center space-y-4 max-w-2xl mx-auto">
+                        <span class="text-xs uppercase tracking-[0.3em] text-[#8A8984] font-medium">Our Story & Vision</span>
+                        <h1 class="font-heading text-4xl sm:text-5xl font-light">Democratizing Niche Perfumery</h1>
+                        <p class="text-sm text-[#8A8984] leading-relaxed font-light">
+                            At Averarno, we believe that discovering exceptional fragrances should be an accessible experience. We curate distinctive scents and make them available in carefully prepared decants, allowing everyone to explore fragrances before committing to a full bottle.
+                        </p>
+                    </div>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-12 items-center">
+                        <div class="space-y-6">
+                            <h2 class="font-heading text-2xl font-normal">The Decant Philosophy</h2>
+                            <p class="text-sm text-[#8A8984] leading-relaxed">
+                                Purchasing full-size niche bottles without experiencing them throughout various seasons, moods, and skin chemistries is a costly gamble. We curate distinctive scents and make them available in carefully prepared decants.
+                            </p>
+                            <p class="text-sm text-[#8A8984] leading-relaxed">
+                                Allowing everyone to explore world-class perfumery before committing to a full flacon.
+                            </p>
+                        </div>
+                        <div class="bg-white border border-[#D8D5CE] aspect-[4/3] overflow-hidden">
+                            <img src="https://images.unsplash.com/photo-1592945403244-b3fbafd7f539?auto=format&fit=crop&w=1000&q=80" alt="Averarno Fragrance Decant Philosophy" class="w-full h-full object-cover">
+                        </div>
+                    </div>
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-8 pt-10 border-t border-[#D8D5CE]">
+                        <div class="bg-white border border-[#D8D5CE] p-8 space-y-3">
+                            <span class="text-xs uppercase tracking-widest text-[#8A8984] font-medium">01 / Integrity</span>
+                            <h3 class="font-heading text-lg font-semibold">100% Authentic</h3>
+                            <p class="text-xs text-[#8A8984] leading-relaxed">Sourced directly from authorized luxury boutiques and official brand flagships. Zero dilution or imitation.</p>
+                        </div>
+                        <div class="bg-white border border-[#D8D5CE] p-8 space-y-3">
+                            <span class="text-xs uppercase tracking-widest text-[#8A8984] font-medium">02 / Precision</span>
+                            <h3 class="font-heading text-lg font-semibold">Medical-Grade Glass</h3>
+                            <p class="text-xs text-[#8A8984] leading-relaxed">Hand-decanted in sterile environments using precision laboratory pipettes into heavy glass atomizers.</p>
+                        </div>
+                        <div class="bg-white border border-[#D8D5CE] p-8 space-y-3">
+                            <span class="text-xs uppercase tracking-widest text-[#8A8984] font-medium">03 / Accessibility</span>
+                            <h3 class="font-heading text-lg font-semibold">Affordable Luxury</h3>
+                            <p class="text-xs text-[#8A8984] leading-relaxed">Enabling fragrance lovers to build a versatile wardrobe of scents for every occasion without breaking the bank.</p>
+                        </div>
+                    </div>
+                </div>
+            `;
+        }
+
+        function renderContact() {
+            return `
+                <div class="max-w-5xl mx-auto px-6 py-16 space-y-16 animate-fade-in">
+                    <div class="text-center space-y-4 max-w-2xl mx-auto">
+                        <span class="text-xs uppercase tracking-[0.3em] text-[#8A8984] font-medium">Support & Inquiry</span>
+                        <h1 class="font-heading text-4xl sm:text-5xl font-light">Contact & FAQ</h1>
+                        <p class="text-sm text-[#8A8984]">We are here to assist with your fragrance journey.</p>
+                    </div>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+                        <div class="bg-white border border-[#D8D5CE] p-8 space-y-4 text-center flex flex-col items-center justify-center">
+                            <i data-lucide="message-circle" class="w-8 h-8 text-[#171717]"></i>
+                            <h3 class="font-heading text-xl font-semibold">WhatsApp Concierge</h3>
+                            <p class="text-xs text-[#8A8984] max-w-xs">Direct ordering and instant fragrance recommendations with our concierge team.</p>
+                            <a href="https://wa.me/${WHATSAPP_PHONE}" target="_blank" rel="noopener noreferrer" class="inline-block bg-[#171717] text-[#F5F4F0] px-6 py-3 text-xs uppercase tracking-widest hover:bg-stone hover:text-[#171717] transition-all">Chat on WhatsApp</a>
+                        </div>
+                        <div class="bg-white border border-[#D8D5CE] p-8 space-y-4 text-center flex flex-col items-center justify-center">
+                            <i data-lucide="instagram" class="w-8 h-8 text-[#171717]"></i>
+                            <h3 class="font-heading text-xl font-semibold">Instagram Community</h3>
+                            <p class="text-xs text-[#8A8984] max-w-xs">Follow our daily scent notes, unboxing stories, and community reviews.</p>
+                            <a href="https://www.instagram.com/aver.arno/" target="_blank" rel="noopener noreferrer" class="inline-block border border-[#171717] text-[#171717] px-6 py-3 text-xs uppercase tracking-widest hover:bg-[#171717] hover:text-[#F5F4F0] transition-all">Follow @aver.arno</a>
+                        </div>
+                    </div>
+                    <div class="space-y-6">
+                        <h2 class="font-heading text-2xl font-normal text-center mb-8">Frequently Asked Questions</h2>
+                        <div class="space-y-4 max-w-3xl mx-auto">
+                            <div class="bg-white border border-[#D8D5CE] p-6 space-y-2">
+                                <h3 class="font-heading font-semibold text-sm">Are all Averarno decants 100% authentic?</h3>
+                                <p class="text-xs text-[#8A8984] leading-relaxed">Yes. Every perfume in our catalog is purchased directly from official flagship boutiques and authorized niche retailers. We never sell replicas or diluted products.</p>
+                            </div>
+                            <div class="bg-white border border-[#D8D5CE] p-6 space-y-2">
+                                <h3 class="font-heading font-semibold text-sm">How are the decants packaged?</h3>
+                                <p class="text-xs text-[#8A8984] leading-relaxed">Fragrances are hygienically hand-decanted into premium glass atomizers equipped with fine-mist sprayers and securely sealed to prevent evaporation during transit.</p>
+                            </div>
+                            <div class="bg-white border border-[#D8D5CE] p-6 space-y-2">
+                                <h3 class="font-heading font-semibold text-sm">How does WhatsApp ordering work?</h3>
+                                <p class="text-xs text-[#8A8984] leading-relaxed">When you click "Order via WhatsApp" on any product page, our system automatically formats your selected perfume, brand, and size into a ready-to-send message to our concierge.</p>
+                            </div>
+                            <div class="bg-white border border-[#D8D5CE] p-6 space-y-2">
+                                <h3 class="font-heading font-semibold text-sm">What are the shipping estimates?</h3>
+                                <p class="text-xs text-[#8A8984] leading-relaxed">Orders are carefully wrapped in protective cushioning and shipped within 1-2 business days. Delivery times vary by region, typically taking 2-4 business days nationwide.</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            `;
+        }
+
+        function handleNewsletter(e) {
+            e.preventDefault();
+            showToast('Thank you for subscribing to Averarno.');
+            e.target.reset();
+        }
+
+        // =====================================================================
+        // 8. ADMIN CMS PORTAL VIEWS & ACTIONS
+        // =====================================================================
         function setAdminRoute(subRoute, productId = null) {
             adminState.subRoute = subRoute;
             adminState.editingProductId = productId;
@@ -648,546 +1215,6 @@
             };
         }
 
-        function toggleMobileMenu() {
-            const menu = document.getElementById('mobile-menu');
-            menu.classList.toggle('hidden');
-        }
-
-        function showToast(message) {
-            const toast = document.getElementById('toast');
-            document.getElementById('toast-message').innerText = message;
-            toast.classList.remove('opacity-0', 'translate-y-20');
-            toast.classList.add('opacity-100', 'translate-y-0');
-            setTimeout(() => {
-                toast.classList.remove('opacity-100', 'translate-y-0');
-                toast.classList.add('opacity-0', 'translate-y-20');
-            }, 3500);
-        }
-
-        let pendingConfirmCallback = null;
-        function openConfirmModal(title, message, onConfirm) {
-            document.getElementById('confirm-title').innerText = title;
-            document.getElementById('confirm-message').innerText = message;
-            pendingConfirmCallback = onConfirm;
-            document.getElementById('confirm-modal').classList.remove('hidden');
-            document.getElementById('confirm-yes-btn').onclick = async () => {
-                closeConfirmModal();
-                if (pendingConfirmCallback) await pendingConfirmCallback();
-            };
-        }
-
-        function closeConfirmModal() {
-            document.getElementById('confirm-modal').classList.add('hidden');
-            pendingConfirmCallback = null;
-        }
-
-        function formatIDR(amount) {
-            return "Rp " + Number(amount || 0).toLocaleString('id-ID');
-        }
-
-        function formatDate(dateStr) {
-            if (!dateStr) return "-";
-            const d = new Date(dateStr);
-            return d.toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' });
-        }
-
-        function slugify(text) {
-            return text.toString().toLowerCase().trim()
-                .replace(/\s+/g, '-')
-                .replace(/[^\w\-]+/g, '')
-                .replace(/\-\-+/g, '-');
-        }
-
-        function render() {
-            const app = document.getElementById('app');
-            const header = document.getElementById('main-header');
-            const footer = document.getElementById('main-footer');
-
-            if (currentRoute === 'admin') {
-                if (adminState.isAdminAuthorized) {
-                    header.classList.add('hidden');
-                    footer.classList.add('hidden');
-                } else {
-                    header.classList.remove('hidden');
-                    footer.classList.remove('hidden');
-                }
-                app.innerHTML = renderAdminPortal();
-            } else {
-                header.classList.remove('hidden');
-                footer.classList.remove('hidden');
-                if (currentRoute === 'home') {
-                    app.innerHTML = renderHome();
-                } else if (currentRoute === 'shop') {
-                    app.innerHTML = renderShop();
-                } else if (currentRoute === 'product') {
-                    app.innerHTML = renderProductDetail(currentParam);
-                } else if (currentRoute === 'about') {
-                    app.innerHTML = renderAbout();
-                } else if (currentRoute === 'contact') {
-                    app.innerHTML = renderContact();
-                }
-            }
-            lucide.createIcons();
-        }
-
-        function getPublishedProducts() {
-            return products.filter(p => (p.status || 'published') === 'published');
-        }
-
-        function renderHome() {
-            const published = getPublishedProducts();
-            const featuredProducts = published.filter(p => p.featured).slice(0, 4);
-            const bestsellerProducts = published.filter(p => p.bestseller).slice(0, 4);
-
-            return `
-                <section class="relative min-h-[85vh] flex items-center justify-center bg-[#F5F4F0] border-b border-[#D8D5CE] px-6 py-20 overflow-hidden">
-                    <div class="max-w-5xl mx-auto text-center z-10 space-y-8">
-                        <span class="inline-block text-xs uppercase tracking-[0.3em] font-medium text-[#8A8984] border-b border-[#8A8984]/40 pb-1">
-                            Averarno — Premium Perfume Decants Indonesia
-                        </span>
-                        <h1 class="font-heading text-4xl sm:text-6xl md:text-7xl font-light tracking-tight text-[#171717] leading-[1.1]">
-                            Discover Your <br/><span class="font-normal italic">Signature Scent.</span>
-                        </h1>
-                        <p class="max-w-xl mx-auto text-base sm:text-lg text-[#8A8984] font-light leading-relaxed">
-                            Temukan berbagai pilihan parfum original dalam ukuran decant bersama Averarno. Jelajahi koleksi parfum pilihan dengan harga yang lebih terjangkau.
-                        </p>
-                        <div class="pt-4 flex flex-col sm:flex-row items-center justify-center gap-4">
-                            <button onclick="router('shop')" class="w-full sm:w-auto bg-[#171717] text-[#F5F4F0] px-8 py-4 text-xs font-medium uppercase tracking-[0.2em] hover:bg-stone hover:text-[#171717] transition-all">
-                                Explore Collection
-                            </button>
-                            <button onclick="router('about')" class="w-full sm:w-auto border border-[#171717] text-[#171717] px-8 py-4 text-xs font-medium uppercase tracking-[0.2em] hover:bg-[#171717] hover:text-[#F5F4F0] transition-all">
-                                Our Philosophy
-                            </button>
-                        </div>
-                    </div>
-                </section>
-
-                <section class="max-w-7xl mx-auto px-6 py-24">
-                    <div class="flex flex-col md:flex-row md:items-end justify-between mb-12">
-                        <div>
-                            <span class="text-xs uppercase tracking-[0.2em] text-[#8A8984] font-medium">Curated Selection</span>
-                            <h2 class="font-heading text-3xl sm:text-4xl font-normal mt-2">Featured Fragrances</h2>
-                        </div>
-                        <button onclick="router('shop')" class="mt-4 md:mt-0 text-xs uppercase tracking-[0.2em] font-medium text-[#171717] hover:text-[#8A8984] transition-colors flex items-center space-x-2">
-                            <span>View All Catalog</span>
-                            <i data-lucide="arrow-right" class="w-4 h-4"></i>
-                        </button>
-                    </div>
-
-                    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8">
-                        ${featuredProducts.map(p => renderProductCard(p)).join('')}
-                    </div>
-                </section>
-
-                <section class="bg-[#171717] text-[#F5F4F0] py-28 px-6 my-12">
-                    <div class="max-w-4xl mx-auto text-center space-y-8">
-                        <span class="text-xs uppercase tracking-[0.3em] text-[#8A8984]">The Averarno Standard</span>
-                        <h2 class="font-heading text-3xl sm:text-5xl font-light leading-tight italic">
-                            "Luxury is not just in ownership, but in the freedom of pure sensory exploration."
-                        </h2>
-                        <p class="text-sm sm:text-base text-[#8A8984] max-w-2xl mx-auto leading-relaxed font-light">
-                            Every decant is meticulously hand-decanted in sterilized medical-grade glass atomizers, ensuring immaculate preservation of top, middle, and base notes.
-                        </p>
-                        <div class="pt-4">
-                            <button onclick="router('about')" class="border border-[#F5F4F0] text-[#F5F4F0] px-8 py-3 text-xs font-medium uppercase tracking-[0.2em] hover:bg-[#F5F4F0] hover:text-[#171717] transition-all">
-                                Read Our Story
-                            </button>
-                        </div>
-                    </div>
-                </section>
-
-                <section class="max-w-7xl mx-auto px-6 py-24">
-                    <div class="flex flex-col md:flex-row md:items-end justify-between mb-12">
-                        <div>
-                            <span class="text-xs uppercase tracking-[0.2em] text-[#8A8984] font-medium">Most Coveted</span>
-                            <h2 class="font-heading text-3xl sm:text-4xl font-normal mt-2">Best-Selling Decants</h2>
-                        </div>
-                        <button onclick="router('shop')" class="mt-4 md:mt-0 text-xs uppercase tracking-[0.2em] font-medium text-[#171717] hover:text-[#8A8984] transition-colors flex items-center space-x-2">
-                            <span>Explore All</span>
-                            <i data-lucide="arrow-right" class="w-4 h-4"></i>
-                        </button>
-                    </div>
-
-                    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8">
-                        ${bestsellerProducts.map(p => renderProductCard(p)).join('')}
-                    </div>
-                </section>
-            `;
-        }
-
-        function renderProductCard(p) {
-            const pricesArr = Object.values(p.prices || {}).filter(v => v > 0);
-            const startingPrice = pricesArr.length > 0 ? Math.min(...pricesArr) : 0;
-            const primaryImage = (p.images && p.images.length > 0) ? p.images[0] : 'https://placehold.co/600x800/D8D5CE/171717?text=Averarno';
-            const isOutOfStock = p.stock_status === 'Out of Stock';
-
-            return `
-                <div class="group cursor-pointer bg-[#F5F4F0] border border-[#D8D5CE] p-4 flex flex-col justify-between transition-all duration-300 hover:border-[#171717]" onclick="router('product', '${p.slug}')">
-                    <div class="relative overflow-hidden aspect-[4/5] bg-stone/20 mb-4">
-                        <img src="${primaryImage}" alt="${p.brand} ${p.name} Decant Parfum Original - Averarno" loading="lazy" class="w-full h-full object-cover object-center transition-transform duration-700 group-hover:scale-105 ${isOutOfStock ? 'opacity-60 grayscale' : ''}" onerror="this.src='https://placehold.co/600x800/D8D5CE/171717?text=Averarno'">
-                        <div class="absolute top-3 left-3 flex flex-col gap-1.5">
-                            ${isOutOfStock ? '<span class="bg-red-900 text-[#F5F4F0] text-[10px] uppercase tracking-widest px-2.5 py-1">Out of Stock</span>' : ''}
-                            ${!isOutOfStock && p.bestseller ? '<span class="bg-[#171717] text-[#F5F4F0] text-[10px] uppercase tracking-widest px-2.5 py-1">Best Seller</span>' : ''}
-                            ${!isOutOfStock && p.new_arrival ? '<span class="bg-white border border-[#171717] text-[#171717] text-[10px] uppercase tracking-widest px-2.5 py-1">New Arrival</span>' : ''}
-                            ${!isOutOfStock && !p.bestseller && !p.new_arrival && p.featured ? '<span class="bg-stone text-[#171717] text-[10px] uppercase tracking-widest px-2.5 py-1">Featured</span>' : ''}
-                        </div>
-                    </div>
-                    <div class="space-y-1">
-                        <div class="text-[11px] uppercase tracking-widest text-[#8A8984] font-medium">${p.brand}</div>
-                        <h3 class="font-heading text-base font-semibold text-[#171717] group-hover:text-[#8A8984] transition-colors">${p.name}</h3>
-                        <div class="text-xs text-[#8A8984]">${p.concentration} • ${p.fragrance_category}</div>
-                    </div>
-                    <div class="mt-4 pt-4 border-t border-[#D8D5CE]/60 flex items-center justify-between">
-                        <span class="text-xs text-[#8A8984]">From <strong class="text-[#171717] font-semibold">${formatIDR(startingPrice)}</strong></span>
-                        <span class="text-xs uppercase tracking-wider font-medium underline underline-offset-4">Explore</span>
-                    </div>
-                </div>
-            `;
-        }
-
-        function renderShop() {
-            const published = getPublishedProducts();
-            const brands = ['All', ...new Set(published.map(p => p.brand))];
-            const categories = ['All', ...new Set(published.map(p => p.fragrance_category))];
-
-            let filtered = published.filter(p => {
-                const matchSearch = p.name.toLowerCase().includes(shopFilters.search.toLowerCase()) || 
-                                    p.brand.toLowerCase().includes(shopFilters.search.toLowerCase()) ||
-                                    p.fragrance_category.toLowerCase().includes(shopFilters.search.toLowerCase());
-                const matchBrand = shopFilters.brand === 'All' || p.brand === shopFilters.brand;
-                const matchCategory = shopFilters.category === 'All' || p.fragrance_category === shopFilters.category;
-                return matchSearch && matchBrand && matchCategory;
-            });
-
-            if (shopFilters.sort === 'newest') {
-                filtered.sort((a, b) => new Date(b.created_at) - new Date(a.created_at));
-            } else if (shopFilters.sort === 'price-low') {
-                filtered.sort((a, b) => Math.min(...Object.values(a.prices)) - Math.min(...Object.values(b.prices)));
-            } else if (shopFilters.sort === 'price-high') {
-                filtered.sort((a, b) => Math.min(...Object.values(b.prices)) - Math.min(...Object.values(a.prices)));
-            }
-
-            return `
-                <div class="max-w-7xl mx-auto px-6 py-12">
-                    <div class="border-b border-[#D8D5CE] pb-8 mb-10">
-                        <h1 class="font-heading text-3xl sm:text-4xl font-normal">Fragrance Catalog</h1>
-                        <p class="text-sm text-[#8A8984] mt-2">Explore our curated selection of authentic niche and luxury fragrance decants.</p>
-                    </div>
-
-                    <div class="bg-white border border-[#D8D5CE] p-6 mb-10 space-y-6">
-                        <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
-                            <div class="relative">
-                                <span class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-[#8A8984]">
-                                    <i data-lucide="search" class="w-4 h-4"></i>
-                                </span>
-                                <input type="text" id="search-input" value="${shopFilters.search}" oninput="updateFilter('search', this.value)" placeholder="Search scent or brand..." class="w-full bg-[#F5F4F0] border border-[#D8D5CE] pl-10 pr-4 py-2.5 text-xs text-[#171717] focus:outline-none focus:border-[#171717]">
-                            </div>
-                            <div>
-                                <select onchange="updateFilter('brand', this.value)" class="w-full bg-[#F5F4F0] border border-[#D8D5CE] px-4 py-2.5 text-xs text-[#171717] focus:outline-none focus:border-[#171717]">
-                                    ${brands.map(b => `<option value="${b}" ${shopFilters.brand === b ? 'selected' : ''}>Brand: ${b}</option>`).join('')}
-                                </select>
-                            </div>
-                            <div>
-                                <select onchange="updateFilter('category', this.value)" class="w-full bg-[#F5F4F0] border border-[#D8D5CE] px-4 py-2.5 text-xs text-[#171717] focus:outline-none focus:border-[#171717]">
-                                    ${categories.map(c => `<option value="${c}" ${shopFilters.category === c ? 'selected' : ''}>Category: ${c}</option>`).join('')}
-                                </select>
-                            </div>
-                            <div>
-                                <select onchange="updateFilter('sort', this.value)" class="w-full bg-[#F5F4F0] border border-[#D8D5CE] px-4 py-2.5 text-xs text-[#171717] focus:outline-none focus:border-[#171717]">
-                                    <option value="newest" ${shopFilters.sort === 'newest' ? 'selected' : ''}>Sort: Newest Arrivals</option>
-                                    <option value="price-low" ${shopFilters.sort === 'price-low' ? 'selected' : ''}>Sort: Price Low to High</option>
-                                    <option value="price-high" ${shopFilters.sort === 'price-high' ? 'selected' : ''}>Sort: Price High to Low</option>
-                                </select>
-                            </div>
-                        </div>
-                        <div class="flex items-center justify-between pt-2 border-t border-[#D8D5CE]/40 text-xs text-[#8A8984]">
-                            <span>Showing <strong>${filtered.length}</strong> fragrances</span>
-                            <button onclick="resetFilters()" class="hover:text-[#171717] underline">Reset Filters</button>
-                        </div>
-                    </div>
-
-                    ${filtered.length > 0 ? `
-                        <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6 sm:gap-8">
-                            ${filtered.map(p => renderProductCard(p)).join('')}
-                        </div>
-                    ` : `
-                        <div class="text-center py-24 bg-white border border-[#D8D5CE]">
-                            <i data-lucide="sparkles" class="w-10 h-10 mx-auto text-[#8A8984] mb-4"></i>
-                            <h3 class="font-heading text-xl font-medium">No Fragrances Found</h3>
-                            <p class="text-xs text-[#8A8984] mt-2 mb-6">Try adjusting your search criteria or filters.</p>
-                            <button onclick="resetFilters()" class="bg-[#171717] text-[#F5F4F0] px-6 py-3 text-xs uppercase tracking-widest">Reset Filters</button>
-                        </div>
-                    `}
-                </div>
-            `;
-        }
-
-        function updateFilter(type, value) {
-            shopFilters[type] = value;
-            render();
-            if(type === 'search') {
-                const input = document.getElementById('search-input');
-                if(input) {
-                    input.focus();
-                    input.setSelectionRange(input.value.length, input.value.length);
-                }
-            }
-        }
-
-        function resetFilters() {
-            shopFilters = { search: '', brand: 'All', category: 'All', sort: 'newest' };
-            render();
-        }
-
-        function renderProductDetail(slug) {
-            const published = getPublishedProducts();
-            const product = published.find(p => p.slug === slug);
-
-            if (!product) {
-                return `
-                    <div class="max-w-3xl mx-auto px-6 py-28 text-center space-y-6">
-                        <span class="text-xs uppercase tracking-widest text-[#8A8984]">Unavailable</span>
-                        <h1 class="font-heading text-3xl font-normal">Fragrance Not Found</h1>
-                        <p class="text-sm text-[#8A8984]">This fragrance may have been unpublished or removed from our catalog.</p>
-                        <button onclick="router('shop')" class="bg-[#171717] text-[#F5F4F0] px-8 py-3 text-xs uppercase tracking-widest">Return to Catalog</button>
-                    </div>
-                `;
-            }
-
-            const availableSizes = product.sizes || ["2 ml", "5 ml", "10 ml"];
-            if (!availableSizes.includes(selectedProductSize)) {
-                selectedProductSize = availableSizes[0];
-            }
-            const currentPrice = product.prices[selectedProductSize] || Object.values(product.prices)[0] || 0;
-            const images = (product.images && product.images.length > 0) ? product.images : ['https://placehold.co/800x1000/D8D5CE/171717?text=Averarno'];
-            const isOutOfStock = product.stock_status === 'Out of Stock';
-
-            return `
-                <div class="max-w-7xl mx-auto px-6 py-12">
-                    <div class="flex items-center space-x-2 text-xs text-[#8A8984] mb-8">
-                        <a href="#" onclick="router('home'); return false;" class="hover:text-[#171717]">Home</a>
-                        <span>/</span>
-                        <a href="#" onclick="router('shop'); return false;" class="hover:text-[#171717]">Shop</a>
-                        <span>/</span>
-                        <span class="text-[#171717] font-medium">${product.name}</span>
-                    </div>
-
-                    <div class="grid grid-cols-1 lg:grid-cols-2 gap-12 lg:gap-16 items-start">
-                        <div class="space-y-4">
-                            <div class="bg-white border border-[#D8D5CE] overflow-hidden aspect-[4/5]">
-                                <img id="main-product-image" src="${images[0]}" alt="${product.brand} ${product.name} Decant Parfum Original - Averarno" class="w-full h-full object-cover object-center" onerror="this.src='https://placehold.co/800x1000/D8D5CE/171717?text=Averarno'">
-                            </div>
-                            ${images.length > 1 ? `
-                                <div class="grid grid-cols-4 gap-4">
-                                    ${images.map((img, idx) => `
-                                        <div onclick="document.getElementById('main-product-image').src='${img}'" class="cursor-pointer bg-white border border-[#D8D5CE] aspect-[4/5] overflow-hidden opacity-80 hover:opacity-100 transition-opacity">
-                                            <img src="${img}" alt="${product.brand} ${product.name} view ${idx + 1}" class="w-full h-full object-cover object-center" onerror="this.src='https://placehold.co/400x500/D8D5CE/171717?text=View'">
-                                        </div>
-                                    `).join('')}
-                                </div>
-                            ` : ''}
-                        </div>
-
-                        <div class="space-y-8 lg:sticky lg:top-28">
-                            <div class="space-y-2 border-b border-[#D8D5CE] pb-6">
-                                <div class="flex items-center justify-between">
-                                    <span class="text-xs uppercase tracking-widest text-[#8A8984] font-medium">${product.brand}</span>
-                                    <span class="text-xs px-3 py-1 uppercase tracking-wider ${isOutOfStock ? 'bg-red-100 text-red-800' : 'bg-stone/50 text-[#171717]'}">${product.stock_status}</span>
-                                </div>
-                                <h1 class="font-heading text-3xl sm:text-4xl font-normal text-[#171717]">${product.name}</h1>
-                                <div class="text-sm text-[#8A8984] pt-1">${product.concentration} • ${product.fragrance_category}</div>
-                            </div>
-
-                            <p class="text-sm text-[#8A8984] leading-relaxed">${product.description}</p>
-
-                            <div class="bg-white border border-[#D8D5CE] p-6 space-y-4">
-                                <h3 class="text-xs uppercase tracking-widest font-semibold text-[#171717]">Olfactory Pyramid</h3>
-                                <div class="space-y-3 text-xs">
-                                    <div class="flex flex-col sm:flex-row sm:items-baseline border-b border-[#D8D5CE]/30 pb-2">
-                                        <span class="font-medium text-[#8A8984] w-28 uppercase tracking-wider">Top Notes</span>
-                                        <span class="text-[#171717] font-medium mt-1 sm:mt-0">${(product.top_notes || []).join(', ') || '-'}</span>
-                                    </div>
-                                    <div class="flex flex-col sm:flex-row sm:items-baseline border-b border-[#D8D5CE]/30 pb-2">
-                                        <span class="font-medium text-[#8A8984] w-28 uppercase tracking-wider">Middle Notes</span>
-                                        <span class="text-[#171717] font-medium mt-1 sm:mt-0">${(product.middle_notes || []).join(', ') || '-'}</span>
-                                    </div>
-                                    <div class="flex flex-col sm:flex-row sm:items-baseline">
-                                        <span class="font-medium text-[#8A8984] w-28 uppercase tracking-wider">Base Notes</span>
-                                        <span class="text-[#171717] font-medium mt-1 sm:mt-0">${(product.base_notes || []).join(', ') || '-'}</span>
-                                    </div>
-                                </div>
-                            </div>
-
-                            <div class="space-y-4">
-                                <div class="flex justify-between items-center text-xs">
-                                    <span class="uppercase tracking-widest font-semibold text-[#171717]">Select Decant Size</span>
-                                    <span class="text-[#8A8984]">Sterilized Glass Atomizer</span>
-                                </div>
-                                <div class="grid grid-cols-3 gap-4">
-                                    ${availableSizes.map(size => {
-                                        const isSizeAvail = product.size_availability?.[size] !== false && !isOutOfStock;
-                                        return `
-                                            <button ${!isSizeAvail ? 'disabled' : ''} onclick="selectSize('${size}', ${product.prices[size]})" id="size-btn-${size.replace(/\s+/g, '')}" class="size-btn border p-4 text-center transition-all ${!isSizeAvail ? 'opacity-40 cursor-not-allowed bg-stone/20 border-[#D8D5CE]' : (selectedProductSize === size ? 'border-[#171717] bg-[#171717] text-[#F5F4F0]' : 'border-[#D8D5CE] bg-white text-[#171717] hover:border-[#171717]')}">
-                                                <div class="font-heading font-semibold text-sm">${size}</div>
-                                                <div class="text-xs mt-1 opacity-90">${formatIDR(product.prices[size])}</div>
-                                                ${!isSizeAvail ? '<div class="text-[10px] uppercase tracking-wider text-red-700 mt-1">Sold Out</div>' : ''}
-                                            </button>
-                                        `;
-                                    }).join('')}
-                                </div>
-                            </div>
-
-                            <div class="pt-6 border-t border-[#D8D5CE] space-y-4">
-                                <div class="flex items-center justify-between">
-                                    <span class="text-xs uppercase tracking-widest text-[#8A8984]">Total Price</span>
-                                    <span id="dynamic-price" class="font-heading text-2xl font-bold">${formatIDR(currentPrice)}</span>
-                                </div>
-                                <button ${isOutOfStock ? 'disabled' : ''} onclick="orderViaWhatsApp('${product.slug}')" class="w-full ${isOutOfStock ? 'bg-[#8A8984] cursor-not-allowed' : 'bg-[#171717] hover:bg-stone hover:text-[#171717]'} text-[#F5F4F0] py-4 text-xs font-medium uppercase tracking-[0.2em] flex items-center justify-center space-x-3 transition-all shadow-md">
-                                    <i data-lucide="message-circle" class="w-4 h-4"></i>
-                                    <span>${isOutOfStock ? 'Currently Out of Stock' : 'Order via WhatsApp'}</span>
-                                </button>
-                                <p class="text-[11px] text-center text-[#8A8984]">Fast response order processing directly with our fragrance concierge.</p>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            `;
-        }
-
-        function selectSize(size, price) {
-            selectedProductSize = size;
-            document.querySelectorAll('.size-btn:not([disabled])').forEach(btn => {
-                btn.classList.remove('border-[#171717]', 'bg-[#171717]', 'text-[#F5F4F0]');
-                btn.classList.add('border-[#D8D5CE]', 'bg-white', 'text-[#171717]');
-            });
-            const activeBtn = document.getElementById(`size-btn-${size.replace(/\s+/g, '')}`);
-            if (activeBtn) {
-                activeBtn.classList.remove('border-[#D8D5CE]', 'bg-white', 'text-[#171717]');
-                activeBtn.classList.add('border-[#171717]', 'bg-[#171717]', 'text-[#F5F4F0]');
-            }
-            const priceEl = document.getElementById('dynamic-price');
-            if(priceEl) priceEl.innerText = formatIDR(price);
-        }
-
-        function orderViaWhatsApp(slug) {
-            const product = products.find(p => p.slug === slug);
-            if (!product) return;
-            const price = product.prices[selectedProductSize] || 0;
-            const formattedPrice = formatIDR(price);
-            const productLink = window.location.href;
-
-            const message = `Hello Averarno! I would like to order:
-Product: ${product.name}
-Brand: ${product.brand}
-Size: ${selectedProductSize}
-Price: ${formattedPrice}
-Product Link: ${productLink}
-Please provide further ordering information.`;
-
-            const encodedMessage = encodeURIComponent(message);
-            const whatsappUrl = `https://wa.me/${WHATSAPP_PHONE}?text=${encodedMessage}`;
-            window.open(whatsappUrl, '_blank');
-            showToast('Redirecting to WhatsApp order concierge...');
-        }
-
-        function renderAbout() {
-            return `
-                <div class="max-w-5xl mx-auto px-6 py-16 space-y-20">
-                    <div class="text-center space-y-4 max-w-2xl mx-auto">
-                        <span class="text-xs uppercase tracking-[0.3em] text-[#8A8984] font-medium">Our Story & Vision</span>
-                        <h1 class="font-heading text-4xl sm:text-5xl font-light">Democratizing Niche Perfumery</h1>
-                        <p class="text-sm text-[#8A8984] leading-relaxed font-light">
-                            At Averarno, we believe that discovering exceptional fragrances should be an accessible experience. We curate distinctive scents and make them available in carefully prepared decants, allowing everyone to explore fragrances before committing to a full bottle.
-                        </p>
-                    </div>
-                    <div class="grid grid-cols-1 md:grid-cols-2 gap-12 items-center">
-                        <div class="space-y-6">
-                            <h2 class="font-heading text-2xl font-normal">The Decant Philosophy</h2>
-                            <p class="text-sm text-[#8A8984] leading-relaxed">
-                                Purchasing full-size niche bottles without experiencing them throughout various seasons, moods, and skin chemistries is a costly gamble. We curate distinctive scents and make them available in carefully prepared decants.
-                            </p>
-                            <p class="text-sm text-[#8A8984] leading-relaxed">
-                                Allowing everyone to explore world-class perfumery before committing to a full flacon.
-                            </p>
-                        </div>
-                        <div class="bg-white border border-[#D8D5CE] aspect-[4/3] overflow-hidden">
-                            <img src="https://images.unsplash.com/photo-1592945403244-b3fbafd7f539?auto=format&fit=crop&w=1000&q=80" alt="Averarno Fragrance Decant Philosophy" class="w-full h-full object-cover">
-                        </div>
-                    </div>
-                    <div class="grid grid-cols-1 md:grid-cols-3 gap-8 pt-10 border-t border-[#D8D5CE]">
-                        <div class="bg-white border border-[#D8D5CE] p-8 space-y-3">
-                            <span class="text-xs uppercase tracking-widest text-[#8A8984] font-medium">01 / Integrity</span>
-                            <h3 class="font-heading text-lg font-semibold">100% Authentic</h3>
-                            <p class="text-xs text-[#8A8984] leading-relaxed">Sourced directly from authorized luxury boutiques and official brand flagships. Zero dilution or imitation.</p>
-                        </div>
-                        <div class="bg-white border border-[#D8D5CE] p-8 space-y-3">
-                            <span class="text-xs uppercase tracking-widest text-[#8A8984] font-medium">02 / Precision</span>
-                            <h3 class="font-heading text-lg font-semibold">Medical-Grade Glass</h3>
-                            <p class="text-xs text-[#8A8984] leading-relaxed">Hand-decanted in sterile environments using precision laboratory pipettes into heavy glass atomizers.</p>
-                        </div>
-                        <div class="bg-white border border-[#D8D5CE] p-8 space-y-3">
-                            <span class="text-xs uppercase tracking-widest text-[#8A8984] font-medium">03 / Accessibility</span>
-                            <h3 class="font-heading text-lg font-semibold">Affordable Luxury</h3>
-                            <p class="text-xs text-[#8A8984] leading-relaxed">Enabling fragrance lovers to build a versatile wardrobe of scents for every occasion without breaking the bank.</p>
-                        </div>
-                    </div>
-                </div>
-            `;
-        }
-
-        function renderContact() {
-            return `
-                <div class="max-w-5xl mx-auto px-6 py-16 space-y-16">
-                    <div class="text-center space-y-4 max-w-2xl mx-auto">
-                        <span class="text-xs uppercase tracking-[0.3em] text-[#8A8984] font-medium">Support & Inquiry</span>
-                        <h1 class="font-heading text-4xl sm:text-5xl font-light">Contact & FAQ</h1>
-                        <p class="text-sm text-[#8A8984]">We are here to assist with your fragrance journey.</p>
-                    </div>
-                    <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
-                        <div class="bg-white border border-[#D8D5CE] p-8 space-y-4 text-center flex flex-col items-center justify-center">
-                            <i data-lucide="message-circle" class="w-8 h-8 text-[#171717]"></i>
-                            <h3 class="font-heading text-xl font-semibold">WhatsApp Concierge</h3>
-                            <p class="text-xs text-[#8A8984] max-w-xs">Direct ordering and instant fragrance recommendations with our concierge team.</p>
-                            <a href="https://wa.me/${WHATSAPP_PHONE}" target="_blank" class="inline-block bg-[#171717] text-[#F5F4F0] px-6 py-3 text-xs uppercase tracking-widest hover:bg-stone hover:text-[#171717] transition-all">Chat on WhatsApp</a>
-                        </div>
-                        <div class="bg-white border border-[#D8D5CE] p-8 space-y-4 text-center flex flex-col items-center justify-center">
-                            <i data-lucide="instagram" class="w-8 h-8 text-[#171717]"></i>
-                            <h3 class="font-heading text-xl font-semibold">Instagram Community</h3>
-                            <p class="text-xs text-[#8A8984] max-w-xs">Follow our daily scent notes, unboxing stories, and community reviews.</p>
-                            <a href="https://www.instagram.com/aver.arno/" target="_blank" rel="noopener noreferrer" class="inline-block border border-[#171717] text-[#171717] px-6 py-3 text-xs uppercase tracking-widest hover:bg-[#171717] hover:text-[#F5F4F0] transition-all">Follow @aver.arno</a>
-                        </div>
-                    </div>
-                    <div class="space-y-6">
-                        <h2 class="font-heading text-2xl font-normal text-center mb-8">Frequently Asked Questions</h2>
-                        <div class="space-y-4 max-w-3xl mx-auto">
-                            <div class="bg-white border border-[#D8D5CE] p-6 space-y-2">
-                                <h3 class="font-heading font-semibold text-sm">Are all Averarno decants 100% authentic?</h3>
-                                <p class="text-xs text-[#8A8984] leading-relaxed">Yes. Every perfume in our catalog is purchased directly from official flagship boutiques and authorized niche retailers. We never sell replicas or diluted products.</p>
-                            </div>
-                            <div class="bg-white border border-[#D8D5CE] p-6 space-y-2">
-                                <h3 class="font-heading font-semibold text-sm">How are the decants packaged?</h3>
-                                <p class="text-xs text-[#8A8984] leading-relaxed">Fragrances are hygienically hand-decanted into premium glass atomizers equipped with fine-mist sprayers and securely sealed to prevent evaporation during transit.</p>
-                            </div>
-                            <div class="bg-white border border-[#D8D5CE] p-6 space-y-2">
-                                <h3 class="font-heading font-semibold text-sm">How does WhatsApp ordering work?</h3>
-                                <p class="text-xs text-[#8A8984] leading-relaxed">When you click "Order via WhatsApp" on any product page, our system automatically formats your selected perfume, brand, and size into a ready-to-send message to our concierge.</p>
-                            </div>
-                            <div class="bg-white border border-[#D8D5CE] p-6 space-y-2">
-                                <h3 class="font-heading font-semibold text-sm">What are the shipping estimates?</h3>
-                                <p class="text-xs text-[#8A8984] leading-relaxed">Orders are carefully wrapped in protective cushioning and shipped within 1-2 business days. Delivery times vary by region, typically taking 2-4 business days nationwide.</p>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            `;
-        }
-
-        function handleNewsletter(e) {
-            e.preventDefault();
-            showToast('Thank you for subscribing to Averarno.');
-            e.target.reset();
-        }
-
         function renderAdminPortal() {
             if (!adminState.isAdminAuthorized) {
                 return renderAdminLogin();
@@ -1212,6 +1239,7 @@ Please provide further ordering information.`;
 
             return `
                 <div class="min-h-screen flex flex-col lg:flex-row bg-[#F5F4F0] text-[#171717]">
+                    <!-- Admin Sidebar -->
                     <aside class="w-full lg:w-64 bg-[#171717] text-[#F5F4F0] flex flex-col justify-between shrink-0 border-b lg:border-b-0 lg:border-r border-[#D8D5CE]/20">
                         <div>
                             <div class="p-6 border-b border-[#8A8984]/20 flex items-center justify-between">
@@ -1239,7 +1267,7 @@ Please provide further ordering information.`;
                         <div class="p-6 border-t border-[#8A8984]/20 hidden lg:block space-y-4">
                             <div class="text-xs">
                                 <div class="text-[#8A8984]">Signed in as</div>
-                                <div class="font-medium truncate mt-0.5">${adminState.user?.email || 'Administrator'}</div>
+                                <div class="font-medium truncate mt-0.5">${escapeHtml(adminState.user?.email || 'Administrator')}</div>
                             </div>
                             <div class="flex flex-col gap-2">
                                 <button onclick="router('home')" class="w-full border border-[#8A8984]/40 text-[#F5F4F0] py-2 text-xs uppercase tracking-widest hover:border-[#F5F4F0] transition-colors">
@@ -1253,6 +1281,7 @@ Please provide further ordering information.`;
                         </div>
                     </aside>
 
+                    <!-- Admin Main Content -->
                     <div class="flex-grow flex flex-col min-w-0">
                         <div class="bg-white border-b border-[#D8D5CE] px-6 py-4 flex items-center justify-between">
                             <div class="flex items-center space-x-3">
@@ -1267,7 +1296,7 @@ Please provide further ordering information.`;
                             </div>
                         </div>
 
-                        <div class="p-6 sm:p-10 max-w-6xl w-full mx-auto">
+                        <div class="p-6 sm:p-10 max-w-6xl w-full mx-auto animate-fade-in">
                             ${mainContent}
                         </div>
                     </div>
@@ -1277,7 +1306,7 @@ Please provide further ordering information.`;
 
         function renderAdminLogin() {
             return `
-                <div class="max-w-md mx-auto px-6 py-24">
+                <div class="max-w-md mx-auto px-6 py-24 animate-fade-in">
                     <div class="bg-white border border-[#D8D5CE] p-8 sm:p-10 space-y-8">
                         <div class="text-center space-y-2">
                             <span class="text-[10px] uppercase tracking-[0.3em] text-[#8A8984]">Authorized Access Only</span>
@@ -1289,8 +1318,8 @@ Please provide further ordering information.`;
                             <div class="bg-[#F5F4F0] border border-[#D8D5CE] p-4 space-y-3">
                                 <p class="text-xs text-[#171717] font-medium">Supabase Connection Setup</p>
                                 <p class="text-[11px] text-[#8A8984]">Enter your Supabase Project URL and public Anon Key to enable authentication and database sync.</p>
-                                <input type="url" id="quick-sb-url" placeholder="https://your-project.supabase.co" value="${SUPABASE_URL}" class="w-full bg-white border border-[#D8D5CE] px-3 py-2 text-xs focus:outline-none focus:border-[#171717]">
-                                <input type="password" id="quick-sb-key" placeholder="Supabase Anon Public Key" value="${SUPABASE_ANON_KEY}" class="w-full bg-white border border-[#D8D5CE] px-3 py-2 text-xs focus:outline-none focus:border-[#171717]">
+                                <input type="url" id="quick-sb-url" placeholder="https://your-project.supabase.co" value="${escapeHtml(SUPABASE_URL)}" class="w-full bg-white border border-[#D8D5CE] px-3 py-2 text-xs focus:outline-none focus:border-[#171717]">
+                                <input type="password" id="quick-sb-key" placeholder="Supabase Anon Public Key" value="${escapeHtml(SUPABASE_ANON_KEY)}" class="w-full bg-white border border-[#D8D5CE] px-3 py-2 text-xs focus:outline-none focus:border-[#171717]">
                                 <button type="button" onclick="applyQuickSupabaseConfig()" class="w-full bg-stone text-[#171717] py-2 text-xs uppercase tracking-widest font-medium hover:bg-[#171717] hover:text-[#F5F4F0] transition-colors">
                                     Connect Supabase
                                 </button>
@@ -1377,41 +1406,51 @@ Please provide further ordering information.`;
                             <h2 class="font-heading text-base font-semibold">Recently Added Fragrances</h2>
                             <button onclick="setAdminRoute('products')" class="text-xs underline text-[#8A8984] hover:text-[#171717]">Manage All</button>
                         </div>
-                        <div class="divide-y divide-[#D8D5CE]/50">
-                            ${recentProducts.map(p => {
-                                const minPrice = Math.min(...Object.values(p.prices || { "2 ml": 0 }));
-                                return `
-                                    <div class="px-6 py-4 flex items-center justify-between gap-4 hover:bg-[#F5F4F0]/50">
-                                        <div class="flex items-center gap-4 min-w-0">
-                                            <img src="${p.images?.[0] || 'https://placehold.co/100x100/D8D5CE/171717?text=A'}" class="w-12 h-12 object-cover border border-[#D8D5CE] shrink-0">
-                                            <div class="min-w-0">
-                                                <div class="font-medium text-sm truncate">${p.name}</div>
-                                                <div class="text-xs text-[#8A8984]">${p.brand} • From ${formatIDR(minPrice)}</div>
+                        ${recentProducts.length === 0 ? `
+                            <div class="p-12 text-center space-y-3">
+                                <p class="text-xs text-[#8A8984]">No fragrances in your database yet.</p>
+                                <button onclick="setAdminRoute('add-product')" class="border border-[#171717] px-5 py-2 text-xs uppercase tracking-widest hover:bg-[#171717] hover:text-[#F5F4F0] transition-colors">
+                                    Add First Fragrance
+                                </button>
+                            </div>
+                        ` : `
+                            <div class="divide-y divide-[#D8D5CE]/50">
+                                ${recentProducts.map(p => {
+                                    const minPrice = getStartingPrice(p);
+                                    return `
+                                        <div class="px-6 py-4 flex items-center justify-between gap-4 hover:bg-[#F5F4F0]/50">
+                                            <div class="flex items-center gap-4 min-w-0">
+                                                <img src="${escapeHtml(p.images?.[0] || 'https://placehold.co/100x100/D8D5CE/171717?text=A')}" class="w-12 h-12 object-cover border border-[#D8D5CE] shrink-0">
+                                                <div class="min-w-0">
+                                                    <div class="font-medium text-sm truncate">${escapeHtml(p.name)}</div>
+                                                    <div class="text-xs text-[#8A8984]">${escapeHtml(p.brand)} • From ${formatIDR(minPrice)}</div>
+                                                </div>
+                                            </div>
+                                            <div class="flex items-center gap-3 shrink-0">
+                                                <span class="text-[10px] uppercase tracking-widest px-2.5 py-1 ${(p.status || 'published') === 'published' ? 'bg-emerald-50 text-emerald-800 border border-emerald-200' : 'bg-amber-50 text-amber-800 border border-amber-200'}">
+                                                    ${escapeHtml(p.status || 'published')}
+                                                </span>
+                                                <button onclick="setAdminRoute('edit-product', '${escapeHtml(p.id)}')" class="p-2 text-[#8A8984] hover:text-[#171717]" title="Edit">
+                                                    <i data-lucide="edit-3" class="w-4 h-4"></i>
+                                                </button>
                                             </div>
                                         </div>
-                                        <div class="flex items-center gap-3 shrink-0">
-                                            <span class="text-[10px] uppercase tracking-widest px-2.5 py-1 ${(p.status || 'published') === 'published' ? 'bg-emerald-50 text-emerald-800 border border-emerald-200' : 'bg-amber-50 text-amber-800 border border-amber-200'}">
-                                                ${p.status || 'published'}
-                                            </span>
-                                            <button onclick="setAdminRoute('edit-product', '${p.id}')" class="p-2 text-[#8A8984] hover:text-[#171717]" title="Edit">
-                                                <i data-lucide="edit-3" class="w-4 h-4"></i>
-                                            </button>
-                                        </div>
-                                    </div>
-                                `;
-                            }).join('')}
-                        </div>
+                                    `;
+                                }).join('')}
+                            </div>
+                        `}
                     </div>
                 </div>
             `;
         }
 
         function renderAdminProducts() {
-            const allBrands = ['All', ...new Set(products.map(p => p.brand))];
+            const allBrands = ['All', ...new Set(products.map(p => p.brand).filter(Boolean))];
 
             let filtered = products.filter(p => {
-                const matchSearch = p.name.toLowerCase().includes(adminState.searchQuery.toLowerCase()) ||
-                                    p.brand.toLowerCase().includes(adminState.searchQuery.toLowerCase());
+                const q = adminState.searchQuery.toLowerCase();
+                const matchSearch = (p.name || '').toLowerCase().includes(q) ||
+                                    (p.brand || '').toLowerCase().includes(q);
                 const matchBrand = adminState.filterBrand === 'All' || p.brand === adminState.filterBrand;
                 const statusVal = p.status || 'published';
                 const matchStatus = adminState.filterStatus === 'All' || statusVal === adminState.filterStatus;
@@ -1441,10 +1480,10 @@ Please provide further ordering information.`;
                             <span class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-[#8A8984]">
                                 <i data-lucide="search" class="w-4 h-4"></i>
                             </span>
-                            <input type="text" id="admin-prod-search" value="${adminState.searchQuery}" oninput="updateAdminProductFilter('searchQuery', this.value)" placeholder="Search by product or brand..." class="w-full bg-[#F5F4F0] border border-[#D8D5CE] pl-10 pr-4 py-2 text-xs focus:outline-none focus:border-[#171717]">
+                            <input type="text" id="admin-prod-search" value="${escapeHtml(adminState.searchQuery)}" oninput="updateAdminProductFilter('searchQuery', this.value)" placeholder="Search by product or brand..." class="w-full bg-[#F5F4F0] border border-[#D8D5CE] pl-10 pr-4 py-2 text-xs focus:outline-none focus:border-[#171717]">
                         </div>
                         <select onchange="updateAdminProductFilter('filterBrand', this.value)" class="w-full bg-[#F5F4F0] border border-[#D8D5CE] px-3 py-2 text-xs focus:outline-none focus:border-[#171717]">
-                            ${allBrands.map(b => `<option value="${b}" ${adminState.filterBrand === b ? 'selected' : ''}>Brand: ${b}</option>`).join('')}
+                            ${allBrands.map(b => `<option value="${escapeHtml(b)}" ${adminState.filterBrand === b ? 'selected' : ''}>Brand: ${escapeHtml(b)}</option>`).join('')}
                         </select>
                         <select onchange="updateAdminProductFilter('filterStatus', this.value)" class="w-full bg-[#F5F4F0] border border-[#D8D5CE] px-3 py-2 text-xs focus:outline-none focus:border-[#171717]">
                             <option value="All" ${adminState.filterStatus === 'All' ? 'selected' : ''}>Status: All</option>
@@ -1469,44 +1508,44 @@ Please provide further ordering information.`;
                             <tbody class="divide-y divide-[#D8D5CE]/50 text-xs">
                                 ${paginated.length === 0 ? `
                                     <tr>
-                                        <td colspan="7" class="py-12 text-center text-[#8A8984]">No products match your current filters.</td>
+                                        <td colspan="7" class="py-12 text-center text-[#8A8984]">No products found in database. Click "Add New Product" to create one.</td>
                                     </tr>
                                 ` : paginated.map(p => {
-                                    const minPrice = Math.min(...Object.values(p.prices || { "2 ml": 0 }));
+                                    const minPrice = getStartingPrice(p);
                                     const isPub = (p.status || 'published') === 'published';
                                     return `
                                         <tr class="hover:bg-[#F5F4F0]/40 transition-colors">
                                             <td class="py-3.5 px-4">
                                                 <div class="flex items-center gap-3">
-                                                    <img src="${p.images?.[0] || 'https://placehold.co/80x80/D8D5CE/171717?text=A'}" class="w-10 h-12 object-cover border border-[#D8D5CE] shrink-0">
+                                                    <img src="${escapeHtml(p.images?.[0] || 'https://placehold.co/80x80/D8D5CE/171717?text=A')}" class="w-10 h-12 object-cover border border-[#D8D5CE] shrink-0">
                                                     <div>
-                                                        <div class="font-semibold text-[#171717]">${p.name}</div>
-                                                        <div class="text-[11px] text-[#8A8984]">${p.concentration}</div>
+                                                        <div class="font-semibold text-[#171717]">${escapeHtml(p.name)}</div>
+                                                        <div class="text-[11px] text-[#8A8984]">${escapeHtml(p.concentration)}</div>
                                                     </div>
                                                 </div>
                                             </td>
-                                            <td class="py-3.5 px-4 text-[#8A8984]">${p.brand}</td>
+                                            <td class="py-3.5 px-4 text-[#8A8984]">${escapeHtml(p.brand)}</td>
                                             <td class="py-3.5 px-4 font-medium">${formatIDR(minPrice)}</td>
                                             <td class="py-3.5 px-4">
                                                 <span class="px-2 py-0.5 text-[10px] uppercase tracking-wider ${p.stock_status === 'Out of Stock' ? 'bg-red-50 text-red-700' : 'bg-stone/40 text-[#171717]'}">
-                                                    ${p.stock_status}
+                                                    ${escapeHtml(p.stock_status)}
                                                 </span>
                                             </td>
                                             <td class="py-3.5 px-4">
-                                                <button onclick="togglePublishStatus('${p.id}')" class="px-2.5 py-1 text-[10px] uppercase tracking-widest border transition-colors ${isPub ? 'bg-emerald-50 text-emerald-800 border-emerald-200 hover:bg-emerald-100' : 'bg-amber-50 text-amber-800 border-amber-200 hover:bg-amber-100'}" title="Click to toggle status">
+                                                <button onclick="togglePublishStatus('${escapeHtml(p.id)}')" class="px-2.5 py-1 text-[10px] uppercase tracking-widest border transition-colors ${isPub ? 'bg-emerald-50 text-emerald-800 border-emerald-200 hover:bg-emerald-100' : 'bg-amber-50 text-amber-800 border-amber-200 hover:bg-amber-100'}" title="Click to toggle status">
                                                     ${isPub ? 'Published' : 'Draft'}
                                                 </button>
                                             </td>
                                             <td class="py-3.5 px-4 text-[#8A8984]">${formatDate(p.updated_at || p.created_at)}</td>
                                             <td class="py-3.5 px-4 text-right">
                                                 <div class="inline-flex items-center space-x-1">
-                                                    <button onclick="setAdminRoute('edit-product', '${p.id}')" class="p-2 text-[#171717] hover:bg-stone/40 transition-colors" title="Edit Product">
+                                                    <button onclick="setAdminRoute('edit-product', '${escapeHtml(p.id)}')" class="p-2 text-[#171717] hover:bg-stone/40 transition-colors" title="Edit Product">
                                                         <i data-lucide="edit-3" class="w-4 h-4"></i>
                                                     </button>
-                                                    <button onclick="duplicateProduct('${p.id}')" class="p-2 text-[#8A8984] hover:text-[#171717] hover:bg-stone/40 transition-colors" title="Duplicate Product">
+                                                    <button onclick="duplicateProduct('${escapeHtml(p.id)}')" class="p-2 text-[#8A8984] hover:text-[#171717] hover:bg-stone/40 transition-colors" title="Duplicate Product">
                                                         <i data-lucide="copy" class="w-4 h-4"></i>
                                                     </button>
-                                                    <button onclick="confirmDeleteProduct('${p.id}', '${p.name.replace(/'/g, "\\'")}')" class="p-2 text-red-700 hover:bg-red-50 transition-colors" title="Delete Product">
+                                                    <button onclick="confirmDeleteProduct('${escapeHtml(p.id)}', '${escapeHtml(p.name).replace(/'/g, "\\'")}')" class="p-2 text-red-700 hover:bg-red-50 transition-colors" title="Delete Product">
                                                         <i data-lucide="trash-2" class="w-4 h-4"></i>
                                                     </button>
                                                 </div>
@@ -1561,23 +1600,24 @@ Please provide further ordering information.`;
                     </div>
 
                     <form id="product-cms-form" onsubmit="return false;" class="space-y-8">
+                        <!-- 1. Basic Information -->
                         <div class="bg-white border border-[#D8D5CE] p-6 sm:p-8 space-y-6">
                             <h2 class="font-heading text-base font-semibold border-b border-[#D8D5CE]/50 pb-3">1. Basic Information</h2>
                             <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                                 <div>
                                     <label class="block text-xs uppercase tracking-wider text-[#8A8984] mb-1.5">Product Name *</label>
-                                    <input type="text" id="prod-name" required value="${f.name}" oninput="handleProductNameInput(this.value)" placeholder="e.g. Santal 33" class="w-full bg-[#F5F4F0] border border-[#D8D5CE] px-4 py-2.5 text-xs focus:outline-none focus:border-[#171717]">
+                                    <input type="text" id="prod-name" required value="${escapeHtml(f.name)}" oninput="handleProductNameInput(this.value)" placeholder="e.g. Santal 33" class="w-full bg-[#F5F4F0] border border-[#D8D5CE] px-4 py-2.5 text-xs focus:outline-none focus:border-[#171717]">
                                 </div>
                                 <div>
                                     <label class="block text-xs uppercase tracking-wider text-[#8A8984] mb-1.5">Brand *</label>
-                                    <input type="text" id="prod-brand" list="brands-datalist" required value="${f.brand}" placeholder="Select or type brand" class="w-full bg-[#F5F4F0] border border-[#D8D5CE] px-4 py-2.5 text-xs focus:outline-none focus:border-[#171717]">
+                                    <input type="text" id="prod-brand" list="brands-datalist" required value="${escapeHtml(f.brand)}" placeholder="Select or type brand" class="w-full bg-[#F5F4F0] border border-[#D8D5CE] px-4 py-2.5 text-xs focus:outline-none focus:border-[#171717]">
                                     <datalist id="brands-datalist">
-                                        ${brandsList.map(b => `<option value="${b}">`).join('')}
+                                        ${brandsList.map(b => `<option value="${escapeHtml(b)}">`).join('')}
                                     </datalist>
                                 </div>
                                 <div>
                                     <label class="block text-xs uppercase tracking-wider text-[#8A8984] mb-1.5">Product Slug (URL) *</label>
-                                    <input type="text" id="prod-slug" required value="${f.slug}" placeholder="e.g. santal-33" class="w-full bg-[#F5F4F0] border border-[#D8D5CE] px-4 py-2.5 text-xs focus:outline-none focus:border-[#171717]">
+                                    <input type="text" id="prod-slug" required value="${escapeHtml(f.slug)}" placeholder="e.g. santal-33" class="w-full bg-[#F5F4F0] border border-[#D8D5CE] px-4 py-2.5 text-xs focus:outline-none focus:border-[#171717]">
                                 </div>
                                 <div>
                                     <label class="block text-xs uppercase tracking-wider text-[#8A8984] mb-1.5">Concentration *</label>
@@ -1587,18 +1627,19 @@ Please provide further ordering information.`;
                                 </div>
                                 <div class="md:col-span-2">
                                     <label class="block text-xs uppercase tracking-wider text-[#8A8984] mb-1.5">Fragrance Category *</label>
-                                    <input type="text" id="prod-category" list="categories-datalist" required value="${f.fragrance_category}" placeholder="e.g. Woody Aromatic" class="w-full bg-[#F5F4F0] border border-[#D8D5CE] px-4 py-2.5 text-xs focus:outline-none focus:border-[#171717]">
+                                    <input type="text" id="prod-category" list="categories-datalist" required value="${escapeHtml(f.fragrance_category)}" placeholder="e.g. Woody Aromatic" class="w-full bg-[#F5F4F0] border border-[#D8D5CE] px-4 py-2.5 text-xs focus:outline-none focus:border-[#171717]">
                                     <datalist id="categories-datalist">
-                                        ${categoriesList.map(c => `<option value="${c}">`).join('')}
+                                        ${categoriesList.map(c => `<option value="${escapeHtml(c)}">`).join('')}
                                     </datalist>
                                 </div>
                                 <div class="md:col-span-2">
                                     <label class="block text-xs uppercase tracking-wider text-[#8A8984] mb-1.5">Product Description *</label>
-                                    <textarea id="prod-description" rows="4" required placeholder="Describe the olfactory character, mood, and inspiration..." class="w-full bg-[#F5F4F0] border border-[#D8D5CE] px-4 py-2.5 text-xs focus:outline-none focus:border-[#171717]">${f.description}</textarea>
+                                    <textarea id="prod-description" rows="4" required placeholder="Describe the olfactory character, mood, and inspiration..." class="w-full bg-[#F5F4F0] border border-[#D8D5CE] px-4 py-2.5 text-xs focus:outline-none focus:border-[#171717]">${escapeHtml(f.description)}</textarea>
                                 </div>
                             </div>
                         </div>
 
+                        <!-- 2. Product Images -->
                         <div class="bg-white border border-[#D8D5CE] p-6 sm:p-8 space-y-6">
                             <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b border-[#D8D5CE]/50 pb-3">
                                 <h2 class="font-heading text-base font-semibold">2. Product Images (Supabase Storage)</h2>
@@ -1625,7 +1666,7 @@ Please provide further ordering information.`;
                                 <div class="grid grid-cols-2 sm:grid-cols-4 gap-4 pt-2">
                                     ${f.images.map((img, idx) => `
                                         <div class="relative border ${idx === 0 ? 'border-[#171717] ring-1 ring-[#171717]' : 'border-[#D8D5CE]'} bg-[#F5F4F0] aspect-[4/5] group overflow-hidden">
-                                            <img src="${img}" class="w-full h-full object-cover">
+                                            <img src="${escapeHtml(img)}" class="w-full h-full object-cover">
                                             ${idx === 0 ? '<span class="absolute top-2 left-2 bg-[#171717] text-[#F5F4F0] text-[9px] uppercase tracking-widest px-2 py-0.5">Primary</span>' : ''}
                                             <div class="absolute inset-x-0 bottom-0 bg-[#171717]/85 p-2 flex justify-between items-center opacity-0 group-hover:opacity-100 transition-opacity">
                                                 ${idx !== 0 ? `<button type="button" onclick="setPrimaryImage(${idx})" class="text-[10px] text-[#F5F4F0] underline">Set Primary</button>` : '<span></span>'}
@@ -1639,6 +1680,7 @@ Please provide further ordering information.`;
                             ` : `<p class="text-xs text-[#8A8984] italic">No images added yet.</p>`}
                         </div>
 
+                        <!-- 3. Olfactory Pyramid -->
                         <div class="bg-white border border-[#D8D5CE] p-6 sm:p-8 space-y-6">
                             <h2 class="font-heading text-base font-semibold border-b border-[#D8D5CE]/50 pb-3">3. Olfactory Pyramid (Notes)</h2>
                             <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
@@ -1648,6 +1690,7 @@ Please provide further ordering information.`;
                             </div>
                         </div>
 
+                        <!-- 4. Decant Sizes & Pricing -->
                         <div class="bg-white border border-[#D8D5CE] p-6 sm:p-8 space-y-6">
                             <div class="flex items-center justify-between border-b border-[#D8D5CE]/50 pb-3">
                                 <h2 class="font-heading text-base font-semibold">4. Decant Sizes & Pricing</h2>
@@ -1660,11 +1703,11 @@ Please provide further ordering information.`;
                                     <div class="grid grid-cols-12 gap-3 items-center bg-[#F5F4F0] p-3 border border-[#D8D5CE]">
                                         <div class="col-span-4 sm:col-span-3">
                                             <label class="block text-[10px] uppercase text-[#8A8984] mb-1">Size</label>
-                                            <input type="text" value="${row.size}" onchange="updateSizeRow(${idx}, 'size', this.value)" placeholder="e.g. 5 ml" class="w-full bg-white border border-[#D8D5CE] px-3 py-2 text-xs">
+                                            <input type="text" value="${escapeHtml(row.size)}" onchange="updateSizeRow(${idx}, 'size', this.value)" placeholder="e.g. 5 ml" class="w-full bg-white border border-[#D8D5CE] px-3 py-2 text-xs">
                                         </div>
                                         <div class="col-span-5 sm:col-span-5">
                                             <label class="block text-[10px] uppercase text-[#8A8984] mb-1">Price (IDR)</label>
-                                            <input type="number" min="0" value="${row.price}" onchange="updateSizeRow(${idx}, 'price', Number(this.value))" placeholder="150000" class="w-full bg-white border border-[#D8D5CE] px-3 py-2 text-xs">
+                                            <input type="number" min="0" value="${Number(row.price) || 0}" onchange="updateSizeRow(${idx}, 'price', Number(this.value))" placeholder="150000" class="w-full bg-white border border-[#D8D5CE] px-3 py-2 text-xs">
                                         </div>
                                         <div class="col-span-2 sm:col-span-3 flex items-center pt-4">
                                             <label class="inline-flex items-center space-x-2 text-xs cursor-pointer">
@@ -1682,6 +1725,7 @@ Please provide further ordering information.`;
                             </div>
                         </div>
 
+                        <!-- 5. Visibility & Merchandising -->
                         <div class="bg-white border border-[#D8D5CE] p-6 sm:p-8 space-y-6">
                             <h2 class="font-heading text-base font-semibold border-b border-[#D8D5CE]/50 pb-3">5. Visibility & Merchandising</h2>
                             <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -1734,7 +1778,7 @@ Please provide further ordering information.`;
                     <div class="flex flex-wrap gap-1.5">
                         ${(notesArray || []).map((note, idx) => `
                             <span class="inline-flex items-center gap-1.5 bg-[#F5F4F0] border border-[#D8D5CE] px-2.5 py-1 text-xs">
-                                <span>${note}</span>
+                                <span>${escapeHtml(note)}</span>
                                 <button type="button" onclick="removeNoteTag('${fieldKey}', ${idx})" class="text-[#8A8984] hover:text-red-700">&times;</button>
                             </span>
                         `).join('')}
@@ -1745,26 +1789,29 @@ Please provide further ordering information.`;
 
         function syncDraftInputsBeforeRerender() {
             if (!adminState.formDraft) return;
-            const nameEl = document.getElementById('prod-name');
-            const brandEl = document.getElementById('prod-brand');
-            const slugEl = document.getElementById('prod-slug');
-            const concEl = document.getElementById('prod-concentration');
-            const catEl = document.getElementById('prod-category');
-            const descEl = document.getElementById('prod-description');
-            const stockEl = document.getElementById('prod-stock');
-            if (nameEl) adminState.formDraft.name = nameEl.value;
-            if (brandEl) adminState.formDraft.brand = brandEl.value;
-            if (slugEl) adminState.formDraft.slug = slugEl.value;
-            if (concEl) adminState.formDraft.concentration = concEl.value;
-            if (catEl) adminState.formDraft.fragrance_category = catEl.value;
-            if (descEl) adminState.formDraft.description = descEl.value;
-            if (stockEl) adminState.formDraft.stock_status = stockEl.value;
-            const featEl = document.getElementById('prod-featured');
-            const bestEl = document.getElementById('prod-bestseller');
-            const newEl = document.getElementById('prod-newarrival');
-            if (featEl) adminState.formDraft.featured = featEl.checked;
-            if (bestEl) adminState.formDraft.bestseller = bestEl.checked;
-            if (newEl) adminState.formDraft.new_arrival = newEl.checked;
+            const fields = [
+                ['prod-name', 'name'],
+                ['prod-brand', 'brand'],
+                ['prod-slug', 'slug'],
+                ['prod-concentration', 'concentration'],
+                ['prod-category', 'fragrance_category'],
+                ['prod-description', 'description'],
+                ['prod-stock', 'stock_status']
+            ];
+            fields.forEach(([elId, prop]) => {
+                const el = document.getElementById(elId);
+                if (el) adminState.formDraft[prop] = el.value;
+            });
+
+            const checkboxes = [
+                ['prod-featured', 'featured'],
+                ['prod-bestseller', 'bestseller'],
+                ['prod-newarrival', 'new_arrival']
+            ];
+            checkboxes.forEach(([elId, prop]) => {
+                const el = document.getElementById(elId);
+                if (el) adminState.formDraft[prop] = el.checked;
+            });
         }
 
         function handleProductNameInput(val) {
@@ -2039,7 +2086,7 @@ Please provide further ordering information.`;
                     </div>
 
                     <div class="bg-white border border-[#D8D5CE] p-6 flex gap-3">
-                        <input type="text" id="new-taxonomy-input" placeholder="Enter new ${isBrand ? 'brand' : 'category'} name..." class="flex-grow bg-[#F5F4F0] border border-[#D8D5CE] px-4 py-2.5 text-xs focus:outline-none focus:border-[#171717]">
+                        <input type="text" id="new-taxonomy-input" onkeydown="if(event.key==='Enter'){event.preventDefault();addTaxonomyItem('${type}');}" placeholder="Enter new ${isBrand ? 'brand' : 'category'} name..." class="flex-grow bg-[#F5F4F0] border border-[#D8D5CE] px-4 py-2.5 text-xs focus:outline-none focus:border-[#171717]">
                         <button onclick="addTaxonomyItem('${type}')" class="bg-[#171717] text-[#F5F4F0] px-6 py-2.5 text-xs uppercase tracking-widest hover:bg-stone hover:text-[#171717] transition-colors">Add</button>
                     </div>
 
@@ -2049,7 +2096,7 @@ Please provide further ordering information.`;
                             return `
                                 <div class="px-6 py-4 flex items-center justify-between text-xs">
                                     <div>
-                                        <span class="font-medium text-[#171717]">${item}</span>
+                                        <span class="font-medium text-[#171717]">${escapeHtml(item)}</span>
                                         <span class="text-[#8A8984] ml-2">(${count} products)</span>
                                     </div>
                                     <button onclick="removeTaxonomyItem('${type}', ${idx})" class="text-red-700 hover:underline">Remove</button>
@@ -2065,20 +2112,30 @@ Please provide further ordering information.`;
             const input = document.getElementById('new-taxonomy-input');
             const val = input.value.trim();
             if (!val) return;
-            if (type === 'brand') {
-                if (!brandsList.includes(val)) brandsList.push(val);
-                if (supabaseClient) await supabaseClient.from('brands').insert([{ name: val }]);
-            } else {
-                if (!categoriesList.includes(val)) categoriesList.push(val);
-                if (supabaseClient) await supabaseClient.from('categories').insert([{ name: val }]);
+            try {
+                if (type === 'brand') {
+                    if (!brandsList.includes(val)) brandsList.push(val);
+                    if (supabaseClient) await supabaseClient.from('brands').insert([{ name: val }]);
+                } else {
+                    if (!categoriesList.includes(val)) categoriesList.push(val);
+                    if (supabaseClient) await supabaseClient.from('categories').insert([{ name: val }]);
+                }
+                showToast(`Added "${val}".`);
+            } catch (e) {
+                showToast(`Added "${val}" locally.`);
             }
-            showToast(`Added "${val}".`);
             render();
         }
 
-        function removeTaxonomyItem(type, idx) {
-            if (type === 'brand') brandsList.splice(idx, 1);
-            else categoriesList.splice(idx, 1);
+        async function removeTaxonomyItem(type, idx) {
+            const val = type === 'brand' ? brandsList[idx] : categoriesList[idx];
+            if (type === 'brand') {
+                brandsList.splice(idx, 1);
+                if (supabaseClient && val) await supabaseClient.from('brands').delete().eq('name', val);
+            } else {
+                categoriesList.splice(idx, 1);
+                if (supabaseClient && val) await supabaseClient.from('categories').delete().eq('name', val);
+            }
             showToast('Removed item.');
             render();
         }
@@ -2136,7 +2193,7 @@ CREATE POLICY "Admins full access" ON public.products
                         <h2 class="font-heading text-base font-semibold">Storefront Concierge</h2>
                         <div>
                             <label class="block text-xs uppercase tracking-wider text-[#8A8984] mb-1.5">WhatsApp Order Number (International Format)</label>
-                            <input type="text" id="settings-wa-phone" value="${WHATSAPP_PHONE}" class="w-full bg-[#F5F4F0] border border-[#D8D5CE] px-4 py-2.5 text-xs">
+                            <input type="text" id="settings-wa-phone" value="${escapeHtml(WHATSAPP_PHONE)}" class="w-full bg-[#F5F4F0] border border-[#D8D5CE] px-4 py-2.5 text-xs">
                         </div>
                         <button onclick="saveStoreSettings()" class="bg-[#171717] text-[#F5F4F0] px-6 py-2.5 text-xs uppercase tracking-widest">Save Settings</button>
                     </div>
@@ -2146,7 +2203,7 @@ CREATE POLICY "Admins full access" ON public.products
                         <p class="text-xs text-[#8A8984] leading-relaxed">
                             Create a public storage bucket named <code class="bg-[#F5F4F0] px-1.5 py-0.5 text-[#171717]">product-images</code> and run the SQL below in Supabase to enforce Row Level Security:
                         </p>
-                        <pre class="bg-[#171717] text-[#F5F4F0] p-4 text-[11px] overflow-x-auto leading-relaxed">${sqlSchema}</pre>
+                        <pre class="bg-[#171717] text-[#F5F4F0] p-4 text-[11px] overflow-x-auto leading-relaxed">${escapeHtml(sqlSchema)}</pre>
                     </div>
                 </div>
             `;
@@ -2158,26 +2215,21 @@ CREATE POLICY "Admins full access" ON public.products
             showToast('Store settings updated.');
         }
 
+        // =====================================================================
+        // 9. INITIALIZATION & BROWSER HISTORY LISTENER
+        // =====================================================================
+        window.addEventListener('popstate', () => {
+            syncRouteFromPathname();
+            render();
+        });
+
         window.onload = async function() {
             initSupabase();
+            syncRouteFromPathname();
+            render();
+
             await checkAdminSession();
             await fetchAllData();
-
-            try {
-                const path = window.location.pathname;
-                if (path.startsWith('/admin')) {
-                    router('admin');
-                } else if (path.startsWith('/shop/')) {
-                    const slug = path.replace('/shop/', '');
-                    router('product', slug);
-                } else if (path === '/shop') {
-                    router('shop');
-                } else {
-                    render();
-                }
-            } catch (e) {
-                render();
-            }
         };
     </script>
 </body>
