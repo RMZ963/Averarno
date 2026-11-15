@@ -1,0 +1,73 @@
+<!-- Shop Catalog -->
+<url>
+    <loc>https://averarno.vercel.app/shop</loc>
+    <lastmod>2026-03-30</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.9</priority>
+</url>
+
+<!-- About Us -->
+<url>
+    <loc>https://averarno.vercel.app/about</loc>
+    <lastmod>2026-03-30</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+</url>
+
+<!-- Contact & FAQ -->
+<url>
+    <loc>https://averarno.vercel.app/contact</loc>
+    <lastmod>2026-03-30</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+</url>
+
+<!-- Product Detail Pages -->
+<url>
+    <loc>https://averarno.vercel.app/shop/santal-33</loc>
+    <lastmod>2026-03-30</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+</url>
+<url>
+    <loc>https://averarno.vercel.app/shop/baccarat-rouge-540</loc>
+    <lastmod>2026-03-30</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+</url>
+<url>
+    <loc>https://averarno.vercel.app/shop/gypsy-water</loc>
+    <lastmod>2026-03-30</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+</url>
+<url>
+    <loc>https://averarno.vercel.app/shop/lost-cherry</loc>
+    <lastmod>2026-03-30</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+</url>
+<url>
+    <loc>https://averarno.vercel.app/shop/silver-mountain-water</loc>
+    <lastmod>2026-03-30</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+</url>
+<url>
+    <loc>https://averarno.vercel.app/shop/another-13</loc>
+    <lastmod>2026-03-30</lastmod>
+    <changeFreq>weekly</changeFreq>
+    <priority>0.8</priority>
+</url>
+<url>
+    <loc>https://averarno.vercel.app/shop/layton</loc>
+    <lastmod>2026-03-30</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+</url>
+<url>
+    <loc>https://averarno.vercel.app/shop/by-the-fireplace</loc>
+    <lastmod>2026-03-30</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+</url>
