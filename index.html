@@ -17,8 +17,8 @@
     <meta property="og:description" content="Temukan berbagai pilihan parfum original dalam ukuran decant bersama Averarno. Jelajahi koleksi parfum pilihan dengan harga yang lebih terjangkau." />
     <meta property="og:image" content="https://images.unsplash.com/photo-1594035910387-fea47794261f?auto=format&fit=crop&w=1200&q=80" />
 
-    <!-- Favicon (Monogram A) -->
-    <link rel="icon" type="image/png" href="/favicon.png" />
+    <!-- Inline SVG Favicon (Monogram A - Prevents 404 Console Error) -->
+    <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' fill='%23171717'/%3E%3Ctext x='50%25' y='54%25' dominant-baseline='middle' text-anchor='middle' font-family='Georgia,serif' font-size='36' fill='%23F5F4F0'%3EA%3C/text%3E%3C/svg%3E" />
 
     <!-- Dynamic JSON-LD Structured Data (SEO Rich Snippets) -->
     <script id="structured-data" type="application/ld+json"></script>
@@ -230,7 +230,7 @@
     <!-- Application JavaScript Logic -->
     <script>
         // =====================================================================
-        // 1. CONFIGURATION & SUPABASE CLIENT
+        // 1. SUPABASE & STOREFRONT CONFIGURATION
         // =====================================================================
         let SUPABASE_URL = window.ENV_SUPABASE_URL || "https://qnpgoormuxyeydrzzonh.supabase.co";
         let SUPABASE_ANON_KEY = window.ENV_SUPABASE_ANON_KEY || "sb_publishable_zQbvZyKjl8gohz_O52tGhA_3w3tNxCW";
@@ -242,21 +242,24 @@
                 try {
                     supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
                 } catch (e) {
-                    console.error("Supabase initialization error:", e);
+                    console.error("Supabase init error:", e);
                 }
             }
         }
 
         // =====================================================================
-        // 2. APPLICATION STATE
+        // 2. APPLICATION STATE & CACHE CONFIGURATION
         // =====================================================================
+        const CACHE_STORAGE_KEY = 'averarno_catalog_cache_v1';
+
         let products = [];
-        let categoriesList = ["Woody Aromatic", "Amber Floral", "Amber Vanilla", "Citrus Aromatic", "Woody Musk", "Woody Warm"];
-        let brandsList = ["Le Labo", "Maison Francis Kurkdjian", "Byredo", "Tom Ford", "Creed", "Parfums de Marly", "Maison Margiela"];
+        let categoriesList = ["Woody Aromatic", "Amber Floral", "Amber Vanilla", "Citrus Aromatic", "Woody Musk", "Woody Warm", "Fruity Musky"];
+        let brandsList = ["Le Labo", "Maison Francis Kurkdjian", "Byredo", "Tom Ford", "Creed", "Parfums de Marly", "Maison Margiela", "Heaven Scent"];
 
         let currentRoute = 'home';
         let currentParam = null;
         let isLoadingData = true;
+        let currentDetailImages = [];
 
         let shopFilters = {
             search: '',
@@ -280,10 +283,8 @@
             formDraft: null
         };
 
-        let pendingConfirmCallback = null;
-
         // =====================================================================
-        // 3. HELPERS & FORMATTERS
+        // 3. UTILITY HELPERS & CLIENT CACHE (SWR)
         // =====================================================================
         function escapeHtml(str) {
             if (str === null || str === undefined) return '';
@@ -302,39 +303,21 @@
         function formatDate(dateStr) {
             if (!dateStr) return "-";
             const d = new Date(dateStr);
-            return isNaN(d.getTime()) ? "-" : d.toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' });
+            if (isNaN(d.getTime())) return "-";
+            return d.toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' });
         }
 
         function slugify(text) {
-            return text.toString().toLowerCase().trim()
+            return String(text || '').toLowerCase().trim()
                 .replace(/\s+/g, '-')
                 .replace(/[^\w\-]+/g, '')
                 .replace(/\-\-+/g, '-');
         }
 
         function getStartingPrice(product) {
-            const pricesArr = Object.values(product?.prices || {}).map(Number).filter(v => !isNaN(v) && v > 0);
-            return pricesArr.length > 0 ? Math.min(...pricesArr) : 0;
-        }
-
-        function getPublishedProducts() {
-            return products.filter(p => (p.status || 'published') === 'published');
-        }
-
-        function showToast(message) {
-            const toast = document.getElementById('toast');
-            const msgEl = document.getElementById('toast-message');
-            if (!toast || !msgEl) return;
-
-            msgEl.innerText = message;
-            toast.classList.remove('opacity-0', 'translate-y-20');
-            toast.classList.add('opacity-100', 'translate-y-0');
-
-            clearTimeout(window.__toastTimer);
-            window.__toastTimer = setTimeout(() => {
-                toast.classList.remove('opacity-100', 'translate-y-0');
-                toast.classList.add('opacity-0', 'translate-y-20');
-            }, 3500);
+            if (!product || !product.prices || typeof product.prices !== 'object') return 0;
+            const values = Object.values(product.prices).map(Number).filter(v => !isNaN(v) && v > 0);
+            return values.length > 0 ? Math.min(...values) : 0;
         }
 
         function toggleMobileMenu() {
@@ -342,15 +325,31 @@
             if (menu) menu.classList.toggle('hidden');
         }
 
+        let toastTimer = null;
+        function showToast(message) {
+            const toast = document.getElementById('toast');
+            const msgEl = document.getElementById('toast-message');
+            if (!toast || !msgEl) return;
+            msgEl.innerText = message;
+            toast.classList.remove('opacity-0', 'translate-y-20');
+            toast.classList.add('opacity-100', 'translate-y-0');
+            if (toastTimer) clearTimeout(toastTimer);
+            toastTimer = setTimeout(() => {
+                toast.classList.remove('opacity-100', 'translate-y-0');
+                toast.classList.add('opacity-0', 'translate-y-20');
+            }, 3500);
+        }
+
+        let pendingConfirmCallback = null;
         function openConfirmModal(title, message, onConfirm) {
             document.getElementById('confirm-title').innerText = title;
             document.getElementById('confirm-message').innerText = message;
             pendingConfirmCallback = onConfirm;
             document.getElementById('confirm-modal').classList.remove('hidden');
             document.getElementById('confirm-yes-btn').onclick = async () => {
-                const callback = pendingConfirmCallback;
+                const cb = pendingConfirmCallback;
                 closeConfirmModal();
-                if (callback) await callback();
+                if (cb) await cb();
             };
         }
 
@@ -359,94 +358,122 @@
             pendingConfirmCallback = null;
         }
 
+        function loadCatalogFromCache() {
+            try {
+                const raw = localStorage.getItem(CACHE_STORAGE_KEY);
+                if (!raw) return false;
+                const parsed = JSON.parse(raw);
+                if (Array.isArray(parsed.products)) products = parsed.products;
+                if (Array.isArray(parsed.categoriesList) && parsed.categoriesList.length > 0) {
+                    categoriesList = parsed.categoriesList;
+                }
+                if (Array.isArray(parsed.brandsList) && parsed.brandsList.length > 0) {
+                    brandsList = parsed.brandsList;
+                }
+                return true;
+            } catch (e) {
+                return false;
+            }
+        }
+
+        function saveCatalogToCache() {
+            try {
+                localStorage.setItem(CACHE_STORAGE_KEY, JSON.stringify({
+                    products,
+                    categoriesList,
+                    brandsList,
+                    updatedAt: Date.now()
+                }));
+            } catch (e) {
+                // Ignore storage quota errors
+            }
+        }
+
         // =====================================================================
         // 4. SEO & DYNAMIC STRUCTURED DATA (JSON-LD)
         // =====================================================================
-        function updateStructuredData(product = null) {
+        function updateStructuredData() {
             const scriptEl = document.getElementById('structured-data');
             if (!scriptEl) return;
 
-            if (product) {
-                const minPrice = getStartingPrice(product);
-                const schema = {
-                    "@context": "https://schema.org/",
-                    "@type": "Product",
-                    "name": `${product.brand} ${product.name} Decant`,
-                    "image": product.images || [],
-                    "description": product.description || `Decant parfum original ${product.brand} ${product.name}.`,
-                    "brand": {
-                        "@type": "Brand",
-                        "name": product.brand
-                    },
-                    "offers": {
-                        "@type": "Offer",
-                        "url": window.location.href,
-                        "priceCurrency": "IDR",
-                        "price": minPrice,
-                        "availability": product.stock_status === 'Out of Stock'
-                            ? "https://schema.org/OutOfStock"
-                            : "https://schema.org/InStock"
+            try {
+                if (currentRoute === 'product' && currentParam) {
+                    const prod = getPublishedProducts().find(p => p.slug === currentParam);
+                    if (prod) {
+                        const startPrice = getStartingPrice(prod);
+                        scriptEl.textContent = JSON.stringify({
+                            "@context": "https://schema.org/",
+                            "@type": "Product",
+                            "name": `${prod.brand} ${prod.name} Decant`,
+                            "image": prod.images || [],
+                            "description": prod.description || "",
+                            "brand": { "@type": "Brand", "name": prod.brand },
+                            "offers": {
+                                "@type": "Offer",
+                                "priceCurrency": "IDR",
+                                "price": startPrice,
+                                "availability": prod.stock_status === "Out of Stock"
+                                    ? "https://schema.org/OutOfStock"
+                                    : "https://schema.org/InStock"
+                            }
+                        });
+                        return;
                     }
-                };
-                scriptEl.textContent = JSON.stringify(schema);
-            } else {
-                const storeSchema = {
+                }
+
+                scriptEl.textContent = JSON.stringify({
                     "@context": "https://schema.org",
                     "@type": "Store",
-                    "name": "Averarno",
+                    "name": "Averarno — Premium Perfume Decants Indonesia",
                     "url": "https://averarno.vercel.app/",
-                    "description": "Temukan berbagai pilihan parfum original dalam ukuran decant bersama Averarno.",
-                    "sameAs": [
-                        "https://www.instagram.com/aver.arno/"
-                    ]
-                };
-                scriptEl.textContent = JSON.stringify(storeSchema);
+                    "description": "Temukan berbagai pilihan parfum original dalam ukuran decant bersama Averarno."
+                });
+            } catch (e) {
+                // Ignore JSON-LD serialization issues
             }
         }
 
         // =====================================================================
         // 5. DATABASE & AUTHENTICATION SERVICES
         // =====================================================================
-        async function fetchAllData() {
+        async function fetchAllData(silentBackground = false) {
             if (!supabaseClient) {
-                products = [];
                 isLoadingData = false;
                 syncTaxonomyLists();
                 render();
                 return;
             }
 
-            isLoadingData = true;
+            if (!silentBackground) {
+                isLoadingData = true;
+            }
+
+            const prevSnapshot = JSON.stringify({ products, categoriesList, brandsList });
+
             try {
                 const { data: prodData, error: prodError } = await supabaseClient
                     .from('products')
-                    .select('*')
+                    .select('id, slug, name, brand, description, images, top_notes, middle_notes, base_notes, concentration, fragrance_category, sizes, prices, size_availability, stock_status, status, featured, bestseller, new_arrival, created_at, updated_at')
                     .order('created_at', { ascending: false });
 
                 if (prodError) throw prodError;
-                products = prodData || [];
-
-                const { data: catData } = await supabaseClient.from('categories').select('name');
-                if (catData && catData.length > 0) {
-                    categoriesList = [...new Set([...categoriesList, ...catData.map(c => c.name)])];
-                }
-
-                const { data: brandData } = await supabaseClient.from('brands').select('name');
-                if (brandData && brandData.length > 0) {
-                    brandsList = [...new Set([...brandsList, ...brandData.map(b => b.name)])];
-                }
+                products = Array.isArray(prodData) ? prodData : [];
 
                 syncTaxonomyLists();
+                saveCatalogToCache();
             } catch (err) {
                 console.warn("Supabase fetch notice:", err.message);
-                products = [];
             } finally {
                 isLoadingData = false;
-                render();
+                const nextSnapshot = JSON.stringify({ products, categoriesList, brandsList });
+                if (!silentBackground || prevSnapshot !== nextSnapshot) {
+                    render();
+                }
             }
         }
 
         function syncTaxonomyLists() {
+            if (!Array.isArray(products)) return;
             products.forEach(p => {
                 if (p.brand && !brandsList.includes(p.brand)) brandsList.push(p.brand);
                 if (p.fragrance_category && !categoriesList.includes(p.fragrance_category)) categoriesList.push(p.fragrance_category);
@@ -455,22 +482,27 @@
 
         async function checkAdminSession() {
             if (!supabaseClient) return;
-            const { data: { session } } = await supabaseClient.auth.getSession();
-            if (session && session.user) {
-                await verifyAdminAuthorization(session.user);
+            try {
+                const { data: { session } } = await supabaseClient.auth.getSession();
+                if (session && session.user) {
+                    await verifyAdminAuthorization(session.user);
+                }
+            } catch (e) {
+                console.warn("Session check notice:", e.message);
             }
         }
 
         async function verifyAdminAuthorization(user) {
-            if (!supabaseClient) return;
+            if (!supabaseClient || !user) return;
             try {
                 const { data: adminRecord, error } = await supabaseClient
                     .from('admin_users')
                     .select('id, role')
                     .eq('user_id', user.id)
-                    .single();
+                    .maybeSingle();
 
-                if (error && error.code !== 'PGRST116') {
+                if (error) {
+                    console.warn("Admin verification notice:", error.message);
                     adminState.user = user;
                     adminState.isAdminAuthorized = true;
                 } else if (adminRecord) {
@@ -523,7 +555,9 @@
 
         async function handleAdminLogout() {
             if (supabaseClient) {
-                await supabaseClient.auth.signOut();
+                try {
+                    await supabaseClient.auth.signOut();
+                } catch (e) {}
             }
             adminState.user = null;
             adminState.isAdminAuthorized = false;
@@ -533,61 +567,67 @@
         }
 
         // =====================================================================
-        // 6. CLIENT-SIDE ROUTER & NAVIGATION
+        // 6. ROUTER & MAIN RENDER CONTROLLER
         // =====================================================================
         function syncRouteFromPathname() {
-            const path = window.location.pathname;
-            if (path.startsWith('/admin')) {
-                currentRoute = 'admin';
-                currentParam = null;
-            } else if (path.startsWith('/shop/')) {
-                currentRoute = 'product';
-                currentParam = path.replace('/shop/', '');
-            } else if (path === '/shop') {
-                currentRoute = 'shop';
-                currentParam = null;
-            } else if (path === '/about') {
-                currentRoute = 'about';
-                currentParam = null;
-            } else if (path === '/contact') {
-                currentRoute = 'contact';
-                currentParam = null;
-            } else {
+            try {
+                const hash = window.location.hash || '';
+                const path = hash.startsWith('#/') ? hash.slice(1) : window.location.pathname;
+
+                if (path.startsWith('/admin')) {
+                    currentRoute = 'admin';
+                    currentParam = null;
+                } else if (path.startsWith('/shop/')) {
+                    currentRoute = 'product';
+                    currentParam = decodeURIComponent(path.replace('/shop/', ''));
+                } else if (path === '/shop') {
+                    currentRoute = 'shop';
+                    currentParam = null;
+                } else if (path === '/about') {
+                    currentRoute = 'about';
+                    currentParam = null;
+                } else if (path === '/contact') {
+                    currentRoute = 'contact';
+                    currentParam = null;
+                } else {
+                    currentRoute = 'home';
+                    currentParam = null;
+                }
+            } catch (e) {
                 currentRoute = 'home';
                 currentParam = null;
             }
         }
 
-        function router(route, param = null, pushHistory = true) {
+        function router(route, param = null) {
             currentRoute = route;
             currentParam = param;
-
-            if (pushHistory) {
-                try {
-                    if (window.location.protocol.startsWith('http')) {
-                        const routeMap = {
-                            admin: '/admin',
-                            shop: '/shop',
-                            about: '/about',
-                            contact: '/contact',
-                            home: '/',
-                            product: param ? `/shop/${param}` : '/shop'
-                        };
-                        window.history.pushState({}, '', routeMap[route] || '/');
-                    }
-                } catch (e) {}
-            }
-
+            try {
+                if (window.location.protocol.startsWith('http')) {
+                    let targetUrl = '/';
+                    if (route === 'admin') targetUrl = '/admin';
+                    else if (route === 'shop') targetUrl = '/shop';
+                    else if (route === 'about') targetUrl = '/about';
+                    else if (route === 'contact') targetUrl = '/contact';
+                    else if (route === 'product' && param) targetUrl = `/shop/${encodeURIComponent(param)}`;
+                    window.history.pushState({}, '', targetUrl);
+                }
+            } catch (e) {}
             window.scrollTo({ top: 0, behavior: 'smooth' });
             render();
         }
 
         function updateActiveNavLinks() {
             document.querySelectorAll('.nav-link').forEach(link => {
-                const target = link.getAttribute('data-nav');
-                const isActive = target === currentRoute || (target === 'shop' && currentRoute === 'product');
-                link.classList.toggle('border-[#171717]', isActive);
-                link.classList.toggle('border-transparent', !isActive);
+                const navTarget = link.getAttribute('data-nav');
+                const isActive = navTarget === currentRoute || (navTarget === 'shop' && currentRoute === 'product');
+                if (isActive) {
+                    link.classList.remove('border-transparent');
+                    link.classList.add('border-[#171717]');
+                } else {
+                    link.classList.remove('border-[#171717]');
+                    link.classList.add('border-transparent');
+                }
             });
         }
 
@@ -595,8 +635,7 @@
             const app = document.getElementById('app');
             const header = document.getElementById('main-header');
             const footer = document.getElementById('main-footer');
-
-            updateActiveNavLinks();
+            if (!app || !header || !footer) return;
 
             if (currentRoute === 'admin') {
                 if (adminState.isAdminAuthorized) {
@@ -606,169 +645,168 @@
                     header.classList.remove('hidden');
                     footer.classList.remove('hidden');
                 }
-                updateStructuredData(null);
                 app.innerHTML = renderAdminPortal();
             } else {
                 header.classList.remove('hidden');
                 footer.classList.remove('hidden');
-
                 if (currentRoute === 'home') {
-                    updateStructuredData(null);
                     app.innerHTML = renderHome();
                 } else if (currentRoute === 'shop') {
-                    updateStructuredData(null);
                     app.innerHTML = renderShop();
                 } else if (currentRoute === 'product') {
-                    const prod = getPublishedProducts().find(p => p.slug === currentParam);
-                    updateStructuredData(prod || null);
                     app.innerHTML = renderProductDetail(currentParam);
                 } else if (currentRoute === 'about') {
-                    updateStructuredData(null);
                     app.innerHTML = renderAbout();
                 } else if (currentRoute === 'contact') {
-                    updateStructuredData(null);
                     app.innerHTML = renderContact();
+                } else {
+                    app.innerHTML = renderHome();
                 }
             }
 
-            lucide.createIcons();
+            updateActiveNavLinks();
+            updateStructuredData();
+
+            if (window.lucide) {
+                try {
+                    window.lucide.createIcons();
+                } catch (e) {}
+            }
         }
 
         // =====================================================================
-        // 7. PUBLIC STOREFRONT VIEWS
+        // 7. STOREFRONT VIEWS
         // =====================================================================
+        function getPublishedProducts() {
+            if (!Array.isArray(products)) return [];
+            return products.filter(p => (p.status || 'published') === 'published');
+        }
+
         function renderSkeletonGrid(count = 4) {
             return Array.from({ length: count }).map(() => `
                 <div class="bg-[#F5F4F0] border border-[#D8D5CE] p-4 space-y-4 animate-pulse">
                     <div class="aspect-[4/5] bg-stone/40"></div>
-                    <div class="space-y-2">
-                        <div class="h-3 w-1/3 bg-stone/50"></div>
-                        <div class="h-4 w-3/4 bg-stone/60"></div>
-                        <div class="h-3 w-1/2 bg-stone/40"></div>
-                    </div>
+                    <div class="h-3 bg-stone/40 w-1/3"></div>
+                    <div class="h-4 bg-stone/40 w-2/3"></div>
+                    <div class="h-3 bg-stone/40 w-1/2"></div>
                 </div>
             `).join('');
         }
 
-        function renderEmptyCatalogSection(title, subtitle) {
-            return `
-                <div class="col-span-full bg-white border border-[#D8D5CE] py-16 px-6 text-center space-y-3">
-                    <i data-lucide="sparkles" class="w-8 h-8 mx-auto text-[#8A8984]"></i>
-                    <h3 class="font-heading text-lg font-medium text-[#171717]">${title}</h3>
-                    <p class="text-xs text-[#8A8984] max-w-md mx-auto leading-relaxed">${subtitle}</p>
-                </div>
-            `;
-        }
-
         function renderHome() {
             const published = getPublishedProducts();
-            const taggedFeatured = published.filter(p => p.featured);
-            const featuredProducts = (taggedFeatured.length > 0 ? taggedFeatured : published).slice(0, 4);
+            let featuredProducts = published.filter(p => p.featured).slice(0, 4);
+            if (featuredProducts.length === 0) featuredProducts = published.slice(0, 4);
 
-            const taggedBestseller = published.filter(p => p.bestseller);
-            const bestsellerProducts = (taggedBestseller.length > 0 ? taggedBestseller : published).slice(0, 4);
+            let bestsellerProducts = published.filter(p => p.bestseller).slice(0, 4);
+            if (bestsellerProducts.length === 0) bestsellerProducts = published.slice(0, 4);
 
             return `
-                <div class="animate-fade-in">
-                    <!-- Hero Section -->
-                    <section class="relative min-h-[82vh] flex items-center justify-center bg-[#F5F4F0] border-b border-[#D8D5CE] px-6 py-20 overflow-hidden">
-                        <div class="max-w-5xl mx-auto text-center z-10 space-y-8">
-                            <span class="inline-block text-xs uppercase tracking-[0.3em] font-medium text-[#8A8984] border-b border-[#8A8984]/40 pb-1">
-                                Averarno — Premium Perfume Decants Indonesia
-                            </span>
-                            <h1 class="font-heading text-4xl sm:text-6xl md:text-7xl font-light tracking-tight text-[#171717] leading-[1.1]">
-                                Discover Your <br/><span class="font-normal italic">Signature Scent.</span>
-                            </h1>
-                            <p class="max-w-xl mx-auto text-base sm:text-lg text-[#8A8984] font-light leading-relaxed">
-                                Temukan berbagai pilihan parfum original dalam ukuran decant bersama Averarno. Jelajahi koleksi parfum pilihan dengan harga yang lebih terjangkau.
-                            </p>
-                            <div class="pt-4 flex flex-col sm:flex-row items-center justify-center gap-4">
-                                <button onclick="router('shop')" class="w-full sm:w-auto bg-[#171717] text-[#F5F4F0] px-8 py-4 text-xs font-medium uppercase tracking-[0.2em] hover:bg-stone hover:text-[#171717] transition-all">
-                                    Explore Collection
-                                </button>
-                                <button onclick="router('about')" class="w-full sm:w-auto border border-[#171717] text-[#171717] px-8 py-4 text-xs font-medium uppercase tracking-[0.2em] hover:bg-[#171717] hover:text-[#F5F4F0] transition-all">
-                                    Our Philosophy
-                                </button>
-                            </div>
-                        </div>
-                    </section>
-
-                    <!-- Featured Fragrances -->
-                    <section class="max-w-7xl mx-auto px-6 py-24">
-                        <div class="flex flex-col md:flex-row md:items-end justify-between mb-12">
-                            <div>
-                                <span class="text-xs uppercase tracking-[0.2em] text-[#8A8984] font-medium">Curated Selection</span>
-                                <h2 class="font-heading text-3xl sm:text-4xl font-normal mt-2">Featured Fragrances</h2>
-                            </div>
-                            <button onclick="router('shop')" class="mt-4 md:mt-0 text-xs uppercase tracking-[0.2em] font-medium text-[#171717] hover:text-[#8A8984] transition-colors flex items-center space-x-2">
-                                <span>View All Catalog</span>
-                                <i data-lucide="arrow-right" class="w-4 h-4"></i>
+                <section class="relative min-h-[85vh] flex items-center justify-center bg-[#F5F4F0] border-b border-[#D8D5CE] px-6 py-20 overflow-hidden animate-fade-in">
+                    <div class="max-w-5xl mx-auto text-center z-10 space-y-8">
+                        <span class="inline-block text-xs uppercase tracking-[0.3em] font-medium text-[#8A8984] border-b border-[#8A8984]/40 pb-1">
+                            Averarno — Premium Perfume Decants Indonesia
+                        </span>
+                        <h1 class="font-heading text-4xl sm:text-6xl md:text-7xl font-light tracking-tight text-[#171717] leading-[1.1]">
+                            Discover Your <br/><span class="font-normal italic">Signature Scent.</span>
+                        </h1>
+                        <p class="max-w-xl mx-auto text-base sm:text-lg text-[#8A8984] font-light leading-relaxed">
+                            Temukan berbagai pilihan parfum original dalam ukuran decant bersama Averarno. Jelajahi koleksi parfum pilihan dengan harga yang lebih terjangkau.
+                        </p>
+                        <div class="pt-4 flex flex-col sm:flex-row items-center justify-center gap-4">
+                            <button onclick="router('shop')" class="w-full sm:w-auto bg-[#171717] text-[#F5F4F0] px-8 py-4 text-xs font-medium uppercase tracking-[0.2em] hover:bg-stone hover:text-[#171717] transition-all">
+                                Explore Collection
+                            </button>
+                            <button onclick="router('about')" class="w-full sm:w-auto border border-[#171717] text-[#171717] px-8 py-4 text-xs font-medium uppercase tracking-[0.2em] hover:bg-[#171717] hover:text-[#F5F4F0] transition-all">
+                                Our Philosophy
                             </button>
                         </div>
+                    </div>
+                </section>
 
+                <section class="max-w-7xl mx-auto px-6 py-24">
+                    <div class="flex flex-col md:flex-row md:items-end justify-between mb-12">
+                        <div>
+                            <span class="text-xs uppercase tracking-[0.2em] text-[#8A8984] font-medium">Curated Selection</span>
+                            <h2 class="font-heading text-3xl sm:text-4xl font-normal mt-2">Featured Fragrances</h2>
+                        </div>
+                        <button onclick="router('shop')" class="mt-4 md:mt-0 text-xs uppercase tracking-[0.2em] font-medium text-[#171717] hover:text-[#8A8984] transition-colors flex items-center space-x-2">
+                            <span>View All Catalog</span>
+                            <i data-lucide="arrow-right" class="w-4 h-4"></i>
+                        </button>
+                    </div>
+
+                    ${isLoadingData && published.length === 0 ? `
                         <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8">
-                            ${isLoadingData
-                                ? renderSkeletonGrid(4)
-                                : (featuredProducts.length > 0
-                                    ? featuredProducts.map(p => renderProductCard(p)).join('')
-                                    : renderEmptyCatalogSection('Curating New Arrivals', 'Koleksi parfum pilihan sedang disiapkan. Silakan kunjungi kembali dalam waktu dekat.'))}
+                            ${renderSkeletonGrid(4)}
                         </div>
-                    </section>
-
-                    <!-- Editorial Brand Manifesto -->
-                    <section class="bg-[#171717] text-[#F5F4F0] py-28 px-6 my-12">
-                        <div class="max-w-4xl mx-auto text-center space-y-8">
-                            <span class="text-xs uppercase tracking-[0.3em] text-[#8A8984]">The Averarno Standard</span>
-                            <h2 class="font-heading text-3xl sm:text-5xl font-light leading-tight italic">
-                                "Luxury is not just in ownership, but in the freedom of pure sensory exploration."
-                            </h2>
-                            <p class="text-sm sm:text-base text-[#8A8984] max-w-2xl mx-auto leading-relaxed font-light">
-                                Every decant is meticulously hand-decanted in sterilized medical-grade glass atomizers, ensuring immaculate preservation of top, middle, and base notes.
-                            </p>
-                            <div class="pt-4">
-                                <button onclick="router('about')" class="border border-[#F5F4F0] text-[#F5F4F0] px-8 py-3 text-xs font-medium uppercase tracking-[0.2em] hover:bg-[#F5F4F0] hover:text-[#171717] transition-all">
-                                    Read Our Story
-                                </button>
-                            </div>
+                    ` : featuredProducts.length > 0 ? `
+                        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8">
+                            ${featuredProducts.map(p => renderProductCard(p)).join('')}
                         </div>
-                    </section>
+                    ` : `
+                        <div class="bg-white border border-[#D8D5CE] p-12 text-center space-y-3">
+                            <p class="text-xs uppercase tracking-widest text-[#8A8984]">Catalog Coming Soon</p>
+                            <p class="text-sm text-[#171717]">New curated niche decants are currently being prepared.</p>
+                        </div>
+                    `}
+                </section>
 
-                    <!-- Best-Selling Decants -->
-                    <section class="max-w-7xl mx-auto px-6 py-24">
-                        <div class="flex flex-col md:flex-row md:items-end justify-between mb-12">
-                            <div>
-                                <span class="text-xs uppercase tracking-[0.2em] text-[#8A8984] font-medium">Most Coveted</span>
-                                <h2 class="font-heading text-3xl sm:text-4xl font-normal mt-2">Best-Selling Decants</h2>
-                            </div>
-                            <button onclick="router('shop')" class="mt-4 md:mt-0 text-xs uppercase tracking-[0.2em] font-medium text-[#171717] hover:text-[#8A8984] transition-colors flex items-center space-x-2">
-                                <span>Explore All</span>
-                                <i data-lucide="arrow-right" class="w-4 h-4"></i>
+                <section class="bg-[#171717] text-[#F5F4F0] py-28 px-6 my-12">
+                    <div class="max-w-4xl mx-auto text-center space-y-8">
+                        <span class="text-xs uppercase tracking-[0.3em] text-[#8A8984]">The Averarno Standard</span>
+                        <h2 class="font-heading text-3xl sm:text-5xl font-light leading-tight italic">
+                            "Luxury is not just in ownership, but in the freedom of pure sensory exploration."
+                        </h2>
+                        <p class="text-sm sm:text-base text-[#8A8984] max-w-2xl mx-auto leading-relaxed font-light">
+                            Every decant is meticulously hand-decanted in sterilized medical-grade glass atomizers, ensuring immaculate preservation of top, middle, and base notes.
+                        </p>
+                        <div class="pt-4">
+                            <button onclick="router('about')" class="border border-[#F5F4F0] text-[#F5F4F0] px-8 py-3 text-xs font-medium uppercase tracking-[0.2em] hover:bg-[#F5F4F0] hover:text-[#171717] transition-all">
+                                Read Our Story
                             </button>
                         </div>
+                    </div>
+                </section>
 
-                        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8">
-                            ${isLoadingData
-                                ? renderSkeletonGrid(4)
-                                : (bestsellerProducts.length > 0
-                                    ? bestsellerProducts.map(p => renderProductCard(p)).join('')
-                                    : renderEmptyCatalogSection('Collection Coming Soon', 'Belum ada produk yang dipublikasikan ke katalog saat ini.'))}
+                <section class="max-w-7xl mx-auto px-6 py-24">
+                    <div class="flex flex-col md:flex-row md:items-end justify-between mb-12">
+                        <div>
+                            <span class="text-xs uppercase tracking-[0.2em] text-[#8A8984] font-medium">Most Coveted</span>
+                            <h2 class="font-heading text-3xl sm:text-4xl font-normal mt-2">Best-Selling Decants</h2>
                         </div>
-                    </section>
-                </div>
+                        <button onclick="router('shop')" class="mt-4 md:mt-0 text-xs uppercase tracking-[0.2em] font-medium text-[#171717] hover:text-[#8A8984] transition-colors flex items-center space-x-2">
+                            <span>Explore All</span>
+                            <i data-lucide="arrow-right" class="w-4 h-4"></i>
+                        </button>
+                    </div>
+
+                    ${isLoadingData && published.length === 0 ? `
+                        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8">
+                            ${renderSkeletonGrid(4)}
+                        </div>
+                    ` : bestsellerProducts.length > 0 ? `
+                        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8">
+                            ${bestsellerProducts.map(p => renderProductCard(p)).join('')}
+                        </div>
+                    ` : `
+                        <div class="bg-white border border-[#D8D5CE] p-12 text-center">
+                            <p class="text-xs text-[#8A8984]">No best-selling decants available yet.</p>
+                        </div>
+                    `}
+                </section>
             `;
         }
 
         function renderProductCard(p) {
             const startingPrice = getStartingPrice(p);
-            const primaryImage = (p.images && p.images.length > 0)
-                ? p.images[0]
-                : 'https://placehold.co/600x800/D8D5CE/171717?text=Averarno';
+            const primaryImage = (Array.isArray(p.images) && p.images.length > 0) ? p.images[0] : 'https://placehold.co/600x800/D8D5CE/171717?text=Averarno';
             const isOutOfStock = p.stock_status === 'Out of Stock';
 
             return `
                 <article class="group cursor-pointer bg-[#F5F4F0] border border-[#D8D5CE] p-4 flex flex-col justify-between transition-all duration-300 hover:border-[#171717]" onclick="router('product', '${escapeHtml(p.slug)}')">
                     <div class="relative overflow-hidden aspect-[4/5] bg-stone/20 mb-4">
-                        <img src="${escapeHtml(primaryImage)}" alt="${escapeHtml(p.brand)} ${escapeHtml(p.name)} Decant Parfum Original - Averarno" loading="lazy" class="w-full h-full object-cover object-center transition-transform duration-700 group-hover:scale-105 ${isOutOfStock ? 'opacity-60 grayscale' : ''}" onerror="this.src='https://placehold.co/600x800/D8D5CE/171717?text=Averarno'">
+                        <img src="${escapeHtml(primaryImage)}" alt="${escapeHtml(p.brand)} ${escapeHtml(p.name)} Decant Parfum Original - Averarno" loading="lazy" decoding="async" class="w-full h-full object-cover object-center transition-transform duration-700 group-hover:scale-105 ${isOutOfStock ? 'opacity-60 grayscale' : ''}" onerror="this.src='https://placehold.co/600x800/D8D5CE/171717?text=Averarno'">
                         <div class="absolute top-3 left-3 flex flex-col gap-1.5">
                             ${isOutOfStock ? '<span class="bg-red-900 text-[#F5F4F0] text-[10px] uppercase tracking-widest px-2.5 py-1">Out of Stock</span>' : ''}
                             ${!isOutOfStock && p.bestseller ? '<span class="bg-[#171717] text-[#F5F4F0] text-[10px] uppercase tracking-widest px-2.5 py-1">Best Seller</span>' : ''}
@@ -805,7 +843,7 @@
             });
 
             if (shopFilters.sort === 'newest') {
-                filtered.sort((a, b) => new Date(b.created_at) - new Date(a.created_at));
+                filtered.sort((a, b) => new Date(b.created_at || 0) - new Date(a.created_at || 0));
             } else if (shopFilters.sort === 'price-low') {
                 filtered.sort((a, b) => getStartingPrice(a) - getStartingPrice(b));
             } else if (shopFilters.sort === 'price-high') {
@@ -819,7 +857,6 @@
                         <p class="text-sm text-[#8A8984] mt-2">Explore our curated selection of authentic niche and luxury fragrance decants.</p>
                     </div>
 
-                    <!-- Filter & Search Bar -->
                     <div class="bg-white border border-[#D8D5CE] p-6 mb-10 space-y-6">
                         <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
                             <div class="relative">
@@ -852,26 +889,22 @@
                         </div>
                     </div>
 
-                    ${isLoadingData ? `
+                    ${isLoadingData && published.length === 0 ? `
                         <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6 sm:gap-8">
                             ${renderSkeletonGrid(8)}
                         </div>
-                    ` : (filtered.length > 0 ? `
+                    ` : filtered.length > 0 ? `
                         <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6 sm:gap-8">
                             ${filtered.map(p => renderProductCard(p)).join('')}
                         </div>
                     ` : `
-                        <div class="text-center py-24 bg-white border border-[#D8D5CE] px-6">
+                        <div class="text-center py-24 bg-white border border-[#D8D5CE]">
                             <i data-lucide="sparkles" class="w-10 h-10 mx-auto text-[#8A8984] mb-4"></i>
                             <h3 class="font-heading text-xl font-medium">No Fragrances Found</h3>
-                            <p class="text-xs text-[#8A8984] mt-2 mb-6">
-                                ${published.length === 0
-                                    ? 'Katalog parfum sedang diperbarui. Silakan kembali beberapa saat lagi.'
-                                    : 'Try adjusting your search criteria or filters.'}
-                            </p>
-                            ${published.length > 0 ? `<button onclick="resetFilters()" class="bg-[#171717] text-[#F5F4F0] px-6 py-3 text-xs uppercase tracking-widest">Reset Filters</button>` : ''}
+                            <p class="text-xs text-[#8A8984] mt-2 mb-6">Try adjusting your search criteria or filters.</p>
+                            <button onclick="resetFilters()" class="bg-[#171717] text-[#F5F4F0] px-6 py-3 text-xs uppercase tracking-widest">Reset Filters</button>
                         </div>
-                    `)}
+                    `}
                 </div>
             `;
         }
@@ -893,22 +926,14 @@
             render();
         }
 
-        function renderProductDetail(slug) {
-            if (isLoadingData) {
-                return `
-                    <div class="max-w-7xl mx-auto px-6 py-16">
-                        <div class="grid grid-cols-1 lg:grid-cols-2 gap-12 animate-pulse">
-                            <div class="aspect-[4/5] bg-stone/40"></div>
-                            <div class="space-y-6">
-                                <div class="h-4 w-1/4 bg-stone/50"></div>
-                                <div class="h-10 w-3/4 bg-stone/60"></div>
-                                <div class="h-24 w-full bg-stone/40"></div>
-                            </div>
-                        </div>
-                    </div>
-                `;
+        function setMainProductImage(idx) {
+            const imgEl = document.getElementById('main-product-image');
+            if (imgEl && currentDetailImages[idx]) {
+                imgEl.src = currentDetailImages[idx];
             }
+        }
 
+        function renderProductDetail(slug) {
             const published = getPublishedProducts();
             const product = published.find(p => p.slug === slug);
 
@@ -923,38 +948,39 @@
                 `;
             }
 
-            const availableSizes = product.sizes || ["2 ml", "5 ml", "10 ml"];
+            const availableSizes = (Array.isArray(product.sizes) && product.sizes.length > 0) ? product.sizes : ["2 ml", "5 ml", "10 ml"];
             if (!availableSizes.includes(selectedProductSize)) {
                 selectedProductSize = availableSizes[0];
             }
-            const currentPrice = product.prices?.[selectedProductSize] || Object.values(product.prices || {})[0] || 0;
-            const images = (product.images && product.images.length > 0)
+            const pricesObj = product.prices || {};
+            const currentPrice = pricesObj[selectedProductSize] || Object.values(pricesObj)[0] || 0;
+            const images = (Array.isArray(product.images) && product.images.length > 0)
                 ? product.images
                 : ['https://placehold.co/800x1000/D8D5CE/171717?text=Averarno'];
+            currentDetailImages = images;
             const isOutOfStock = product.stock_status === 'Out of Stock';
 
             return `
                 <div class="max-w-7xl mx-auto px-6 py-12 animate-fade-in">
-                    <!-- Breadcrumb -->
-                    <nav aria-label="Breadcrumb" class="flex items-center space-x-2 text-xs text-[#8A8984] mb-8">
+                    <div class="flex items-center space-x-2 text-xs text-[#8A8984] mb-8">
                         <a href="#" onclick="router('home'); return false;" class="hover:text-[#171717]">Home</a>
                         <span>/</span>
                         <a href="#" onclick="router('shop'); return false;" class="hover:text-[#171717]">Shop</a>
                         <span>/</span>
                         <span class="text-[#171717] font-medium">${escapeHtml(product.name)}</span>
-                    </nav>
+                    </div>
 
                     <div class="grid grid-cols-1 lg:grid-cols-2 gap-12 lg:gap-16 items-start">
                         <!-- Image Gallery -->
                         <div class="space-y-4">
                             <div class="bg-white border border-[#D8D5CE] overflow-hidden aspect-[4/5]">
-                                <img id="main-product-image" src="${escapeHtml(images[0])}" alt="${escapeHtml(product.brand)} ${escapeHtml(product.name)} Decant Parfum Original - Averarno" class="w-full h-full object-cover object-center" onerror="this.src='https://placehold.co/800x1000/D8D5CE/171717?text=Averarno'">
+                                <img id="main-product-image" src="${escapeHtml(images[0])}" alt="${escapeHtml(product.brand)} ${escapeHtml(product.name)} Decant Parfum Original - Averarno" fetchpriority="high" decoding="async" class="w-full h-full object-cover object-center" onerror="this.src='https://placehold.co/800x1000/D8D5CE/171717?text=Averarno'">
                             </div>
                             ${images.length > 1 ? `
                                 <div class="grid grid-cols-4 gap-4">
                                     ${images.map((img, idx) => `
-                                        <div onclick="document.getElementById('main-product-image').src='${escapeHtml(img)}'" class="cursor-pointer bg-white border border-[#D8D5CE] aspect-[4/5] overflow-hidden opacity-80 hover:opacity-100 hover:border-[#171717] transition-all">
-                                            <img src="${escapeHtml(img)}" alt="${escapeHtml(product.brand)} ${escapeHtml(product.name)} view ${idx + 1}" class="w-full h-full object-cover object-center" onerror="this.src='https://placehold.co/400x500/D8D5CE/171717?text=View'">
+                                        <div onclick="setMainProductImage(${idx})" class="cursor-pointer bg-white border border-[#D8D5CE] aspect-[4/5] overflow-hidden opacity-80 hover:opacity-100 hover:border-[#171717] transition-all">
+                                            <img src="${escapeHtml(img)}" alt="${escapeHtml(product.brand)} ${escapeHtml(product.name)} view ${idx + 1}" loading="lazy" decoding="async" class="w-full h-full object-cover object-center" onerror="this.src='https://placehold.co/400x500/D8D5CE/171717?text=View'">
                                         </div>
                                     `).join('')}
                                 </div>
@@ -1000,11 +1026,11 @@
                                     <span class="text-[#8A8984]">Sterilized Glass Atomizer</span>
                                 </div>
                                 <div class="grid grid-cols-3 gap-4">
-                                    ${availableSizes.map(size => {
+                                    ${availableSizes.map((size, sIdx) => {
                                         const isSizeAvail = product.size_availability?.[size] !== false && !isOutOfStock;
-                                        const priceVal = product.prices?.[size] || 0;
+                                        const priceVal = pricesObj[size] || 0;
                                         return `
-                                            <button ${!isSizeAvail ? 'disabled' : ''} onclick="selectSize('${escapeHtml(size)}', ${priceVal})" id="size-btn-${size.replace(/\s+/g, '')}" class="size-btn border p-4 text-center transition-all ${!isSizeAvail ? 'opacity-40 cursor-not-allowed bg-stone/20 border-[#D8D5CE]' : (selectedProductSize === size ? 'border-[#171717] bg-[#171717] text-[#F5F4F0]' : 'border-[#D8D5CE] bg-white text-[#171717] hover:border-[#171717]')}">
+                                            <button ${!isSizeAvail ? 'disabled' : ''} data-size="${escapeHtml(size)}" onclick="selectSizeByIndex(${sIdx}, ${priceVal})" id="size-btn-${sIdx}" class="size-btn border p-4 text-center transition-all ${!isSizeAvail ? 'opacity-40 cursor-not-allowed bg-stone/20 border-[#D8D5CE]' : (selectedProductSize === size ? 'border-[#171717] bg-[#171717] text-[#F5F4F0]' : 'border-[#D8D5CE] bg-white text-[#171717] hover:border-[#171717]')}">
                                                 <div class="font-heading font-semibold text-sm">${escapeHtml(size)}</div>
                                                 <div class="text-xs mt-1 opacity-90">${formatIDR(priceVal)}</div>
                                                 ${!isSizeAvail ? '<div class="text-[10px] uppercase tracking-wider text-red-700 mt-1">Sold Out</div>' : ''}
@@ -1032,17 +1058,18 @@
             `;
         }
 
-        function selectSize(size, price) {
-            selectedProductSize = size;
+        function selectSizeByIndex(idx, price) {
+            const activeBtn = document.getElementById(`size-btn-${idx}`);
+            if (!activeBtn) return;
+            selectedProductSize = activeBtn.getAttribute('data-size') || selectedProductSize;
+
             document.querySelectorAll('.size-btn:not([disabled])').forEach(btn => {
                 btn.classList.remove('border-[#171717]', 'bg-[#171717]', 'text-[#F5F4F0]');
                 btn.classList.add('border-[#D8D5CE]', 'bg-white', 'text-[#171717]');
             });
-            const activeBtn = document.getElementById(`size-btn-${size.replace(/\s+/g, '')}`);
-            if (activeBtn) {
-                activeBtn.classList.remove('border-[#D8D5CE]', 'bg-white', 'text-[#171717]');
-                activeBtn.classList.add('border-[#171717]', 'bg-[#171717]', 'text-[#F5F4F0]');
-            }
+            activeBtn.classList.remove('border-[#D8D5CE]', 'bg-white', 'text-[#171717]');
+            activeBtn.classList.add('border-[#171717]', 'bg-[#171717]', 'text-[#F5F4F0]');
+
             const priceEl = document.getElementById('dynamic-price');
             if (priceEl) priceEl.innerText = formatIDR(price);
         }
@@ -1089,7 +1116,7 @@ Please provide further ordering information.`;
                             </p>
                         </div>
                         <div class="bg-white border border-[#D8D5CE] aspect-[4/3] overflow-hidden">
-                            <img src="https://images.unsplash.com/photo-1592945403244-b3fbafd7f539?auto=format&fit=crop&w=1000&q=80" alt="Averarno Fragrance Decant Philosophy" class="w-full h-full object-cover">
+                            <img src="https://images.unsplash.com/photo-1592945403244-b3fbafd7f539?auto=format&fit=crop&w=1000&q=80" alt="Averarno Fragrance Decant Philosophy" loading="lazy" decoding="async" class="w-full h-full object-cover">
                         </div>
                     </div>
                     <div class="grid grid-cols-1 md:grid-cols-3 gap-8 pt-10 border-t border-[#D8D5CE]">
@@ -1367,7 +1394,7 @@ Please provide further ordering information.`;
             const publishedCount = products.filter(p => (p.status || 'published') === 'published').length;
             const draftCount = products.filter(p => p.status === 'draft').length;
             const outOfStockCount = products.filter(p => p.stock_status === 'Out of Stock').length;
-            const recentProducts = [...products].sort((a, b) => new Date(b.created_at) - new Date(a.created_at)).slice(0, 5);
+            const recentProducts = [...products].sort((a, b) => new Date(b.created_at || 0) - new Date(a.created_at || 0)).slice(0, 5);
 
             return `
                 <div class="space-y-10">
@@ -1420,7 +1447,7 @@ Please provide further ordering information.`;
                                     return `
                                         <div class="px-6 py-4 flex items-center justify-between gap-4 hover:bg-[#F5F4F0]/50">
                                             <div class="flex items-center gap-4 min-w-0">
-                                                <img src="${escapeHtml(p.images?.[0] || 'https://placehold.co/100x100/D8D5CE/171717?text=A')}" class="w-12 h-12 object-cover border border-[#D8D5CE] shrink-0">
+                                                <img src="${escapeHtml(p.images?.[0] || 'https://placehold.co/100x100/D8D5CE/171717?text=A')}" loading="lazy" decoding="async" class="w-12 h-12 object-cover border border-[#D8D5CE] shrink-0">
                                                 <div class="min-w-0">
                                                     <div class="font-medium text-sm truncate">${escapeHtml(p.name)}</div>
                                                     <div class="text-xs text-[#8A8984]">${escapeHtml(p.brand)} • From ${formatIDR(minPrice)}</div>
@@ -1517,7 +1544,7 @@ Please provide further ordering information.`;
                                         <tr class="hover:bg-[#F5F4F0]/40 transition-colors">
                                             <td class="py-3.5 px-4">
                                                 <div class="flex items-center gap-3">
-                                                    <img src="${escapeHtml(p.images?.[0] || 'https://placehold.co/80x80/D8D5CE/171717?text=A')}" class="w-10 h-12 object-cover border border-[#D8D5CE] shrink-0">
+                                                    <img src="${escapeHtml(p.images?.[0] || 'https://placehold.co/80x80/D8D5CE/171717?text=A')}" loading="lazy" decoding="async" class="w-10 h-12 object-cover border border-[#D8D5CE] shrink-0">
                                                     <div>
                                                         <div class="font-semibold text-[#171717]">${escapeHtml(p.name)}</div>
                                                         <div class="text-[11px] text-[#8A8984]">${escapeHtml(p.concentration)}</div>
@@ -1545,7 +1572,7 @@ Please provide further ordering information.`;
                                                     <button onclick="duplicateProduct('${escapeHtml(p.id)}')" class="p-2 text-[#8A8984] hover:text-[#171717] hover:bg-stone/40 transition-colors" title="Duplicate Product">
                                                         <i data-lucide="copy" class="w-4 h-4"></i>
                                                     </button>
-                                                    <button onclick="confirmDeleteProduct('${escapeHtml(p.id)}', '${escapeHtml(p.name).replace(/'/g, "\\'")}')" class="p-2 text-red-700 hover:bg-red-50 transition-colors" title="Delete Product">
+                                                    <button onclick="confirmDeleteProduct('${escapeHtml(p.id)}')" class="p-2 text-red-700 hover:bg-red-50 transition-colors" title="Delete Product">
                                                         <i data-lucide="trash-2" class="w-4 h-4"></i>
                                                     </button>
                                                 </div>
@@ -1666,7 +1693,7 @@ Please provide further ordering information.`;
                                 <div class="grid grid-cols-2 sm:grid-cols-4 gap-4 pt-2">
                                     ${f.images.map((img, idx) => `
                                         <div class="relative border ${idx === 0 ? 'border-[#171717] ring-1 ring-[#171717]' : 'border-[#D8D5CE]'} bg-[#F5F4F0] aspect-[4/5] group overflow-hidden">
-                                            <img src="${escapeHtml(img)}" class="w-full h-full object-cover">
+                                            <img src="${escapeHtml(img)}" loading="lazy" decoding="async" class="w-full h-full object-cover">
                                             ${idx === 0 ? '<span class="absolute top-2 left-2 bg-[#171717] text-[#F5F4F0] text-[9px] uppercase tracking-widest px-2 py-0.5">Primary</span>' : ''}
                                             <div class="absolute inset-x-0 bottom-0 bg-[#171717]/85 p-2 flex justify-between items-center opacity-0 group-hover:opacity-100 transition-opacity">
                                                 ${idx !== 0 ? `<button type="button" onclick="setPrimaryImage(${idx})" class="text-[10px] text-[#F5F4F0] underline">Set Primary</button>` : '<span></span>'}
@@ -1824,6 +1851,7 @@ Please provide further ordering information.`;
         function addNoteTag(fieldKey) {
             syncDraftInputsBeforeRerender();
             const input = document.getElementById(`input-${fieldKey}`);
+            if (!input) return;
             const val = input.value.trim();
             if (!val) return;
             if (!adminState.formDraft[fieldKey]) adminState.formDraft[fieldKey] = [];
@@ -1859,7 +1887,7 @@ Please provide further ordering information.`;
 
         async function handleSupabaseImageUpload(event) {
             syncDraftInputsBeforeRerender();
-            const files = Array.from(event.target.files);
+            const files = Array.from(event.target.files || []);
             if (!files.length) return;
 
             if (!supabaseClient) {
@@ -1895,6 +1923,7 @@ Please provide further ordering information.`;
         function addManualImageUrl() {
             syncDraftInputsBeforeRerender();
             const urlInput = document.getElementById('manual-image-url');
+            if (!urlInput) return;
             const url = urlInput.value.trim();
             if (!url) return;
             adminState.formDraft.images.push(url);
@@ -1988,6 +2017,7 @@ Please provide further ordering information.`;
                     syncTaxonomyLists();
                 }
 
+                saveCatalogToCache();
                 showToast(targetStatus === 'published' ? 'Product published to live catalog.' : 'Product saved as draft.');
                 setAdminRoute('products');
             } catch (err) {
@@ -1998,34 +2028,44 @@ Please provide further ordering information.`;
             }
         }
 
+        // Optimistic UI: Status publikasi langsung berubah di layar sebelum server selesai merespons
         async function togglePublishStatus(productId) {
             const target = products.find(p => String(p.id) === String(productId));
             if (!target) return;
-            const nextStatus = (target.status || 'published') === 'published' ? 'draft' : 'published';
 
-            try {
-                if (supabaseClient) {
+            const prevStatus = target.status || 'published';
+            const prevUpdatedAt = target.updated_at;
+            const nextStatus = prevStatus === 'published' ? 'draft' : 'published';
+
+            target.status = nextStatus;
+            target.updated_at = new Date().toISOString();
+            saveCatalogToCache();
+            showToast(`Product status updated to ${nextStatus.toUpperCase()}.`);
+            render();
+
+            if (supabaseClient && !String(productId).startsWith('temp-')) {
+                try {
                     const { error } = await supabaseClient
                         .from('products')
-                        .update({ status: nextStatus, updated_at: new Date().toISOString() })
+                        .update({ status: nextStatus, updated_at: target.updated_at })
                         .eq('id', productId);
                     if (error) throw error;
-                    await fetchAllData();
-                } else {
-                    target.status = nextStatus;
-                    target.updated_at = new Date().toISOString();
+                } catch (err) {
+                    target.status = prevStatus;
+                    target.updated_at = prevUpdatedAt;
+                    saveCatalogToCache();
+                    render();
+                    showToast(`Sync failed, reverted: ${err.message}`);
                 }
-                showToast(`Product status updated to ${nextStatus.toUpperCase()}.`);
-                render();
-            } catch (err) {
-                showToast(`Update failed: ${err.message}`);
             }
         }
 
+        // Optimistic UI: Duplikat langsung tampil di daftar sebelum insert database selesai
         async function duplicateProduct(productId) {
             const source = products.find(p => String(p.id) === String(productId));
             if (!source) return;
 
+            const tempId = `temp-${Date.now()}`;
             const copyPayload = {
                 ...JSON.parse(JSON.stringify(source)),
                 name: `${source.name} (Copy)`,
@@ -2036,38 +2076,61 @@ Please provide further ordering information.`;
             };
             delete copyPayload.id;
 
-            try {
-                if (supabaseClient) {
-                    const { error } = await supabaseClient.from('products').insert([copyPayload]);
+            products.unshift({ id: tempId, ...copyPayload });
+            saveCatalogToCache();
+            showToast('Product duplicated as draft.');
+            render();
+
+            if (supabaseClient) {
+                try {
+                    const { data, error } = await supabaseClient
+                        .from('products')
+                        .insert([copyPayload])
+                        .select()
+                        .single();
                     if (error) throw error;
-                    await fetchAllData();
-                } else {
-                    products.unshift({ id: String(Date.now()), ...copyPayload });
+
+                    const tempIdx = products.findIndex(p => p.id === tempId);
+                    if (tempIdx !== -1 && data) {
+                        products[tempIdx] = data;
+                        saveCatalogToCache();
+                        render();
+                    }
+                } catch (err) {
+                    products = products.filter(p => p.id !== tempId);
+                    saveCatalogToCache();
+                    render();
+                    showToast(`Duplicate failed: ${err.message}`);
                 }
-                showToast('Product duplicated as draft.');
-                render();
-            } catch (err) {
-                showToast(`Duplicate failed: ${err.message}`);
             }
         }
 
-        function confirmDeleteProduct(productId, productName) {
+        // Optimistic UI: Baris produk langsung menghilang saat dikonfirmasi
+        function confirmDeleteProduct(productId) {
+            const target = products.find(p => String(p.id) === String(productId));
+            const productName = target ? target.name : 'this fragrance';
+
             openConfirmModal(
                 'Delete Fragrance',
                 `Are you sure you want to permanently delete "${productName}"? This action cannot be undone.`,
                 async () => {
-                    try {
-                        if (supabaseClient) {
+                    const prevProducts = [...products];
+
+                    products = products.filter(p => String(p.id) !== String(productId));
+                    saveCatalogToCache();
+                    showToast('Product deleted permanently.');
+                    render();
+
+                    if (supabaseClient && !String(productId).startsWith('temp-')) {
+                        try {
                             const { error } = await supabaseClient.from('products').delete().eq('id', productId);
                             if (error) throw error;
-                            await fetchAllData();
-                        } else {
-                            products = products.filter(p => String(p.id) !== String(productId));
+                        } catch (err) {
+                            products = prevProducts;
+                            saveCatalogToCache();
+                            render();
+                            showToast(`Delete failed, restored: ${err.message}`);
                         }
-                        showToast('Product deleted permanently.');
-                        render();
-                    } catch (err) {
-                        showToast(`Delete failed: ${err.message}`);
                     }
                 }
             );
@@ -2108,34 +2171,28 @@ Please provide further ordering information.`;
             `;
         }
 
-        async function addTaxonomyItem(type) {
+        function addTaxonomyItem(type) {
             const input = document.getElementById('new-taxonomy-input');
+            if (!input) return;
             const val = input.value.trim();
             if (!val) return;
-            try {
-                if (type === 'brand') {
-                    if (!brandsList.includes(val)) brandsList.push(val);
-                    if (supabaseClient) await supabaseClient.from('brands').insert([{ name: val }]);
-                } else {
-                    if (!categoriesList.includes(val)) categoriesList.push(val);
-                    if (supabaseClient) await supabaseClient.from('categories').insert([{ name: val }]);
-                }
-                showToast(`Added "${val}".`);
-            } catch (e) {
-                showToast(`Added "${val}" locally.`);
+            if (type === 'brand') {
+                if (!brandsList.includes(val)) brandsList.push(val);
+            } else {
+                if (!categoriesList.includes(val)) categoriesList.push(val);
             }
+            saveCatalogToCache();
+            showToast(`Added "${val}".`);
             render();
         }
 
-        async function removeTaxonomyItem(type, idx) {
-            const val = type === 'brand' ? brandsList[idx] : categoriesList[idx];
+        function removeTaxonomyItem(type, idx) {
             if (type === 'brand') {
                 brandsList.splice(idx, 1);
-                if (supabaseClient && val) await supabaseClient.from('brands').delete().eq('name', val);
             } else {
                 categoriesList.splice(idx, 1);
-                if (supabaseClient && val) await supabaseClient.from('categories').delete().eq('name', val);
             }
+            saveCatalogToCache();
             showToast('Removed item.');
             render();
         }
@@ -2210,7 +2267,9 @@ CREATE POLICY "Admins full access" ON public.products
         }
 
         function saveStoreSettings() {
-            const wa = document.getElementById('settings-wa-phone').value.trim().replace(/\+/g, '');
+            const input = document.getElementById('settings-wa-phone');
+            if (!input) return;
+            const wa = input.value.trim().replace(/\+/g, '');
             if (wa) WHATSAPP_PHONE = wa;
             showToast('Store settings updated.');
         }
@@ -2223,13 +2282,25 @@ CREATE POLICY "Admins full access" ON public.products
             render();
         });
 
+        window.addEventListener('hashchange', () => {
+            syncRouteFromPathname();
+            render();
+        });
+
         window.onload = async function() {
             initSupabase();
+
+            // Muat cache lokal agar katalog tampil instan (0ms) sambil menyegarkan data di latar belakang
+            const hasCachedData = loadCatalogFromCache();
+            if (hasCachedData) {
+                isLoadingData = false;
+            }
+
             syncRouteFromPathname();
             render();
 
             await checkAdminSession();
-            await fetchAllData();
+            await fetchAllData(hasCachedData);
         };
     </script>
 </body>
